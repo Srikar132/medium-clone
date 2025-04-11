@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { ThemeProvider } from "next-themes";
 import { redirect } from "next/navigation";
 import React from "react";
 
@@ -14,12 +15,13 @@ export default async function RootLayout({
     if(!session) redirect("/");
 
     return (
-      <>
-        <Navbar/>
-        <main className="min-h-screen text-black">
-          {children}
-        </main>
-        <Footer/>
-      </>
+      <div className="py-3 px-4">
+          <ThemeProvider  attribute="class" defaultTheme="system" enableSystem>
+            <Navbar/>
+            <main className="min-h-screen">
+              {children}
+            </main>
+          </ThemeProvider>
+      </div>
     )
   };

@@ -1,5 +1,13 @@
 import { type SchemaTypeDefinition } from 'sanity'
+import { author } from './author'
+import { blockContent } from './blockContent'
+import { post } from './post'
+import { category } from './category'
+import { bookMark } from './bookMark'
+import { follow } from './follow'
+import { like } from './clap'
+import { comment } from './comment'
 
 export const schema: { types: SchemaTypeDefinition[] } = {
-  types: [],
+  types: [author,blockContent,post,category,bookMark,follow,like,comment],
 }

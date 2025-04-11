@@ -1,5 +1,5 @@
 const BackgroundFilter = () => (
-    <div className="-z-10 !mb-0 fixed inset-0 lg:rounded-4xl">
+    <div className="-z-10 !mb-0  fixed inset-0 lg:rounded-4xl">
       {/* Top-left pink ball */}
       <div className="absolute top-0 left-0 w-1/2 h-1/2 bg-custom-purple rounded-br-full mix-blend-screen filter blur-[100px] opacity-40" />
 

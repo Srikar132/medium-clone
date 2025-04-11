@@ -1,6 +1,6 @@
 import gsap from "gsap";
 
-// utils/assets.js or any shared config file
+
 export const highlightFirstmv = "/videos/highlight-first.mp4";
 export const highlightSectmv = "/videos/hightlight-third.mp4";
 export const highlightThirdmv = "/videos/hightlight-sec.mp4";
@@ -24,4 +24,17 @@ export const animateGSAP = (target : string , animationProps : any , scrollProps
 }
 
 
+export function formatDate(dateInput: string | Date): string {
+    const date = new Date(dateInput);
+  
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  
+    const day = date.getDate(); // 1 - 31
+    const month = months[date.getMonth()]; // 0 - 11
+    const year = date.getFullYear(); // 4-digit year
+  
+    return `${month} ${day}, ${year}`;
+  }
+  
 

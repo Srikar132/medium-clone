@@ -1,4 +1,11 @@
-import {highlightFirstmv,highlightFourthmv,highlightSectmv,highlightThirdmv} from "@/utils"
+import {highlightFirstmv,highlightFourthmv,highlightSectmv,highlightThirdmv} from "@/utils";
+
+
+
+import { FaBook, FaUser } from 'react-icons/fa';
+import { FaBookmark, FaUserPlus } from 'react-icons/fa6';
+import { BiLogOut } from 'react-icons/bi';
+import { GrLike } from 'react-icons/gr';
 
 export const navigation  = [
     { name: "Hero", href: "#hero"  , onlyMobile : false},
@@ -146,7 +153,7 @@ export const OrangeDiamond = ({ className = "", width = 50, height = 50 }) => {
   
 export const hightlightsSlides = [
   {
-    id: 1,
+    id: "1",
     textLists: [
       "Productivity & Mindfulness",
       "Tips to stay focused in a distracted world.",
@@ -156,7 +163,7 @@ export const hightlightsSlides = [
     videoDuration: 4,
   },
   {
-    id: 2,
+    id: "2",
     textLists: [
       "Tech & AI Revolution",
       "From GPT to AGI—what's next?",
@@ -166,7 +173,7 @@ export const hightlightsSlides = [
     videoDuration: 5,
   },
   {
-    id: 3,
+    id: "3",
     textLists: [
       "Startups & Entrepreneurship",
       "Lessons from founders who failed—and those who didn’t.",
@@ -176,7 +183,7 @@ export const hightlightsSlides = [
     videoDuration: 2,
   },
   {
-    id: 4,
+    id: "4",
     textLists: [
       "Self-Discovery & Growth",
       "Deep reflections from real people.",
@@ -195,3 +202,31 @@ export const navItems = [
   {title : "bookmarks" , url : "/bookmarks"},
   {title : "b" , url : "/bookmarks"},
 ]
+
+export const menuItems = [
+  { title: 'My Articles', url: '/my-articles', Icon: FaBook },
+  { title: 'Following', url: '/following', Icon: FaUserPlus },
+  { title: 'Liked', url: '/liked', Icon: GrLike },
+  { title: 'Bookmarks', url: '/bookmarks', Icon: FaBookmark },
+  { title: 'Logout', url: '/logout', Icon: BiLogOut },
+];
+
+export const blogCategories = [
+  "Web Development",
+  "Mobile App Development",
+  "AI & Machine Learning",
+  "Programming Tutorials",
+  "Cybersecurity",
+  "Dev Tools & Productivity",
+  "Health & Wellness",
+  "Personal Growth",
+  "Productivity Hacks",
+  "Mindfulness & Meditation",
+  "Minimalism",
+  "Work-Life Balance",
+  "UI/UX Design",
+  "Graphic Design",
+  "Typography",
+  "Inspiration & Moodboards",
+  "Creative Process",
+];

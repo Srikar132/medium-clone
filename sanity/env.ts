@@ -1,6 +1,8 @@
 export const apiVersion =
   process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2025-04-05'
 
+export const token = process.env.SANITY_WRITE_TOKEN;
+
 export const dataset = assertValue(
   process.env.NEXT_PUBLIC_SANITY_DATASET,
   'Missing environment variable: NEXT_PUBLIC_SANITY_DATASET'

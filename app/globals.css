@@ -1,11 +1,10 @@
+@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Cedarville+Cursive&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
-@import "tailwindcss";
 
-:root {
-  /* --background: #111322; */
-  --foreground: #fff;
-}
+@custom-variant dark (&:where(.dark, .dark *));
+
+
 
 @theme {
   --color-custom-pink : #FEC7E7;
@@ -21,25 +20,24 @@
 * {
   font-family: "Roboto", sans-serif;
   font-optical-sizing: auto;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* Internet Explorer and Edge */
+  scrollbar-width: none; 
+  -ms-overflow-style: none; 
 }
 
 *::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, and Opera */
+  display: none; 
 }
 
 .font-cursive {
-  font-family: "Cedarville Cursive", cursive;
+  font-family: "Cedarville Cursive", cursive !important;
 }
-
 
 
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: sans-serif;
 }
 
 .step {
@@ -54,6 +52,8 @@ body {
   max-width: 1120px;
 }
 
+
+
 @layer utilities {
   .flex-center {
     @apply flex items-center justify-center
@@ -67,21 +67,6 @@ body {
     @apply h-[calc(100vh-60px)]
   }
 
-  .btn {
-    @apply px-5 py-2 rounded-3xl bg-blue-500 my-5 hover:bg-transparent border border-transparent hover:border hover:text-blue-500 hover:border-blue-500
-   }
-
-  .color-container {
-    @apply flex items-center justify-center px-4 py-4 rounded-full bg-gray-300 backdrop-blur
-  }
-
-  .size-btn-container {
-    @apply flex items-center justify-center p-1 rounded-full bg-gray-300 backdrop-blur ml-3 gap-1
-  }
-
-  .size-btn {
-    @apply w-10 h-10 text-sm flex justify-center items-center bg-white text-black rounded-full transition-all
-  }
 
   .common-padding {
     @apply  lg:px-7.5 py-5 px-3 sm:px-5  xl:px-10 max-lg:py-2
@@ -150,4 +135,34 @@ body {
   .g_fadeIn {
     @apply opacity-0 translate-y-[100px]
   }
+
+
+  .search-form {
+    @apply max-w-4xl w-full min-h-[50px] 
+           bg-white/90 dark:bg-black/70 
+           border border-black dark:border-white 
+           rounded-[90px] text-[20px] mt-8 px-5 
+           flex flex-row items-center gap-5 
+           hover:border-pink-300 dark:hover:border-pink-400 
+           hover:bg-white dark:hover:bg-black;
+  }
+  
+  .search-input {
+    @apply flex-1 font-bold 
+           placeholder:text-black/70 dark:placeholder:text-white/70 
+           w-full placeholder:text-[15px] 
+           placeholder:tracking-widest
+           h-auto outline-none 
+           text-black dark:text-white;
+  }
+  
+  .search-btn {
+    @apply size-[35px] rounded-full 
+           bg-pink-500 hover:bg-pink-600 
+           flex justify-center items-center 
+           text-white;
+  }
+  
 }
+
+
