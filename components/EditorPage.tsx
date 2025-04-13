@@ -264,11 +264,9 @@ const EditorPage = ({ initialPostId, session }: EditorPageProps) => {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>
-                <h2 className="text-xl font-bold mb-4">
                   {publishStatus === "published"
                     ? "Update your post"
                     : "Publish your post"}
-                </h2>
                 </DialogTitle>
                 <DialogDescription>
                  After publishing your article will visible to every one.

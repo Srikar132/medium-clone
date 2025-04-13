@@ -16,9 +16,8 @@ export default function HowItWorks() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      gsap.registerPlugin(ScrollTrigger, TextPlugin);
-    }
+    
+    gsap.registerPlugin(ScrollTrigger, TextPlugin);
 
     const sections = gsap.utils.toArray<HTMLElement>(".step");
     const mm = gsap.matchMedia();
