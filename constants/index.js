@@ -10,6 +10,7 @@ import { GrLike } from 'react-icons/gr';
 export const navigation  = [
     { name: "Hero", href: "#hero"  , onlyMobile : false},
     { name: "How It Works", href: "#how-it-works" , onlyMobile : false },
+    { name: "Top Writers", href: "#top-writers" , onlyMobile : false },
     { name: "Trending Topics", href: "#trending-topics"  , onlyMobile : false},
     { name: "Testimonials", href: "#testimonials" , onlyMobile : false },
     { name: "Login", href: "/login" , onlyMobile : true },
@@ -160,7 +161,7 @@ export const hightlightsSlides = [
       "Build better habits, one day at a time.",
     ],
     video: highlightFirstmv,
-    videoDuration: 4,
+    videoDuration: 8,
   },
   {
     id: "2",
@@ -170,7 +171,7 @@ export const hightlightsSlides = [
       "Perspectives shaping the future.",
     ],
     video: highlightThirdmv,
-    videoDuration: 5,
+    videoDuration: 8,
   },
   {
     id: "3",
@@ -180,7 +181,7 @@ export const hightlightsSlides = [
       "Turn ideas into impact.",
     ],
     video: highlightSectmv,
-    videoDuration: 2,
+    videoDuration: 5,
   },
   {
     id: "4",
@@ -190,7 +191,7 @@ export const hightlightsSlides = [
       "Writing that makes you feel seen.",
     ],
     video: highlightFourthmv,
-    videoDuration: 3.63,
+    videoDuration: 9,
   },
 ];
 

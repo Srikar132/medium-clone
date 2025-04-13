@@ -1,4 +1,6 @@
-export const AUTHOR_BY_GOOGLE_ID = `
+import { defineQuery } from "next-sanity";
+
+export const AUTHOR_BY_GOOGLE_ID = defineQuery(`
 *[_type == "author" && googleId == $id][0] {
     _id,
     googleId,
@@ -8,9 +10,26 @@ export const AUTHOR_BY_GOOGLE_ID = `
     image,
     bio,
 }
-`;
+`);
+export const AUTHOR_BY_ID = defineQuery(`
+*[_type == "author" && _id == $id ][0]{
+  _id,
+  googleId,
+  name,
+  username,
+  email,
+  image,
+  bio,
+  socialLinks {
+    linkedin,
+    instagram,
+    facebook
+  },
+  memberSince
+}
+`);
 
-export const ALL_ARTICLES = `
+export const ALL_ARTICLES = defineQuery(`
 *[_type == "post" && status == "published" ] | order(publishedAt desc) {
     _id,
     title,
@@ -36,9 +55,9 @@ export const ALL_ARTICLES = `
     "commentCount": count(*[_type == "comment" && post._ref == ^._id]),
     "likeCount": count(*[_type == "like" && post._ref == ^._id]),
 }
-`;
+`);
 
-export const ARTICLE_BY_ID = `
+export const ARTICLE_BY_ID = defineQuery(`
 *[_type == "post" && _id == $id ][0]{
   _id, 
   title, 
@@ -79,10 +98,10 @@ export const ARTICLE_BY_ID = `
   ]) > 0,
   "commentCount": count(*[_type == "comment" && post._ref == ^._id])
 }
-`;
+`);
 
 
-export const ARTICLES_BY_AUTHOR_ID = `
+export const ARTICLES_BY_AUTHOR_ID = defineQuery(`
 *[_type == "post" && status == "published" && author._ref == $authorId ] | order(publishedAt desc) {
     _id,
     title,
@@ -108,4 +127,4 @@ export const ARTICLES_BY_AUTHOR_ID = `
     "commentCount": count(*[_type == "comment" && post._ref == ^._id]),
     "likeCount": count(*[_type == "like" && post._ref == ^._id]),
 }
-`;
+`);

@@ -7,6 +7,7 @@ import { menuItems } from '@/constants';
 import gsap from 'gsap';
 import Image from 'next/image';
 import { FaUser } from 'react-icons/fa6';
+import { FaPencilAlt } from 'react-icons/fa';
 
 const UserProfile = ({ session }: { session: Session | null }) => {
 
@@ -63,9 +64,23 @@ const UserProfile = ({ session }: { session: Session | null }) => {
         >
           <ul className="flex flex-col gap-2">
               <Link
+                href={`/article/write`}
+                key={"Write Article"}
+                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 transition lg:hidden mb-1"
+                onClick={() => setOpenDialog(false)}
+              >
+                <FaPencilAlt className="text-gray-600 text-sm" />
+                <span className="text-sm font-medium text-gray-800 capitalize">
+                  {"Write"}
+                </span>
+              </Link>
+
+               <hr className='bg-black/50'/>
+              <Link
                 href={`/profile/${session?.id}`}
                 key={"My Profile"}
                 className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 transition"
+                onClick={() => setOpenDialog(false)}
               >
                 <FaUser className="text-gray-600 text-sm" />
                 <span className="text-sm font-medium text-gray-800 capitalize">
@@ -77,6 +92,7 @@ const UserProfile = ({ session }: { session: Session | null }) => {
                   href={url}
                   key={title}
                   className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 transition"
+                  onClick={() => setOpenDialog(false)}
                 >
                   <Icon className="text-gray-600 text-sm" />
                   <span className="text-sm font-medium text-gray-800 capitalize">
