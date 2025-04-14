@@ -1,17 +1,15 @@
 "use client";
 
-import Link from "next/link";
-import { IoClose } from "react-icons/io5";
+import { ReactNode, useRef, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { ReactNode, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import Comments from "../Comments";
-import { ArrowLeft, MessageCircle, X } from "lucide-react";
+import { MessageCircle, X } from "lucide-react";
 import ShareButton from "../ShareButton";
 import ArticleInfo from "./ArticleInfo";
 
-const ClientWrapper = ({
+const ArticleSheet = ({
   children,
   id,
 }: {
@@ -22,41 +20,48 @@ const ClientWrapper = ({
   const [openComments, setOpenComments] = useState(false);
   const sidebarRef = useRef(null);
   const sheetRef = useRef(null);
+  const containerRef = useRef(null);
 
+  
   useGSAP(() => {
-    gsap.to(sheetRef.current, {
-      y: 0,
-      opacity: 1,
-      duration: 0.4,
-      ease: "power2.in",
-    });
+    gsap.fromTo(
+      sheetRef.current,
+      { y: "5%", opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }
+    );
   }, []);
 
+  
   const handleBack = () => {
-    router.back();
+   
+    gsap.to(containerRef.current, {
+      opacity: 0,
+      duration: 0.3,
+      onComplete: () => router.back()
+    });
   };
 
+ 
   const toggleSidebar = () => {
     setOpenComments((prev) => !prev);
   };
 
+  
   useEffect(() => {
     if (!sidebarRef.current) return;
 
     if (openComments) {
-      gsap.to(sidebarRef.current, {
-        x: 0,
-        opacity: 1,
-        duration: 0.4,
-        ease: "power2.in",
-        display: "block",
-      });
+      gsap.fromTo(
+        sidebarRef.current,
+        { x: "100%", opacity: 0, display: "block" },
+        { x: 0, opacity: 1, duration: 0.4, ease: "power2.out" }
+      );
     } else {
       gsap.to(sidebarRef.current, {
         x: "100%",
         opacity: 0,
         duration: 0.3,
-        ease: "power2.in",
+        ease: "power2.out",
         onComplete: () => {
           gsap.set(sidebarRef.current, { display: "none" });
         },
@@ -65,55 +70,72 @@ const ClientWrapper = ({
   }, [openComments]);
 
   return (
-    <div className="bg-black/50 relative min-h-screen overflow-auto">
-      <div className="absolute lg:static top-0 right-0 z-[200] p-2">
-        <button onClick={handleBack}>
-          <IoClose className="text-xl text-white cursor-pointer font-bold" />
-        </button>
-      </div>
+    <div 
+      ref={containerRef} 
+      className="bg-black/60 backdrop-blur-sm relative min-h-screen overflow-auto flex"
+    >
+      
+      <button 
+        onClick={handleBack}
+        className="fixed top-4 right-4 z-50 p-2 rounded-full bg-gray-800/50 backdrop-blur-md text-white hover:bg-gray-700/60 transition-colors"
+        aria-label="Close article"
+      >
+        <X className="w-5 h-5" />
+      </button>
 
+      
       <div
         ref={sheetRef}
-        id="sheet"
-        className="opacity-0 translate-y-2/12 w-full min-h-screen bg-white dark:bg-zinc-950 lg:pt-10 flex"
+        className="w-full min-h-screen bg-white dark:bg-zinc-950 flex relative overflow-hidden"
       >
-        {children}
+       
+        <div className="flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
+          {children}
+        </div>
 
-        <div className="hidden lg:flex flex-col gap-2 p-2 lg:mt-1">
+        
+        <div className="hidden lg:flex flex-col gap-3 p-3 sticky top-20 mr-4 self-start">
           <button
             onClick={toggleSidebar}
-            className="rounded-full hover:bg-gray-100 cursor-pointer p-1 border "
+            className="rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer p-2 border border-gray-200 dark:border-gray-700 transition-colors"
+            aria-label={openComments ? "Close comments" : "Open comments"}
           >
             {openComments ? (
-              <X className="w-4 h-4 text-black" />
+              <X className="w-5 h-5" />
             ) : (
-              <MessageCircle className="w-4 h-4 text-black" />
+              <MessageCircle className="w-5 h-5" />
             )}
           </button>
+          
           {!openComments && (
-            <>
-              <ShareButton />
-              <ArticleInfo />
-            </>
+            <div className="flex flex-col gap-3">
+              <ShareButton id={id} />
+              <ArticleInfo id={id}/>
+            </div>
           )}
         </div>
 
+        
         <aside
           ref={sidebarRef}
-          className={`
-            fixed inset-0 z-50 bg-white dark:bg-zinc-900 
-            w-full  h-full
-            lg:relative lg:translate-x-full lg:w-[24rem] lg:h-screen
-          `}
+          className="fixed inset-y-0 right-0 z-40 bg-white dark:bg-zinc-900 
+                    w-full md:w-96 lg:w-[30rem] lg:relative shadow-xl"
           style={{ display: "none" }}
         >
-          <div className="w-full h-full relative">
-            <div className="lg:hidden absolute top-4 left-4">
-              <button onClick={toggleSidebar}>
-                <ArrowLeft className="text-2xl text-black dark:text-white" />
+          <div className="w-full h-full flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+              <h2 className="font-semibold text-lg">Comments</h2>
+              <button 
+                onClick={toggleSidebar}
+                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                <X className="w-5 h-5" />
               </button>
             </div>
-            {openComments && <Comments id={id} />}
+            
+            <div className="flex-grow overflow-auto">
+              {openComments && <Comments id={id} />}
+            </div>
           </div>
         </aside>
       </div>
@@ -121,4 +143,4 @@ const ClientWrapper = ({
   );
 };
 
-export default ClientWrapper;
+export default ArticleSheet;

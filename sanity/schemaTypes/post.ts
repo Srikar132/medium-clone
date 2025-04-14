@@ -72,6 +72,12 @@ export const post = defineType({
             initialValue : false
         }),
         defineField({
+            name : "views",
+            title : "Views",
+            type : "number",
+            initialValue : 0
+        }),
+        defineField({
             name : "status",
             title : "Post Status",
             type : "string",

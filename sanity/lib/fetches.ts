@@ -4,7 +4,7 @@ import { Session } from "next-auth";
 import { client } from "./client"
 import { writeClient } from "./write-client";
 import { SanityAssetDocument } from "next-sanity";
-import { ARTICLES_BY_AUTHOR_ID, ARTICLE_BY_ID, FEATURED_ARTICLES_BY_AUTHOR } from "./queries";
+import { ARTICLES_BY_AUTHOR_ID, ARTICLE_BY_ID, ARTICLE_INFORMATION, FEATURED_ARTICLES_BY_AUTHOR } from "./queries";
 
 
 // ALL CATEGORIES 
@@ -209,11 +209,12 @@ export async function getArticleData(id: string, userId: string) {
   }
 }
 
-export async function getArticlesByAuthorId(authorId: string, userId: string) {
+export async function getArticlesByAuthorId(authorId: string, userId: string ,currentPostId : string) {
   try {
     const postsByAuthor = await client.fetch(ARTICLES_BY_AUTHOR_ID, {
       authorId,
       userId,
+      currentPostId
     });
 
     return postsByAuthor;
@@ -225,8 +226,8 @@ export async function getArticlesByAuthorId(authorId: string, userId: string) {
 
 export async function getCommentsForPost (id : string) {
   try {
-    const comments = await client.fetch(`
-      *[_type == "comment" && post._ref == $id] {
+    const comments = await client.withConfig({ useCdn: false }).fetch(`
+      *[_type == "comment" && post._ref == $id && !defined(parentComment)] {
         _id,
         author-> {
           name,
@@ -235,16 +236,61 @@ export async function getCommentsForPost (id : string) {
         },
         content,
         publishedAt,
-        parentComment
+        "replies": *[_type == "comment" && parentComment._ref == ^._id] {
+          _id,
+          author-> {
+            name,
+            image,
+            _id
+          },
+          content,
+          publishedAt,
+          parentComment
+        }
       }
-    ` , {id});
+    `, { id });
 
 
-    console
+    
 
     return comments;
   } catch (error) {
     console.error("Error in fetching comments  :", error);
     return [];
+  }
+};
+
+
+
+
+export async function createComment(data: CreateCommentData) {
+  try {
+    const doc = {
+      _type: "comment",
+      author: { _type: "reference", _ref: data.authorId },
+      post: { _type: "reference", _ref: data.postId },
+      content: data.content,
+      publishedAt: new Date().toISOString(),
+      ...(data.parentCommentId && {
+        parentComment: { _type: "reference", _ref: data.parentCommentId },
+      }),
+    };
+
+    const response = await writeClient.create(doc);
+    return response;
+  } catch (err) {
+    console.error("Error creating comment:", err);
+    throw err;
+  }
+}
+;
+
+export const getALLInformationAboutArticle = async (id : string) => {
+  try {
+    const data = await client.fetch(ARTICLE_INFORMATION , {id});
+    return data;
+  } catch (err) {
+    console.error("Error in fetching all information :", err);
+    throw err;
   }
 }

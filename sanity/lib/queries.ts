@@ -11,6 +11,28 @@ export const AUTHOR_BY_GOOGLE_ID = defineQuery(`
     bio,
 }
 `);
+
+export const ARTICLE_VIEWS_QUERY = defineQuery(`*[_type == "post" && _id == $id ][0]{
+  _id, 
+  views
+}`);
+
+export const ARTICLE_INFORMATION = defineQuery(`*[_type == "post" && _id == $id][0]{
+  _id, 
+  views,
+  "likesCount": count(*[_type == "like" && post._ref == ^._id]),
+  "bookmarkCount": count(*[_type == "bookmark" && post._ref == ^._id]),
+  "commentsCount": count(*[_type == "comment" && post._ref == ^._id]),
+  publishedAt,
+  categories[]->{
+    _id,
+    title,
+    slug
+  }
+}`);
+
+
+
 export const AUTHOR_BY_ID = defineQuery(`
 *[_type == "author" && _id == $id ][0]{
   _id,
@@ -28,7 +50,7 @@ export const AUTHOR_BY_ID = defineQuery(`
   memberSince,
   "followerCount": count(*[_type == "follow" && following._ref == $id]),
   "followingCount": count(*[_type == "follow" && follower._ref == $id]),
-  "likeCount": count(*[_type == "like" && post._ref in *[_type == "post" && autho._ref == $id]._id]),
+  "likeCount": count(*[_type == "like" && post._ref in *[_type == "post" && author._ref == $id]._id]),
   "isFollowing": $userId != null && count(*[
     _type == "follow" && 
     follower._ref == $userId && 
@@ -110,7 +132,7 @@ export const ARTICLE_BY_ID = defineQuery(`
 
 
 export const ARTICLES_BY_AUTHOR_ID = defineQuery(`
-*[_type == "post" && status == "published" && author._ref == $authorId ] | order(publishedAt desc) {
+*[_type == "post" && status == "published" && author._ref == $authorId && _id != $currentPostId ] | order(publishedAt desc) {
     _id,
     title,
     mainImage {
@@ -134,8 +156,7 @@ export const ARTICLES_BY_AUTHOR_ID = defineQuery(`
     ]) > 0,
     "commentCount": count(*[_type == "comment" && post._ref == ^._id]),
     "likeCount": count(*[_type == "like" && post._ref == ^._id]),
-}
-`);
+}`);
 
 export const FEATURED_ARTICLES_BY_AUTHOR = defineQuery(`*[
   _type == "post" && 

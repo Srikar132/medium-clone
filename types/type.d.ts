@@ -36,3 +36,28 @@ interface DraftPost {
     title: string;
     updatedAt: string;
   }
+
+
+ interface CreateCommentData {
+    authorId: string;
+    postId: string;
+    content: string;
+    parentCommentId?: string; 
+ }
+
+
+ interface CommentProps {
+    comment: {
+      _id: string;
+      content: string;
+      publishedAt: string;
+      parentComment?: string | null;
+      author: {
+        _id : string;
+        name: string;
+        image : string
+      };
+      replies? : CommentProps["comment"][];
+    };
+  }
+  

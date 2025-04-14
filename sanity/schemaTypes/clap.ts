@@ -6,9 +6,9 @@ export const like = defineType({
     type : "document",
     fields : [
         defineField({
-            name : 'user',
+            name : 'author',
             type : 'reference',
-            title : "User",
+            title : "Author",
             to: [{type: "author"}],
             validation: (Rule) => Rule.required()
         }),

@@ -46,17 +46,25 @@ const FollowButton = ({
   }
 
   return authorId === session?.id ? null :  (
-        <button disabled={isLoading} onClick={handleFollow}className={`rounded-full relative min-w-30 ${isFollowed ?  "bg-black text-white" : "bg-white text-black border border-black"} px-4 py-1   flex items-center justify-center tracking-wider leading-relaxed
-        lowercase cursor-pointer !font-cursive`}>
+      <button
+        disabled={isLoading}
+        onClick={handleFollow}
+        className={`relative min-w-32 px-5 py-2 rounded-full flex items-center justify-center 
+                    tracking-wid
+                    e lowercase transition-all duration-300 ease-in-out 
+                    ${isFollowed ? "bg-black text-white" : "bg-white text-black border border-black"} 
+                    ${isLoading ? "cursor-not-allowed" : "cursor-pointer"} font-cursive`}
+      >
         {isLoading ? (
-          <div className='w-7 h-7 rounded-full border-2 border-zinc-400 border-t-black animate-spin'/>
-        ) :( isFollowed ? "Following" : (
-          <>
-            <PiPlus/>
+          <div className="w-5 h-5 border-2 border-gray-300 border-t-black rounded-full animate-spin" />
+        ) : isFollowed ? (
+          "Following"
+        ) : (
+          <div className="flex items-center gap-2">
+            <PiPlus />
             <span>Follow</span>
-          </>
-        )) }
-
+          </div>
+        )}
       </button>
   )
 }

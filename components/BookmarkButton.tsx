@@ -1,56 +1,80 @@
 "use client";
 
-import { useSession } from 'next-auth/react';
-import { useState } from 'react';
-import { BsBookmarkFill, BsBookmarkPlus } from 'react-icons/bs';
-
+import { useSession } from "next-auth/react";
+import { useState } from "react";
+import { BsBookmarkFill, BsBookmarkPlus } from "react-icons/bs";
 
 interface BookmarkButtonProps {
-  postId : string;
-  initialBookmarked : boolean;
+  postId: string;
+  initialBookmarked: boolean;
 }
 
-const BookmarkButton = ({postId , initialBookmarked} : BookmarkButtonProps) => {
-  const {data : session } = useSession();
-  const [isBookmarked , setIsBookmarked] = useState<boolean>(initialBookmarked);
-  const [isLoading , setIsLoading] = useState <boolean>(false);
+const BookmarkButton = ({ postId, initialBookmarked }: BookmarkButtonProps) => {
+  const { data: session } = useSession();
+  const [isBookmarked, setIsBookmarked] = useState<boolean>(initialBookmarked);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleBookmark = async () => {
-    if(!session) {
+    if (!session) {
       // show login model
 
-      return ;
+      return;
     }
 
     try {
       setIsLoading(true);
-      const response = await fetch('/api/bookmarks' , {
-        method : "POST",
-        headers : {
-          'Content-Type' : "application/json"
+      const response = await fetch("/api/bookmarks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        body : JSON.stringify({postId})
+        body: JSON.stringify({ postId }),
       });
 
-      if(response.ok) {
+      if (response.ok) {
         setIsBookmarked(!isBookmarked);
       }
-    } catch (error : any) {
-      console.log("Error toggling bookmar : " , error?.message);
-    }finally {
+    } catch (error: any) {
+      console.log("Error toggling bookmar : ", error?.message);
+    } finally {
       setIsLoading(false);
     }
   };
 
-
-
   return (
-    <button disabled={isLoading} onClick={handleBookmark} className='rounded-full  w-8 h-8 border-[1px] border-zinc-500  flex items-center justify-center hover:bg-gray-100 text-zinc-500 cursor-pointer'>
+    <button
+      disabled={isLoading}
+      onClick={handleBookmark}
+      className="relative group flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300 hover:border-blue-200 dark:hover:border-blue-800"
+      aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
+    >
       {isLoading ? (
-        <div className='w-5 h-5 rounded-full border-1 border-zinc-400 border-t-black animate-spin'/>
-      ) :( isBookmarked ? <BsBookmarkFill className='text-sm font-semibold'/> : <BsBookmarkPlus className='text-sm font-semibold'/>) }
+        <div className="w-5 h-5 rounded-full border-2 border-gray-300 border-t-blue-500 animate-spin" />
+      ) : (
+        <div
+          className={`transition-all duration-300 ${isBookmarked ? "scale-110" : "scale-100"}`}
+        >
+          {isBookmarked ? (
+            <svg
+              className="w-5 h-5 fill-blue-500"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z" />
+            </svg>
+          ) : (
+            <svg
+              className="w-5 h-5 fill-gray-400 dark:fill-gray-500 group-hover:fill-blue-400 transition-colors duration-300"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2zm0 15-5-2.18L7 18V5h10v13z" />
+            </svg>
+          )}
+        </div>
+      )}
     </button>
-  )
-}
+  );
+};
 
 export default BookmarkButton;

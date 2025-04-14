@@ -1,57 +1,66 @@
 import { auth } from "@/auth";
 import Image from "next/image";
 import Link from "next/link";
-
 import { urlFor } from "@/sanity/lib/image";
 import PortableContent from "./PortableContent";
 import ArticleInfo from "./ArticleInfo";
-import { FaCommentAlt } from "react-icons/fa";
 import ArticleCard from "./ArticleCard";
 import LikeButton from "../LikeButton";
 import BookmarkButton from "../BookmarkButton";
 import FollowButton from "../FollowButton";
 import ShareButton from "../ShareButton";
 import { getArticleData, getArticlesByAuthorId } from "@/sanity/lib/fetches";
+import { Suspense } from "react";
+import { Skeleton } from "../WritePageSkeleton";
+import View from "../Views";
+
+
 
 const ArticleContent = async ({ id }: { id: string }) => {
   const session = await auth();
   const userId = session?.id;
 
   const post = await getArticleData(id, userId as string);
+  const postsByThisAuthor = await getArticlesByAuthorId(
+    post?.author?._id as string, 
+    userId as string, 
+    id
+  );
 
-  const postsByThisAuthor = await getArticlesByAuthorId(post?.author?._id as string, userId as string);
+  if (!post) return null;
 
   return (
-    <div className="w-full h-full lg:p-2 relative ">
-      <div className="container flex flex-col  mx-auto h-full w-full max-w-5xl px-6.5 lg:px-10">
-        <article className="w-full h-auto pb-20 lg:p-5 pointer-events-auto space-y-4 mt-3">
-          <header className="w-full space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl whitespace-pre-wrap max-w-1/2 font-bold tracking-wider">
-                {post?.title}
-              </span>
-            </div>
+    <div className="w-full h-full relative">
+      <div className="container flex flex-col mx-auto h-full w-full max-w-4xl px-4 lg:px-8">
+        <article className="w-full h-auto pb-16 pointer-events-auto space-y-6 mt-3">
+          <header className="w-full space-y-4">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight">
+              {post?.title}
+            </h1>
 
             <div
               id="article-header"
-              className="sticky top-96  py-3 flex items-center gap-2 justify-between bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md shadow-sm"
+              className="sticky top-0 z-10 py-3 flex items-center justify-between bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md shadow-sm"
             >
-              <div className="flex items-center gap-2">
-                <Link href={`/profile/${post?.author._id}`}>
+              <Link 
+                href={`/profile/${post?.author._id}`}
+                className="flex items-center gap-3 group hover:opacity-90 transition-opacity"
+              >
+                <div className="relative h-10 w-10 rounded-full overflow-hidden ring-2 ring-gray-100 dark:ring-gray-800">
                   <Image
-                    className="w-10 h-10 rounded-full overflow-hidden"
-                    height={20}
-                    width={20}
+                    className="object-cover"
+                    fill
+                    sizes="40px"
                     src={post?.author?.image}
-                    alt="p"
+                    alt={post?.author?.name || "Author"}
                   />
-                </Link>
-                <span className="text-xs font-black/50 font-thin tracking-wider">
-                  by {post?.author?.name}
+                </div>
+                <span className="text-sm font-medium">
+                  {post?.author?.name}
                 </span>
-              </div>
+              </Link>
 
-              <div className="flex items-center gap-7">
+              <div className="flex items-center gap-4">
                 <LikeButton
                   postId={post?._id}
                   initialLikeCount={post?.likeCount}
@@ -69,28 +78,31 @@ const ArticleContent = async ({ id }: { id: string }) => {
             </div>
           </header>
 
-          <main className="w-full mt-10">
-            <div className="w-full h-auto ">
-              <Image
-                src={urlFor(post?.mainImage).url() as string}
-                height={500}
-                width={500}
-                alt="Cover"
-                className="w-full h-auto rounded-lg "
-              />
-            </div>
+          <main className="w-full mt-6 space-y-8">
+            {post?.mainImage && (
+              <div className="w-full aspect-video relative rounded-lg overflow-hidden">
+                <Image
+                  src={urlFor(post.mainImage).url() as string}
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 50vw"
+                  alt={post.title || "Article cover"}
+                  className="object-cover"
+                />
+              </div>
+            )}
 
-            <div className="mt-5">
-              <span className="text-lg font-medium leading-relaxed">
+            <div className="mt-6">
+              <p className="text-lg md:text-xl font-medium leading-relaxed text-gray-800 dark:text-gray-200">
                 {post?.excerpt}
-              </span>
+              </p>
             </div>
 
-            <div className="w-full mt-10 py-5">
+            <div className="w-full mt-8 py-4 prose prose-lg dark:prose-invert prose-headings:font-bold prose-a:text-blue-600 dark:prose-a:text-blue-400 max-w-none">
               <PortableContent value={post?.content.content} />
             </div>
 
-            <div className="mx-auto w-full justify-center lg:hidden flex items-center gap-5">
+            <div className="mx-auto w-full justify-center lg:hidden flex items-center gap-6 py-4">
               <LikeButton
                 postId={post?._id}
                 initialLikeCount={post?.likeCount}
@@ -100,52 +112,61 @@ const ArticleContent = async ({ id }: { id: string }) => {
                 postId={post?._id}
                 initialBookmarked={post?.isBookmarked}
               />
-              <ShareButton />
-              <FaCommentAlt />
-              <ArticleInfo />
+              <ShareButton id={id} />
+              <ArticleInfo id={id}/>
             </div>
 
-            <div className="w-full mt-5 mx-auto max-w-[70%] flex items-center">
-              <hr className="h-px flex-1 bg-zinc-400" />
-              <Link href={`/profile/${post?.author?._id}`}>
-                <Image
-                  className="w-10 h-10 md:w-20 md:h-20 lg:w-30 lg:h-30 rounded-full overflow-hidden"
-                  height={20}
-                  width={40}
-                  src={post?.author?.image}
-                  alt="p"
+            <div className="w-full mt-10 pt-6 border-t border-gray-200 dark:border-gray-800">
+              <div className="flex flex-col items-center text-center">
+                <Link 
+                  href={`/profile/${post?.author?._id}`}
+                  className="block relative h-16 w-16 md:h-20 md:w-20 rounded-full overflow-hidden ring-4 ring-gray-100 dark:ring-gray-800 mb-4"
+                >
+                  <Image
+                    fill
+                    sizes="(max-width: 768px) 64px, 80px"
+                    src={post?.author?.image}
+                    alt={post?.author?.name || "Author"}
+                    className="object-cover"
+                  />
+                </Link>
+                
+                <h3 className="font-semibold text-lg mb-2">
+                  {post?.author?.username}
+                </h3>
+                
+                <p className="text-gray-600 dark:text-gray-300 text-sm max-w-md mb-4">
+                  {post?.author?.bio}
+                </p>
+                
+                <FollowButton
+                  authorId={post?.author._id}
+                  initialIsFollowed={post?.author.isFollowing}
                 />
-              </Link>
-              <hr className="h-px flex-1 bg-zinc-400" />
-            </div>
-
-            <div className="flex items-center mt-5 flex-col space-y-3 justify-center mt-1">
-              <h3 className="font-semibolf text-md">
-                {post?.author?.username}
-              </h3>
-              <span className="font-thin text-sm">{post?.author?.bio}</span>
-              <FollowButton
-                authorId={post?.author._id}
-                initialIsFollowed={post?.author.isFollowing}
-              />
+              </div>
             </div>
           </main>
 
-          <footer className="w-full mt-10">
-            <div className="w-full   flex flex-col space-y-5 container mx-auto">
-              <h1 className="font-semibold text-lg  lg:text-xl ">
+          <footer className="w-full mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
+            <div className="w-full space-y-6">
+              <h2 className="font-semibold text-xl md:text-2xl">
                 More by {post?.author?.name}
-              </h1>
+              </h2>
 
-              <ul className="mt-5 max-lg:divide-y-[1px] grid grid-cols-1 lg:grid-cols-2 gap-5">
-                {postsByThisAuthor.map((post: any, i: number) => (
-                  <ArticleCard key={i} post={post} />
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                {postsByThisAuthor.map((relatedPost: any, i: number) => (
+                  <ArticleCard key={i} post={relatedPost} />
                 ))}
-              </ul>
+              </div>
             </div>
           </footer>
         </article>
       </div>
+
+
+      <Suspense fallback={<Skeleton className="view_skeleton"/>}>
+            <View id={id}/>
+      </Suspense>
     </div>
   );
 };
