@@ -25,7 +25,15 @@ export const AUTHOR_BY_ID = defineQuery(`
     instagram,
     facebook
   },
-  memberSince
+  memberSince,
+  "followerCount": count(*[_type == "follow" && following._ref == $id]),
+  "followingCount": count(*[_type == "follow" && follower._ref == $id]),
+  "likeCount": count(*[_type == "like" && post._ref in *[_type == "post" && autho._ref == $id]._id]),
+  "isFollowing": $userId != null && count(*[
+    _type == "follow" && 
+    follower._ref == $userId && 
+    following._ref == ^._id
+  ]) > 0
 }
 `);
 
@@ -128,3 +136,20 @@ export const ARTICLES_BY_AUTHOR_ID = defineQuery(`
     "likeCount": count(*[_type == "like" && post._ref == ^._id]),
 }
 `);
+
+export const FEATURED_ARTICLES_BY_AUTHOR = defineQuery(`*[
+  _type == "post" && 
+  author._ref == $authorId && 
+  featured == true && 
+  status == "published"
+] | order(publishedAt desc)[0...$limit] {
+  _id,
+  title,
+  mainImage {
+    asset->{
+      _ref,
+      url
+    }
+  },
+  excerpt
+}`);

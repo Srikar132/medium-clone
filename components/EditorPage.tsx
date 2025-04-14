@@ -7,6 +7,7 @@ import {
   fetchPostById,
   publishPostToSanity,
   updatePost,
+  uploadImageToSanity,
 } from "@/sanity/lib/fetches";
 import { urlFor } from "@/sanity/lib/image";
 import { Camera, Check } from "lucide-react";
@@ -27,18 +28,18 @@ import {
 import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
 import { useRouter } from "next/navigation";
+import { SanityImageAssetDocument } from "next-sanity";
+import { useSession } from "next-auth/react";
 
 interface EditorPageProps {
   initialPostId?: string;
-  session: Session;
 }
 
 type PublishStatus = "draft" | "published" | "archived";
 
-const EditorPage = ({ initialPostId, session }: EditorPageProps) => {
-
+const EditorPage = ({ initialPostId }: EditorPageProps) => {
   const router = useRouter();
-
+  const session = useSession();
   const [postId, setPostId] = useState<string | null>(null);
   const [content, setContent] = useState<SanityContent[]>([]);
   const [title, setTitle] = useState<string>("");
@@ -96,7 +97,7 @@ const EditorPage = ({ initialPostId, session }: EditorPageProps) => {
           toast.error("Failed to recover post");
         }
       } else {
-        const newPost = await createDraftPost(session);
+        const newPost = await createDraftPost(session.data as Session);
 
         setPostId(newPost?._id as string);
         setTitle(newPost?.title as string);
@@ -147,54 +148,50 @@ const EditorPage = ({ initialPostId, session }: EditorPageProps) => {
 
     const imageUrl = URL.createObjectURL(file);
     setCoverImageUrl(imageUrl);
-
-    if (postId) {
-      try {
-        setIsSaving(true);
-        // upload to sanity
-
-        // add to post schema
-      } catch (error) {
-        console.error("Failed to update cover image:", error);
-      } finally {
-        setIsSaving(false);
-      }
-    }
   };
 
-    const toggleCategory = (categoryId : never) => {
-      setSelectedCategories(prev => 
-        prev.includes(categoryId)
-          ? prev.filter(id => id !== categoryId)
-          : [...prev, categoryId]
-      );
-    };
+  const toggleCategory = (categoryId: never) => {
+    setSelectedCategories((prev) =>
+      prev.includes(categoryId)
+        ? prev.filter((id) => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
 
-  const finalizePublish = async  () => {
-
-    if(!postId || !title) {
+  const finalizePublish = async () => {
+    if (!postId || !title) {
       toast.error("Cannot find your post");
       return;
     }
 
-    if(!excerpt.trim()) {
-      toast.error('Please add an excerpt before publishing');
+    if (!excerpt.trim()) {
+      toast.error("Please add an excerpt before publishing");
       return;
     }
 
     try {
-
       setIsSaving(true);
-      await publishPostToSanity(postId , title , excerpt  ,selectedCategories);
+
+      let asset: SanityImageAssetDocument | undefined = undefined;
+      if (coverImage) {
+        asset = await uploadImageToSanity(coverImage);
+      }
+
+      await publishPostToSanity(
+        postId,
+        title,
+        excerpt,
+        selectedCategories,
+        asset
+      );
 
       setPublishStatus("published");
       setLastSaved(new Date());
       toast("Post published successfullly");
 
       router.replace(`/article/${postId}`);
-
-    }catch (error) {
-      toast.error('Failed to publish post. Please try again.');
+    } catch (error) {
+      toast.error("Failed to publish post. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -246,7 +243,7 @@ const EditorPage = ({ initialPostId, session }: EditorPageProps) => {
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-500">
             {isSaving ? (
-              <div className="flex items-center gap-1 animate-pulse">
+              <div className="flex items-center gap-1 animate-pulse w-full h-full justify-center">
                 <FaSave className="animate-spin text-lg" />
               </div>
             ) : lastSaved ? (
@@ -269,11 +266,10 @@ const EditorPage = ({ initialPostId, session }: EditorPageProps) => {
                     : "Publish your post"}
                 </DialogTitle>
                 <DialogDescription>
-                 After publishing your article will visible to every one.
+                  After publishing your article will visible to every one.
                 </DialogDescription>
               </DialogHeader>
               <div className="bg-white rounded-lg w-full max-w-lg p-6">
-            
                 <div className="mb-4">
                   <label className="block text-sm font-medium mb-1">
                     Excerpt (required)
@@ -309,15 +305,16 @@ const EditorPage = ({ initialPostId, session }: EditorPageProps) => {
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <Switch id="featured" checked={featured} onCheckedChange={setFeatured}/>
+                  <Switch
+                    id="featured"
+                    checked={featured}
+                    onCheckedChange={setFeatured}
+                  />
                   <Label htmlFor="featured">Featured</Label>
                 </div>
-
-                
               </div>
               <DialogFooter className="sm:justify-start">
                 <div className="flex w-full justify-end gap-2 mt-6">
-                
                   <button
                     disabled={isSaving}
                     onClick={finalizePublish}

@@ -1,10 +1,12 @@
-import React from 'react'
-import { FaInfo } from 'react-icons/fa6'
+import { Info } from "lucide-react"
+
 
 const ArticleInfo = () => {
   return (
-    <FaInfo/>
+    <div className="rounded-full p-1 border hover:bg-gray-100 cursor-pointer">
+      <Info className="w-4 h-4 text-black" />
+    </div>
   )
 }
 
-export default ArticleInfo
+export default ArticleInfo;

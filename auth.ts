@@ -27,7 +27,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             email: user.email,
             image: user.image,
             username: user.email?.split('@')[0] || 'user',
-            bio: ''
+            bio: '',
+            memberSince : new Date().toISOString()
           });
           console.log("Author Created : ",author._id);
         }

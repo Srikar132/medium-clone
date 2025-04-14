@@ -30,3 +30,9 @@ type Category = {
     _id : string;
     title : string;
 }
+
+interface DraftPost {
+    _id: string;
+    title: string;
+    updatedAt: string;
+  }

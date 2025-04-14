@@ -1,6 +1,6 @@
 const ArticleSkeleton = () => {
     return (
-      <div className="w-full h-screen overflow-y-auto px-4 py-6 space-y-6 animate-pulse">
+      <div className="w-full mx-auto max-w-3xl h-screen overflow-y-auto px-4 py-6 space-y-6 animate-pulse">
         
         {/* Title */}
         <div className="w-3/4 h-8 bg-gray-300 dark:bg-gray-700 rounded-md mx-auto" />
@@ -17,14 +17,13 @@ const ArticleSkeleton = () => {
             <div className="w-6 h-6 bg-gray-300 dark:bg-gray-700 rounded-full" />
           </div>
         </div>
-  
-        {/* Cover Image */}
+
         <div className="w-full h-[200px] md:h-[300px] bg-gray-300 dark:bg-gray-700 rounded-lg" />
   
-        {/* Excerpt */}
+
         <div className="w-11/12 h-5 bg-gray-300 dark:bg-gray-700 rounded mx-auto" />
   
-        {/* Main Content Blocks */}
+        
         <div className="space-y-4 mt-6">
           {[...Array(5)].map((_, i) => (
             <div key={i} className="w-full space-y-2">

@@ -205,7 +205,7 @@ export const navItems = [
 ]
 
 export const menuItems = [
-  { title: 'My Articles', url: '/my-articles', Icon: FaBook },
+  { title: 'My Articles', url: '/my-articles/drafts', Icon: FaBook },
   { title: 'Following', url: '/following', Icon: FaUserPlus },
   { title: 'Liked', url: '/liked', Icon: GrLike },
   { title: 'Bookmarks', url: '/bookmarks', Icon: FaBookmark },
