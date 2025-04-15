@@ -16,18 +16,14 @@ export default async function HomePage({
 }) {
   try {
     const query = (await searchParams)?.query;
-
-
-    const session = await auth();
     
     const { data: posts } = await sanityFetch({ 
-      query: ALL_ARTICLES, 
-      params: { userId: session?.id } 
+      query: ALL_ARTICLES
     });
 
     return (
       <div className="w-full h-full">
-        {/* Hero Section */}
+        
         <section className="flex-1 container mx-auto p-5 flex flex-col items-center justify-center gap-3">
           <h1 className="text-2xl sm:text-3xl md:text-5xl w-full lg:max-w-xl text-center text-black dark:text-white dark:font-thin font-semibold leading-relaxed">
             Discover the world's top Writers.
@@ -49,7 +45,7 @@ export default async function HomePage({
           </div>
         </section>
 
-        {/* Content Section */}
+        
         <section className="w-full flex justify-center p-3 overflow-hidden">
           <div className="w-full min-h-screen flex flex-col container mx-auto">
             <HorizontalScrollSection />

@@ -199,7 +199,7 @@ export async function getFeaturedPostsByAuthor(
 }
 
 
-export async function getArticleData(id: string, userId: string) {
+export async function getArticleData(id: string, userId: string | null) {
   try {
     
     const post = await client.fetch(ARTICLE_BY_ID, { id, userId });
@@ -210,11 +210,10 @@ export async function getArticleData(id: string, userId: string) {
   }
 }
 
-export async function getArticlesByAuthorIdExceptCurrent(authorId: string, userId: string ,currentPostId : string) {
+export async function getArticlesByAuthorIdExceptCurrent(authorId: string,currentPostId : string) {
   try {
     const postsByAuthor = await client.fetch(ARTICLES_BY_AUTHOR_ID_EXCEPT_CURRENT, {
       authorId,
-      userId,
       currentPostId
     });
 

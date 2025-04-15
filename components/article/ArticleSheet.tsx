@@ -112,7 +112,7 @@ const ArticleSheet = ({
               <ShareButton id={id} />
               <ArticleInfo id={id}/>
             </div>
-          )}4
+          )}
         </div>
 
         

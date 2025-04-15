@@ -4,30 +4,29 @@ import Link from "next/link";
 import { urlFor } from "@/sanity/lib/image";
 import PortableContent from "./PortableContent";
 import ArticleInfo from "./ArticleInfo";
-import ArticleCard from "./ArticleCard";
 import LikeButton from "../LikeButton";
 import BookmarkButton from "../BookmarkButton";
 import FollowButton from "../FollowButton";
 import ShareButton from "../ShareButton";
-import { getArticleData, getArticlesByAuthorIdExceptCurrent } from "@/sanity/lib/fetches";
 import { Suspense } from "react";
 import { Skeleton } from "../WritePageSkeleton";
 import View from "../Views";
+import { getArticleData } from "@/sanity/lib/fetches";
+import MoreByAuthor from "./MoreByAuthor";
+import { notFound } from "next/navigation";
 
 
 
 const ArticleContent = async ({ id }: { id: string }) => {
+
   const session = await auth();
-  const userId = session?.id;
+  const userId = session?.id || null;
 
-  const post = await getArticleData(id, userId as string);
-  const postsByThisAuthor = await getArticlesByAuthorIdExceptCurrent(
-    post?.author?._id as string, 
-    userId as string, 
-    id
-  );
+  const post = await getArticleData(id, userId );
 
-  if (!post) return null;
+  if (!post)  {
+    return notFound();
+  }
 
   return (
     <div className="w-full h-full relative">
@@ -40,7 +39,7 @@ const ArticleContent = async ({ id }: { id: string }) => {
 
             <div
               id="article-header"
-              className="sticky top-0 z-10 py-3 flex items-center justify-between bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md shadow-sm"
+              className="z-10 py-3 flex items-center justify-between bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md shadow-sm"
             >
               <Link 
                 href={`/profile/${post?.author._id}`}
@@ -148,17 +147,13 @@ const ArticleContent = async ({ id }: { id: string }) => {
           </main>
 
           <footer className="w-full mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
-            <div className="w-full space-y-6">
-              <h2 className="font-semibold text-xl md:text-2xl">
-                More by {post?.author?.name}
-              </h2>
 
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                {postsByThisAuthor.map((relatedPost: any, i: number) => (
-                  <ArticleCard key={i} post={relatedPost} />
-                ))}
-              </div>
-            </div>
+
+              <MoreByAuthor
+                authorId={post?.author?._id}
+                currentPostId={id}
+              />
+
           </footer>
         </article>
       </div>

@@ -77,11 +77,6 @@ export const ALL_ARTICLES = defineQuery(`
     },
     excerpt,
     publishedAt,
-    "isBookmarked": $userId != null && count(*[
-      _type == "bookmark" && 
-      post._ref == ^._id && 
-      author._ref == $userId
-    ]) > 0,
     "commentCount": count(*[_type == "comment" && post._ref == ^._id]),
     "likeCount": count(*[_type == "like" && post._ref == ^._id]),
 }
@@ -149,11 +144,6 @@ export const ARTICLES_BY_AUTHOR_ID_EXCEPT_CURRENT = defineQuery(`
     },
     excerpt,
     publishedAt,
-    "isBookmarked": $userId != null && count(*[
-      _type == "bookmark" && 
-      post._ref == ^._id && 
-      author._ref == $userId
-    ]) > 0,
     "commentCount": count(*[_type == "comment" && post._ref == ^._id]),
     "likeCount": count(*[_type == "like" && post._ref == ^._id]),
 }`);

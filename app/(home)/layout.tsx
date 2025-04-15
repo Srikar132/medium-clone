@@ -11,10 +11,7 @@ export default async function RootLayout({
     children: React.ReactNode;
   }>) {
 
-    const session = await auth();
-    if(!session?.id) {
-       redirect("/");
-    }
+
 
     return (
       <div className="py-3 px-4">
