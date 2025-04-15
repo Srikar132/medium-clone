@@ -1,7 +1,7 @@
 "use client";
 
 import { createComment, getCommentsForPost } from "@/sanity/lib/fetches";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ShareButton from "./ShareButton";
 import ArticleInfo from "./article/ArticleInfo";
 import CommentCard from "./CommentCard";
@@ -20,6 +20,7 @@ const Comments = ({ id }: { id: string }) => {
   if(!session.data?.id) {
     throw new Error("Unauthorized user");
   }
+
   const getComments = async () => {
     setIsLoading(true);
     const fetchedComments : CommentProps["comment"][] = await getCommentsForPost(id);
@@ -31,7 +32,8 @@ const Comments = ({ id }: { id: string }) => {
     getComments();
   }, [id]);
 
-  const handleAddComment = async () => {
+  const handleAddComment = async (e : React.FormEvent) => {
+    e.preventDefault();
     if (!newComment.trim()) return;
 
     setIsSendingComment(true);
@@ -66,13 +68,13 @@ const Comments = ({ id }: { id: string }) => {
       
         <div className="w-full max-lg:justify-end flex gap-x-3">
           <ShareButton id={id}/>
-          <ArticleInfo />
+          <ArticleInfo id={id}/>
         </div>
 
         
         <div className="mt-2">
           {session.data.id ? (
-            <form className="flex items-center gap-2">
+            <form className="flex items-center gap-2" onSubmit={handleAddComment}>
               <textarea
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
@@ -85,7 +87,7 @@ const Comments = ({ id }: { id: string }) => {
                 type="submit"
                 variant={"default"}
                 disabled={isSendingComment}
-                onClick={() => handleAddComment()}
+                
               >
                 post
               </Button>}
@@ -100,7 +102,7 @@ const Comments = ({ id }: { id: string }) => {
         {/* Comments */}
         <div className="space-y-2 overflow-y-scroll">
           {isLoading
-            ? Array.from({ length: 3 }).map((_, i) => <CommentSkeleton key={i} />)
+            ? Array.from({ length: 5 }).map((_, i) => <CommentSkeleton key={i} />)
             : comments.length > 0
             ? comments.map((comment, i) => (
                 <CommentCard key={comment._id || i} onReply={onReply} comment={comment} />

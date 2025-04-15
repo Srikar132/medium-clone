@@ -112,16 +112,16 @@ const ArticleSheet = ({
               <ShareButton id={id} />
               <ArticleInfo id={id}/>
             </div>
-          )}
+          )}4
         </div>
 
         
         <aside
           ref={sidebarRef}
           className="fixed inset-y-0 right-0 z-40 bg-white dark:bg-zinc-900 
-                    w-full md:w-96 lg:w-[30rem] lg:relative shadow-xl"
+                    w-full md:w-96 lg:w-[27rem] lg:relative shadow-xl"
           style={{ display: "none" }}
-        >
+        > 
           <div className="w-full h-full flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
               <h2 className="font-semibold text-lg">Comments</h2>

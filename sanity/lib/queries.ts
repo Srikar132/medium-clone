@@ -60,7 +60,7 @@ export const AUTHOR_BY_ID = defineQuery(`
 `);
 
 export const ALL_ARTICLES = defineQuery(`
-*[_type == "post" && status == "published" ] | order(publishedAt desc) {
+*[_type == "post" && status == "published"  ] | order(publishedAt desc) {
     _id,
     title,
     mainImage {
@@ -80,7 +80,7 @@ export const ALL_ARTICLES = defineQuery(`
     "isBookmarked": $userId != null && count(*[
       _type == "bookmark" && 
       post._ref == ^._id && 
-      user._ref == $userId
+      author._ref == $userId
     ]) > 0,
     "commentCount": count(*[_type == "comment" && post._ref == ^._id]),
     "likeCount": count(*[_type == "like" && post._ref == ^._id]),
@@ -119,19 +119,19 @@ export const ARTICLE_BY_ID = defineQuery(`
   "isLiked": $userId != null && count(*[
     _type == "like" && 
     post._ref == ^._id && 
-    user._ref == $userId
+    author._ref == $userId
   ]) > 0,
   "isBookmarked": $userId != null && count(*[
     _type == "bookmark" && 
     post._ref == ^._id && 
-    user._ref == $userId
+    author._ref == $userId
   ]) > 0,
   "commentCount": count(*[_type == "comment" && post._ref == ^._id])
 }
 `);
 
 
-export const ARTICLES_BY_AUTHOR_ID = defineQuery(`
+export const ARTICLES_BY_AUTHOR_ID_EXCEPT_CURRENT = defineQuery(`
 *[_type == "post" && status == "published" && author._ref == $authorId && _id != $currentPostId ] | order(publishedAt desc) {
     _id,
     title,
@@ -152,8 +152,31 @@ export const ARTICLES_BY_AUTHOR_ID = defineQuery(`
     "isBookmarked": $userId != null && count(*[
       _type == "bookmark" && 
       post._ref == ^._id && 
-      user._ref == $userId
+      author._ref == $userId
     ]) > 0,
+    "commentCount": count(*[_type == "comment" && post._ref == ^._id]),
+    "likeCount": count(*[_type == "like" && post._ref == ^._id]),
+}`);
+
+export const ALL_ARTICLES_BY_AUTHOR_ID= defineQuery(`
+*[_type == "post" && status == "published" && author._ref == $authorId ] | order(publishedAt desc) {
+    _id,
+    title,
+    slug,
+    mainImage {
+        asset-> {
+          _id,
+          url
+        },
+        alt
+    },
+    author->{
+        image,
+        name,
+        _id
+    },
+    excerpt,
+    publishedAt,
     "commentCount": count(*[_type == "comment" && post._ref == ^._id]),
     "likeCount": count(*[_type == "like" && post._ref == ^._id]),
 }`);
@@ -174,3 +197,48 @@ export const FEATURED_ARTICLES_BY_AUTHOR = defineQuery(`*[
   },
   excerpt
 }`);
+
+
+export const FOLLOWERS_FOR_LOGIN_AUTHOR = defineQuery(`
+  *[_type == "follow" && following._ref == $id] {
+    _id,
+    follower-> {
+      _id,
+      name,
+      image,
+      bio,
+      email,
+      socialLink {
+        instagram,
+        facebook,
+        linkedin
+      }
+    },
+    following,
+    "isMeFollowing": count(*[
+      _type == "follow" && 
+      follower._ref == $id && 
+      following._ref == ^.follower._ref
+    ]) > 0
+  }
+`)
+
+export const FOLLOWING_FOR_LOGIN_AUTHOR = defineQuery(`
+  *[_type == "follow" && follower._ref == $id] {
+    _id,
+    following-> {
+      _id,
+      name,
+      image,
+      bio,
+      email,
+      socialLink {
+        instagram,
+        facebook,
+        linkedin
+      }
+    },
+    follower,
+    "isMeFollowing": true
+  }
+`)

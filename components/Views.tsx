@@ -22,7 +22,7 @@ const View = async ({id} : {id : string}) => {
         </div>
 
         <p className='font-medium text-[16px] bg-pink-500 px-4 py-2 rounded-lg capitalize'>
-            <span className='font-black'>
+            <span className='font-black text-white'>
                 {data?.views} views
             </span>
         </p>

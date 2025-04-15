@@ -4,7 +4,7 @@
 import { Edit, MoreVertical, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-
+import { format } from "date-fns";
 
 const DraftCard = ({ post }: { post: DraftPost }) => {
     const router = useRouter();
@@ -57,8 +57,10 @@ const DraftCard = ({ post }: { post: DraftPost }) => {
           </div>
         </div>
         
+        
+
         <span className="text-sm text-gray-500">
-          Last updated {new Date(post.updatedAt).toLocaleDateString()} at {new Date(post.updatedAt).toLocaleTimeString()}
+          Last updated {format(new Date(post.updatedAt), "PPP 'at' p")}
         </span>
       </div>
     );

@@ -10,7 +10,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async signIn({ user, account, profile }) {
       if (profile) {
 
-        const googleId : string | undefined= user.id || account?.providerAccountId;
+        const googleId : string | undefined = user.id || account?.providerAccountId;
         
         if (!googleId) {
           console.error("Failed to get Google ID");

@@ -4,7 +4,8 @@ import { Session } from "next-auth";
 import { client } from "./client"
 import { writeClient } from "./write-client";
 import { SanityAssetDocument } from "next-sanity";
-import { ARTICLES_BY_AUTHOR_ID, ARTICLE_BY_ID, ARTICLE_INFORMATION, FEATURED_ARTICLES_BY_AUTHOR } from "./queries";
+import { ALL_ARTICLES_BY_AUTHOR_ID, ARTICLES_BY_AUTHOR_ID_EXCEPT_CURRENT, ARTICLE_BY_ID, ARTICLE_INFORMATION, FEATURED_ARTICLES_BY_AUTHOR, FOLLOWERS_FOR_LOGIN_AUTHOR, FOLLOWING_FOR_LOGIN_AUTHOR } from "./queries";
+import { auth } from "@/auth";
 
 
 // ALL CATEGORIES 
@@ -209,12 +210,25 @@ export async function getArticleData(id: string, userId: string) {
   }
 }
 
-export async function getArticlesByAuthorId(authorId: string, userId: string ,currentPostId : string) {
+export async function getArticlesByAuthorIdExceptCurrent(authorId: string, userId: string ,currentPostId : string) {
   try {
-    const postsByAuthor = await client.fetch(ARTICLES_BY_AUTHOR_ID, {
+    const postsByAuthor = await client.fetch(ARTICLES_BY_AUTHOR_ID_EXCEPT_CURRENT, {
       authorId,
       userId,
       currentPostId
+    });
+
+    return postsByAuthor;
+  } catch (error) {
+    console.error("Error in fetching articles except currnet by author by id :", error);
+    return [];
+  }
+};
+
+export async function getALLArticlesByAuthorId(authorId: string) {
+  try {
+    const postsByAuthor = await client.fetch(ALL_ARTICLES_BY_AUTHOR_ID, {
+      authorId
     });
 
     return postsByAuthor;
@@ -293,4 +307,41 @@ export const getALLInformationAboutArticle = async (id : string) => {
     console.error("Error in fetching all information :", err);
     throw err;
   }
-}
+};
+
+
+export const getFollowers = async () => {
+  try {
+    const session = await auth();
+
+    if(!session?.id) {
+      throw new Error("Unathicated for get followers , ");
+    }
+
+    const data = await client.fetch(FOLLOWERS_FOR_LOGIN_AUTHOR, {id : session.id});
+
+    return data;
+    
+  } catch (err) {
+    console.error("Error in fetching all followers :", err);
+    throw err;
+  }
+};
+export const getFollowing = async () => {
+  try {
+    const session = await auth();
+
+    if(!session?.id) {
+      throw new Error("Unathicated for get following , ");
+    }
+
+    const data = await client.fetch(FOLLOWING_FOR_LOGIN_AUTHOR, {id : session.id});
+
+    return data;
+  } catch (err) {
+    console.error("Error in fetching all following :", err);
+    throw err;
+  }
+};
+
+

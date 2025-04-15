@@ -167,6 +167,10 @@ body {
            flex justify-center items-center 
            text-white;
   }
+
+  .view_skeleton {
+    @apply bg-zinc-400 h-10 w-24 rounded-lg fixed bottom-3 right-3;
+  }
 }
 
 @theme inline {

@@ -9,7 +9,7 @@ import LikeButton from "../LikeButton";
 import BookmarkButton from "../BookmarkButton";
 import FollowButton from "../FollowButton";
 import ShareButton from "../ShareButton";
-import { getArticleData, getArticlesByAuthorId } from "@/sanity/lib/fetches";
+import { getArticleData, getArticlesByAuthorIdExceptCurrent } from "@/sanity/lib/fetches";
 import { Suspense } from "react";
 import { Skeleton } from "../WritePageSkeleton";
 import View from "../Views";
@@ -21,7 +21,7 @@ const ArticleContent = async ({ id }: { id: string }) => {
   const userId = session?.id;
 
   const post = await getArticleData(id, userId as string);
-  const postsByThisAuthor = await getArticlesByAuthorId(
+  const postsByThisAuthor = await getArticlesByAuthorIdExceptCurrent(
     post?.author?._id as string, 
     userId as string, 
     id

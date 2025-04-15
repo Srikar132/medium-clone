@@ -6,7 +6,7 @@ export const bookMark = defineType({
     type : "document",
     fields : [
         defineField({
-            name : 'user',
+            name : 'author',
             type : 'reference',
             title : "Title",
             to: [{type: "author"}],
