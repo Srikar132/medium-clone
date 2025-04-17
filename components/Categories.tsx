@@ -6,6 +6,7 @@ import { RxDoubleArrowDown, RxDoubleArrowUp } from 'react-icons/rx'
 
 const Categories = () => {
   const [expand , setExpand] = useState<boolean>(false);
+  
 
   return (
     <div className='relative'>

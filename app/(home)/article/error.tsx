@@ -1,13 +1,16 @@
 "use client";
 
-import Link from 'next/link';
+import Image from "next/image";
+import Link from "next/link";
 
 export default function Custom404() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-50 to-purple-100 p-6">
       <div className="bg-white shadow-xl rounded-2xl p-10 max-w-xl text-center">
-        <img
-          src="https://illustrations.popsy.co/gray/error.svg"
+        <Image
+          height={100}
+          width={100}
+          src="/delete-sad.jpg"
           alt="Not found"
           className="mx-auto w-48 mb-6"
         />

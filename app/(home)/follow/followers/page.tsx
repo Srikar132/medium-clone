@@ -8,10 +8,12 @@ const page = async () => {
 
 
   return (
-    <div className='w-full p-5 max-w-3xl mx-auto'>
+    <div className='w-full p-5'>
       <div className="flex flex-col space-y-3 ">
-        {data.map((item: any, i : number) => (
-          <AuthorCard key={i} author={item.follower}/>
+        {data.length === 0 ? (
+          <p className='font-thin text-xl'>No follower for you</p>
+        ) : data.map((item: any, i : number) => (
+          <AuthorCard isMeFollowing={item.isMeFollowing} key={i} author={item.follower}/>
         )) }
       </div>
     </div>

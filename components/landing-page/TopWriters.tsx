@@ -6,6 +6,7 @@ import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
 import { animateGSAP } from "@/utils"; // make sure path is correct
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
+import Image from "next/image";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -25,9 +26,11 @@ const TopWriters = () => {
       <div className="screen-max-width md:h-[80%] w-full mx-2 p-5">
         <div className="flex items-center justify-between">
           <div className="border-4 border-black overflow-hidden w-20 h-20 flex items-center justify-center -rotate-45">
-            <img
+            <Image
               src={writers[idx].image as string}
               alt="profile"
+              height={24}
+              width={24}
               className="w-24 h-24 object-cover rotate-45 scale-110"
             />
           </div>

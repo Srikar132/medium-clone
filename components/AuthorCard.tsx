@@ -14,10 +14,10 @@ interface AuthorProps {
   bio?: string;
   email: string;
   socialLink: SocialLink;
-  isMeFollowing: boolean;
+
 }
 
-export default function AuthorCard({ author }: { author: AuthorProps }) {
+export default function AuthorCard({ author , isMeFollowing }: { author: AuthorProps; isMeFollowing: boolean; }) {
   return (
     <div className="w-full p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-gray-200 hover:shadow-md transition-shadow duration-200">
       
@@ -45,7 +45,7 @@ export default function AuthorCard({ author }: { author: AuthorProps }) {
       {/* Follow Button */}
       <div className="self-end sm:self-auto">
         <FollowButton
-          initialIsFollowed={author.isMeFollowing}
+          initialIsFollowed={isMeFollowing}
           authorId={author._id}
         />
       </div>

@@ -14,7 +14,7 @@ export async function POST(request : Request) {
     const userId = session?.id;
 
     const existingBookmark = await client.fetch(`
-        *[_type == "bookmark" && user._ref == $userId && post._ref == $postId][0] 
+        *[_type == "bookmark" && author._ref == $userId && post._ref == $postId][0] 
     ` , {userId , postId});
 
     if(existingBookmark) {
@@ -23,7 +23,7 @@ export async function POST(request : Request) {
     }else {
         await writeClient.create({
             _type : "bookmark",
-            user : {_type : "reference" , _ref : userId},
+            author : {_type : "reference" , _ref : userId},
             post : {_type : "reference" , _ref : postId},
             createdAt : new Date().toISOString()
         });

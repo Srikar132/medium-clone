@@ -1,13 +1,13 @@
 "use client";
 
 
-import React from 'react'
+import React from "react"
 import Wave from "@/components/design/Wave"
-import Image from 'next/image'
-import { BsArrow90DegUp } from 'react-icons/bs'
-import { useGSAP } from '@gsap/react'
-import { animateGSAP } from '@/utils'
-import Link from 'next/link';
+import Image from "next/image"
+import { BsArrow90DegUp } from "react-icons/bs"
+import { useGSAP } from "@gsap/react"
+import { animateGSAP } from "@/utils"
+import Link from "next/link";
 
 const Testimonials = () => {
 

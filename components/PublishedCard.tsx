@@ -1,16 +1,17 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { formatDistance } from "date-fns";
-import { HiOutlineEye, HiPencil, HiTrash, HiStar } from "react-icons/hi";
+import { HiOutlineEye, HiStar,  HiBookmark, HiHeart} from "react-icons/hi";
 import gsap from "gsap";
 import { urlFor } from "@/sanity/lib/image";
+import { useRouter } from "next/navigation";
 
 type Author = {
   name: string;
-  image?: string
+  image?: string;
 };
 
 type Category = {
@@ -36,46 +37,55 @@ export type Post = {
   featured: boolean;
   views: number;
   status: "draft" | "published" | "archived";
+  likeCount: number;
 };
 
-type ArticleCardProps = {
+type PublishedCardProps = {
   post: Post;
-  onEdit?: (postId: string) => void;
-  onDelete?: (postId: string) => void;
+  variant?: "default" | "liked" | "bookmarked";
+  onUnlike?: (postId: string) => Promise<void>;
+  onRemoveBookmark?: (postId: string) => Promise<void>;
 };
 
-export default function ArticleCard({ post, onEdit, onDelete }: ArticleCardProps) {
+export default function PublishedCard({
+  post,
+  variant = "default",
+  onUnlike,
+  onRemoveBookmark
+}: PublishedCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const optionsRef = useRef<HTMLDivElement>(null);
-  
-  const formattedDate = post.publishedAt 
-    ? formatDistance(new Date(post.publishedAt), new Date(), { addSuffix: true })
+  const router = useRouter();
+  const [isLiked, setIsLiked] = useState(variant === "liked");
+  const [isBookmarked, setIsBookmarked] = useState(variant === "bookmarked");
+
+  const formattedDate = post.publishedAt
+    ? formatDistance(new Date(post.publishedAt), new Date(), {
+        addSuffix: true,
+      })
     : "Recently";
 
   useEffect(() => {
     const card = cardRef.current;
     const options = optionsRef.current;
-    
+
     if (card && options) {
       // Initial setup
       gsap.set(options, { y: 50, opacity: 0 });
-      
-      // Create hover animation
-      const enterAnim = gsap.timeline({ paused: true })
-        .to(options, { 
-          y: 0, 
-          opacity: 1, 
-          duration: 0.3, 
-          ease: "power2.out" 
-        });
-      
-      // Event listeners
+
+      const enterAnim = gsap.timeline({ paused: true }).to(options, {
+        y: 0,
+        opacity: 1,
+        duration: 0.3,
+        ease: "power2.out",
+      });
+
       const onEnter = () => enterAnim.play();
       const onLeave = () => enterAnim.reverse();
-      
+
       card.addEventListener("mouseenter", onEnter);
       card.addEventListener("mouseleave", onLeave);
-      
+
       // Cleanup
       return () => {
         card.removeEventListener("mouseenter", onEnter);
@@ -84,8 +94,34 @@ export default function ArticleCard({ post, onEdit, onDelete }: ArticleCardProps
     }
   }, []);
 
+  const handleUnlike = async () => {
+    if (onUnlike && variant === "liked") {
+      try {
+        await onUnlike(post._id);
+        setIsLiked(false);
+        // Refresh the page to reflect changes
+        router.refresh();
+      } catch (error) {
+        console.error("Error unliking post:", error);
+      }
+    }
+  };
+
+  const handleRemoveBookmark = async () => {
+    if (onRemoveBookmark && variant === "bookmarked") {
+      try {
+        await onRemoveBookmark(post._id);
+        setIsBookmarked(false);
+        // Refresh the page to reflect changes
+        router.refresh();
+      } catch (error) {
+        console.error("Error removing bookmark:", error);
+      }
+    }
+  };
+
   return (
-    <div 
+    <div
       ref={cardRef}
       className="group relative aspect-square bg-white dark:bg-gray-900 rounded-xl overflow-hidden shadow-md border border-gray-200 dark:border-gray-800 flex flex-col"
     >
@@ -104,7 +140,7 @@ export default function ArticleCard({ post, onEdit, onDelete }: ArticleCardProps
             <span className="text-white text-lg font-medium">No Image</span>
           </div>
         )}
-        
+
         {/* Featured Badge */}
         {post.featured && (
           <div className="absolute top-3 right-3">
@@ -113,26 +149,15 @@ export default function ArticleCard({ post, onEdit, onDelete }: ArticleCardProps
             </div>
           </div>
         )}
-        
-        {/* Status Badge */}
-        <div className="absolute top-3 left-3">
-          <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-            post.status === "published" ? "bg-green-100 text-green-800" :
-            post.status === "draft" ? "bg-yellow-100 text-yellow-800" :
-            "bg-gray-100 text-gray-800"
-          }`}>
-            {post.status}
-          </span>
-        </div>
       </div>
-      
+
       {/* Content Section */}
       <div className="p-4 flex-1 flex flex-col">
         {/* Categories */}
         <div className="flex flex-wrap gap-1 mb-2">
           {post.categories?.slice(0, 2).map((category, index) => (
-            <span 
-              key={index} 
+            <span
+              key={index}
               className="text-xs px-2 py-1 bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200 rounded-full"
             >
               {category.title}
@@ -144,25 +169,28 @@ export default function ArticleCard({ post, onEdit, onDelete }: ArticleCardProps
             </span>
           )}
         </div>
-        
+
         {/* Title */}
-        <h3 className="font-semibold text-lg mb-1 line-clamp-2">
-          <Link href={`/post/${post.slug.current}`} className="hover:text-pink-500 transition-colors">
+        <h3 className="font-semibold text-lg mb-1 line-clamp-1">
+          <Link
+            href={`/article/${post._id}`}
+            className="hover:text-pink-500 transition-colors"
+          >
             {post.title}
           </Link>
         </h3>
-        
+
         {/* Excerpt */}
-        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-2">
+        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-1 mb-2">
           {post.excerpt}
         </p>
-        
+
         {/* Author & Stats */}
         <div className="mt-auto flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
           <div className="flex items-center gap-2">
             {post.author.image ? (
-              <Image 
-                src={post.author.image as string} 
+              <Image
+                src={post.author.image}
                 alt={post.author.name}
                 width={20}
                 height={20}
@@ -177,7 +205,7 @@ export default function ArticleCard({ post, onEdit, onDelete }: ArticleCardProps
             )}
             <span>{post.author.name}</span>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <span className="flex items-center gap-1">
               <HiOutlineEye className="w-3 h-3" />
@@ -187,34 +215,38 @@ export default function ArticleCard({ post, onEdit, onDelete }: ArticleCardProps
           </div>
         </div>
       </div>
-      
+
       {/* Hover Options */}
-      <div 
+      <div
         ref={optionsRef}
         className="absolute inset-0 bg-black/50 flex items-center justify-center gap-4"
       >
-        <Link 
+        <Link
           href={`/post/${post.slug.current}`}
           className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-pink-500 hover:bg-pink-500 hover:text-white transition-colors"
         >
           <HiOutlineEye className="w-5 h-5" />
         </Link>
-        
-        {onEdit && (
+
+        {/* Like/Unlike Button - Only show in liked variant */}
+        {variant === "liked" && onUnlike && (
           <button
-            onClick={() => onEdit(post._id)}
-            className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-pink-500 hover:bg-pink-500 hover:text-white transition-colors"
+            title="Unlike"
+            onClick={handleUnlike}
+            className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-pink-500 hover:bg-pink-200 cursor-pointer hover:text-white transition-colors"
           >
-            <HiPencil className="w-5 h-5" />
+            <HiHeart className="w-5 h-5 text-red-500" />
           </button>
         )}
-        
-        {onDelete && (
+
+        {/* Bookmark/Unbookmark Button - Only show in bookmarked variant */}
+        {variant === "bookmarked" && onRemoveBookmark && (
           <button
-            onClick={() => onDelete(post._id)}
-            className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-pink-500 hover:bg-pink-500 hover:text-white transition-colors"
+            title="Remove bookmark"
+            onClick={handleRemoveBookmark}
+            className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-pink-500 cursor-pointer hover:bg-pink-200 hover:text-white transition-colors"
           >
-            <HiTrash className="w-5 h-5" />
+            <HiBookmark className="w-5 h-5" />
           </button>
         )}
       </div>

@@ -12,23 +12,18 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { CommentWithAuthor, CommentWithReplies } from "./Comments";
 
-// Define types for the comment and related objects
-interface Author {
-  _id: string;
-  name: string;
-  image?: string;
-}
 
 
 
 
 interface ReplyCommentProps {
-  reply: CommentProps["comment"];
+  reply: CommentWithAuthor
 }
 
 interface CommentCardProps {
-  comment: CommentProps["comment"];
+  comment: CommentWithReplies
   onReply?: (commentId: string, content: string) => void;
 }
 
@@ -51,7 +46,7 @@ const ReplyComment: React.FC<ReplyCommentProps> = ({ reply }) => {
             {reply.author.name}
           </h4>
           <span className="text-xs text-gray-500 dark:text-gray-400">
-            {formatDistanceToNow(new Date(reply.publishedAt), {
+            {reply.publishedAt! && formatDistanceToNow(new Date(reply.publishedAt!), {
               addSuffix: true,
             })}
           </span>
@@ -65,7 +60,7 @@ const ReplyComment: React.FC<ReplyCommentProps> = ({ reply }) => {
 const CommentCard: React.FC<CommentCardProps> = ({ comment, onReply }) => {
   const [replyContent, setReplyContent] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [replies, setReplies] = useState<CommentProps["comment"][]>(comment.replies || []);
+  const [replies, setReplies] = useState<CommentWithAuthor[]>(comment.replies);
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
   const handleSubmitReply = async (e: React.FormEvent) => {
@@ -74,10 +69,8 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, onReply }) => {
       setIsSubmitting(true);
       try {
         await onReply(comment._id, replyContent);
-        
-        
-
         setReplyContent("");
+        
       } catch (error) {
         console.error("Failed to post reply:", error);
         // Show error notification if needed
@@ -94,7 +87,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, onReply }) => {
       <Link href={`/profile/${comment?.author._id}`}>
         <Image
           src={comment.author?.image || "/default-avatar.jpg"}
-          alt={comment.author.name}
+          alt={comment.author.name || "Author"}
           className="w-8 h-8 rounded-full object-cover border"
           width={32}
           height={32}
@@ -107,7 +100,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, onReply }) => {
             {comment.author.name}
           </h4>
           <span className="text-xs text-gray-500 dark:text-gray-400">
-            {formatDistanceToNow(new Date(comment.publishedAt), {
+            {formatDistanceToNow(new Date(comment.publishedAt!), {
               addSuffix: true,
             })}
           </span>
@@ -143,7 +136,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, onReply }) => {
                   <div className="flex gap-3 mb-2">
                     <Image
                       src={comment.author?.image || "/default-avatar.jpg"}
-                      alt={comment.author.name}
+                      alt={comment.author.name || "Author"}
                       className="w-8 h-8 rounded-full object-cover border"
                       width={32}
                       height={32}
@@ -153,7 +146,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, onReply }) => {
                         {comment.author.name}
                       </h4>
                       <span className="text-xs text-gray-500 dark:text-gray-400">
-                        {formatDistanceToNow(new Date(comment.publishedAt), {
+                        {formatDistanceToNow(new Date(comment.publishedAt!), {
                           addSuffix: true,
                         })}
                       </span>

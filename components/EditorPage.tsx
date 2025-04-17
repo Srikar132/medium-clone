@@ -1,6 +1,10 @@
 "use client";
 
-import Tiptap from "@/components/TipTap";
+import dynamic from "next/dynamic";
+
+const TipTap = dynamic(() => import("./TipTap") , {
+  ssr : false
+});
 import {
   createDraftPost,
   fetchCategories,
@@ -30,6 +34,9 @@ import { Switch } from "./ui/switch";
 import { useRouter } from "next/navigation";
 import { SanityImageAssetDocument } from "next-sanity";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
+import { BlockContent, Category } from "@/sanity/types";
+import { useFetch } from "@/hooks/useFetch";
 
 interface EditorPageProps {
   initialPostId?: string;
@@ -41,30 +48,24 @@ const EditorPage = ({ initialPostId }: EditorPageProps) => {
   const router = useRouter();
   const session = useSession();
   const [postId, setPostId] = useState<string | null>(null);
-  const [content, setContent] = useState<SanityContent[]>([]);
-  const [title, setTitle] = useState<string>("");
+  const [content, setContent] = useState<BlockContent["content"] | []>([]);
   const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [excerpt, setExcerpt] = useState<string>("");
-  const [featured, setFeatured] = useState<boolean>(false);
   const [publishStatus, setPublishStatus] = useState<PublishStatus>("draft");
   const [selectedCategories, setSelectedCategories] = useState([]);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const saveTimeoutRef = useRef<NodeJS.Timeout>(null);
   const hasInitialized = useRef<boolean>(false);
 
-  useEffect(() => {
-    const getCategories = async () => {
-      const cats = await fetchCategories();
-      setCategories(cats);
-    };
+  const [title, setTitle] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [excerpt, setExcerpt] = useState<string>("");
+  const [featured, setFeatured] = useState<boolean>(false);
 
-    getCategories();
-  }, []);
+  const { data: categories } = useFetch<Category[]>(fetchCategories, []);
 
   useEffect(() => {
     if (hasInitialized.current) return;
@@ -112,7 +113,7 @@ const EditorPage = ({ initialPostId }: EditorPageProps) => {
 
   useEffect(() => {
     const autoSave = async () => {
-      if (postId && (content.length > 0 || title)) {
+      if (postId && ((content || []).length > 0 || title)) {
         try {
           setIsSaving(true);
 
@@ -121,6 +122,7 @@ const EditorPage = ({ initialPostId }: EditorPageProps) => {
           setLastSaved(new Date());
         } catch (error) {
           toast.error("Auto save failed");
+          console.log(error);
         } finally {
           setIsSaving(false);
         }
@@ -131,7 +133,7 @@ const EditorPage = ({ initialPostId }: EditorPageProps) => {
       clearTimeout(saveTimeoutRef.current);
     }
 
-    saveTimeoutRef.current = setTimeout(autoSave, 3000);
+    saveTimeoutRef.current = setTimeout(autoSave, 5000);
 
     return () => {
       if (saveTimeoutRef.current) {
@@ -204,7 +206,9 @@ const EditorPage = ({ initialPostId }: EditorPageProps) => {
       <div className="relative w-full   flex  items-center">
         {coverImageUrl ? (
           <div className="w-full h-64 relative">
-            <img
+            <Image
+              height={100}
+              width={100}
               src={coverImageUrl}
               alt="Cover"
               className="w-full h-full object-cover rounded-t-lg shadow-sm"
@@ -331,7 +335,7 @@ const EditorPage = ({ initialPostId }: EditorPageProps) => {
       </div>
 
       <div className="p-4">
-        <Tiptap content={content} onChange={setContent} />
+        <TipTap content={content} onChange={setContent} />
       </div>
     </div>
   );

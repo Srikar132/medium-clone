@@ -9,7 +9,6 @@ import {
   Users,
   MapPin,
   Calendar,
-  BookOpen,
   ExternalLink,
 } from "lucide-react";
 import { FaLinkedin, FaInstagram, FaFacebook, FaPlus } from "react-icons/fa";
@@ -32,7 +31,7 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
   
   
     const [author , featured] = await Promise.all([
-      await client.fetch(AUTHOR_BY_ID, { id , userId : session?.id }),
+      await client.fetch(AUTHOR_BY_ID, { id , userId : session?.id || null }),
       await getFeaturedPostsByAuthor(id , 3)
     ]);
   
@@ -90,9 +89,9 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
                   initialIsFollowed={author?.isFollowing}
                   authorId={id}
                 />
-                <button className={`border border-gray-300 cursor-pointer hover:border-gray-400 text-gray-700 px-4 py-1 rounded-full transition-colors items-center gap-2 ${session?.id == author._id ? "flex" : "hidden"}`}>
+                <Link href={'/profile/edit'} className={`border border-gray-300 cursor-pointer hover:border-gray-400 text-gray-700 px-4 py-1 rounded-full transition-colors items-center gap-2 ${session?.id == author._id ? "flex" : "hidden"}`}>
                   <Edit size={15} /> edit
-                </button>
+                </Link>
               </div>
             </div>
   

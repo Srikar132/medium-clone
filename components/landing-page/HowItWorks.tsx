@@ -10,6 +10,7 @@ import {
   PinkFlower,
   PurpleHourglass,
 } from "@/constants";
+import Image from "next/image";
 
 export default function HowItWorks() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -194,10 +195,12 @@ export default function HowItWorks() {
                 <PinkFlower width={100} height={100} />
               </div>
               <div className="step1_img hidden lg:block absolute right-1/2 -top-40">
-                <img
+                <Image
                   src="/gssap-tube.png"
                   className="w-52 h-52"
                   alt="GSAP Tube"
+                  height={50}
+                  width={50}
                 />
               </div>
               <div className="step1_img hidden lg:block absolute top-full left-1/2 -translate-x-1/2">

@@ -1,23 +1,21 @@
 import { auth } from "@/auth";
-import DraftCard from "@/components/DraftCard";
-import { getALLArticlesByAuthorId, getDraftsByAuthor } from "@/sanity/lib/fetches";
-import React from "react";
-import PublishedCard from '@/components/PublishedCard'
+import {  getAllArticlesByAuthorId } from "@/sanity/lib/fetches";
+import PublishedCard from "@/components/PublishedCard"
 
 const page = async () => {
   try {
     const session = await auth();
-    const posts = await getALLArticlesByAuthorId(session?.id as string);
+    const posts = await getAllArticlesByAuthorId(session?.id as string);
 
     return (
-      <div className="w-full max-w-3xl mx-auto py-8">
+      <div className="w-full  py-8">
         
         {posts.length === 0 ? (
           <div className="text-center p-8 bg-gray-50 rounded-lg">
             <p className="text-gray-600">You don't have any PUBLISHED posts yet.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 md:grid-cols-2  gap-5">
             {posts.map((post : any) => (
               <PublishedCard key={post._id} post={post} />
             ))}

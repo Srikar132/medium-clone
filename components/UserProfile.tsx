@@ -60,7 +60,7 @@ const UserProfile = ({ session }: { session: Session | null }) => {
         <div
           ref={dialogRef}
           id="dialog"
-          className="absolute top-full right-0 mt-2 w-56 p-3 rounded-xl bg-white shadow-lg border border-gray-200 opacity-0 -translate-y-4"
+          className="absolute top-full right-0 mt-2 w-56 p-3 rounded-xl bg-white shadow-lg border border-gray-200 opacity-0 -translate-y-4 z-50"
         >
           <ul className="flex flex-col gap-2">
               <Link

@@ -57,7 +57,7 @@ function Header() {
             </nav>
 
             <div className="bg-gradient-to-r hidden lg:block from-custom-baby-pink via-custom-pink  to-custom-sky-blue ml-10 max-lg:ml-auto pt-1 rounded-full">
-                <Link href={"/login"} className='rounded-full px-5 py-3 text-lg capitalize tracking-wider cursor-pointer text-white bg-[#282A38]'>
+                <Link href={"/home"} className='rounded-full px-5 py-3 text-lg capitalize tracking-wider cursor-pointer text-white bg-[#282A38]'>
                     signup
                 </Link>
             </div>

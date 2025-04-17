@@ -5,15 +5,7 @@ interface SanitySpan {
     marks: string[];
 }
 
-interface SanityBlock {
-    _type: 'block';
-    _key: string;
-    style: string;
-    listItem?: 'bullet' | 'number';
-    level?: number;
-    markDefs: any[];
-    children: SanitySpan[];
-}
+
    
 interface SanityImageBlock {
     _type: 'image';
@@ -46,18 +38,11 @@ interface DraftPost {
  }
 
 
- interface CommentProps {
-    comment: {
-      _id: string;
-      content: string;
-      publishedAt: string;
-      parentComment?: string | null;
-      author: {
-        _id : string;
-        name: string;
-        image : string
-      };
-      replies? : CommentProps["comment"][];
-    };
-  }
-  
+
+
+
+type ShowLoginOptions = {
+  title?: string
+  description?: string
+  onCancel?: () => void
+}

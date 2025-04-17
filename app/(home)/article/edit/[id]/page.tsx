@@ -1,6 +1,4 @@
-import { auth } from '@/auth'
 import EditorPage from '@/components/EditorPage'
-import { redirect } from 'next/navigation';
 import React from 'react'
 
 const page = async ({params} : {params : Promise<{id : string}>}) => {
@@ -17,7 +15,9 @@ const page = async ({params} : {params : Promise<{id : string}>}) => {
           </div>
         )
     } catch (error) {
-        
+      <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-red-700">Error loading drafts. Please try again later. - error?.message</p>
+      </div>
     }
 }
 

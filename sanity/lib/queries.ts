@@ -60,7 +60,88 @@ export const AUTHOR_BY_ID = defineQuery(`
 `);
 
 export const ALL_ARTICLES = defineQuery(`
-*[_type == "post" && status == "published"  ] | order(publishedAt desc) {
+*[
+  _type == "post" &&
+  status == "published" &&
+  defined(slug.current) &&
+  (
+    !defined($search) || 
+    title match $search || 
+    categories[]->slug match $search || 
+    author->name match $search
+  )
+] | order(publishedAt desc) {
+  _id,
+  title,
+  slug,
+  mainImage {
+    asset-> {
+      _id,
+      url
+    },
+    alt
+  },
+  author->{
+    image,
+    name,
+    _id
+  },
+  excerpt,
+  publishedAt,
+  "commentCount": count(*[_type == "comment" && post._ref == ^._id]),
+  "likeCount": count(*[_type == "like" && post._ref == ^._id]),
+}
+`);
+
+export const ALL_FOLLOWING_ARTICLES = defineQuery(`
+*[_type == "post" && status == "published" && author._ref in *[_type == "follow" && follower._ref == $userId ].following._ref] | order(publishedAt desc) {
+    _id,
+    title,
+    mainImage {
+        asset-> {
+          _id,
+          url
+        },
+        alt
+    },
+    author->{
+        image,
+        name,
+        _id
+    },
+    excerpt,
+    publishedAt,
+    "commentCount": count(*[_type == "comment" && post._ref == ^._id]),
+    "likeCount": count(*[_type == "like" && post._ref == ^._id]),
+}
+`);
+
+
+
+export const ALL_FEATURED_ARTICLES = defineQuery(`
+*[_type == "post" && status == "published" &&  featured == true ] | order(publishedAt desc) {
+    _id,
+    title,
+    mainImage {
+        asset-> {
+          _id,
+          url
+        },
+        alt
+    },
+    author->{
+        image,
+        name,
+        _id
+    },
+    excerpt,
+    publishedAt,
+    "commentCount": count(*[_type == "comment" && post._ref == ^._id]),
+    "likeCount": count(*[_type == "like" && post._ref == ^._id]),
+}
+`);
+export const ALL_ARTICLES_BY_CATEGORY = defineQuery(`
+*[_type == "post" && status == "published" && $category in categories[]->slug.current ] | order(publishedAt desc) {
     _id,
     title,
     mainImage {
@@ -102,12 +183,7 @@ export const ARTICLE_BY_ID = defineQuery(`
     name, 
     username, 
     image, 
-    bio,
-    "isFollowing": $userId != null && count(*[
-      _type == "follow" && 
-      follower._ref == $userId && 
-      following._ref == ^._id
-    ]) > 0
+    bio
   },
   categories[]->{_id, title, slug},
   "likeCount": count(*[_type == "like" && post._ref == ^._id]),
@@ -121,7 +197,12 @@ export const ARTICLE_BY_ID = defineQuery(`
     post._ref == ^._id && 
     author._ref == $userId
   ]) > 0,
-  "commentCount": count(*[_type == "comment" && post._ref == ^._id])
+  "commentCount": count(*[_type == "comment" && post._ref == ^._id]),
+  "isFollowing": $userId != null && count(*[
+    _type == "follow" && 
+    follower._ref == $userId && 
+    following._ref == ^._id
+  ]) > 0
 }
 `);
 
@@ -148,7 +229,7 @@ export const ARTICLES_BY_AUTHOR_ID_EXCEPT_CURRENT = defineQuery(`
     "likeCount": count(*[_type == "like" && post._ref == ^._id]),
 }`);
 
-export const ALL_ARTICLES_BY_AUTHOR_ID= defineQuery(`
+export const ALL_ARTICLES_BY_AUTHOR_ID = defineQuery(`
 *[_type == "post" && status == "published" && author._ref == $authorId ] | order(publishedAt desc) {
     _id,
     title,
@@ -232,3 +313,88 @@ export const FOLLOWING_FOR_LOGIN_AUTHOR = defineQuery(`
     "isMeFollowing": true
   }
 `)
+
+export const GET_ALL_COMMENTS_FOR_POST = `
+*[_type == "comment" && post._ref == $id && !defined(parentComment)] {
+  _id,
+  author-> {
+    name,
+    image,
+    _id
+  },
+  content,
+  publishedAt,
+  "replies": *[_type == "comment" && parentComment._ref == ^._id] {
+    _id,
+    author-> {
+      name,
+      image,
+      _id
+    },
+    content,
+    publishedAt,
+    parentComment
+  }
+}
+`
+
+export const LIKED_ARTICLES_BY_AUTHOR = defineQuery(`
+  *[_type == "like" && author._ref == $id] {
+    post -> {
+      _id,
+      title,
+      slug,
+       mainImage {
+    asset->{
+      _ref,
+      url
+      }
+      },
+      excerpt,
+      publishedAt,
+      updatedAt,
+      featured,
+      categories[]-> {
+        _id,
+        title
+      },
+      author-> {
+        _id,
+        name,
+        image
+      },
+      "likeCount": count(*[_type == "like" && post._ref == ^._id]),
+      },
+      createdAt
+  }
+`);
+
+export const BOOKMARKED_ARTICLES_BY_LOGIN_AUTHOR = defineQuery(`
+  *[_type == "bookmark" && author._ref == $id] {
+    post -> {
+      _id,
+      title,
+      slug,
+       mainImage {
+      asset->{
+        _ref,
+        url
+      }
+      },
+      excerpt,
+      publishedAt,
+      updatedAt,
+      featured,
+      categories[]-> {
+        _id,
+        title
+      },
+      author-> {
+        _id,
+        name,
+        image
+      },
+    },
+    createdAt
+  }
+  `);

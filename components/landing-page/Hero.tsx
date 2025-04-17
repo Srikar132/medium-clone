@@ -86,7 +86,7 @@ function Hero() {
               </div>
             </div>
 
-            <Link href={"/login"} className="relative flex items-center  justify-center ">
+            <Link href={"/home"} className="relative flex items-center  justify-center ">
               <GetAccessBtn/>
               <div className="absolute flex items-center px-5 -top-1 w-full h-full">
                 <span className="text-white font-bold uppercase tracking-widest">Get Started</span>
@@ -152,7 +152,7 @@ function Hero() {
 
         <div className="w-full h-full p-10">
           <div className="rounded-2xl overflow-hidden  w-full h-full  ">
-            <img src="/thoughts.webp" alt="thoughts" className="w-full h-full object-cover invert " />
+            <Image src="/thoughts.webp" alt="thoughts" className="w-full h-full object-cover invert " height={100} width={100}/>
           </div>
         </div>
 

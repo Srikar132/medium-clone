@@ -1,46 +1,116 @@
 "use server";
 
 import { Session } from "next-auth";
-import { client } from "./client"
+import { client } from "./client";
 import { writeClient } from "./write-client";
 import { SanityAssetDocument } from "next-sanity";
-import { ALL_ARTICLES_BY_AUTHOR_ID, ARTICLES_BY_AUTHOR_ID_EXCEPT_CURRENT, ARTICLE_BY_ID, ARTICLE_INFORMATION, FEATURED_ARTICLES_BY_AUTHOR, FOLLOWERS_FOR_LOGIN_AUTHOR, FOLLOWING_FOR_LOGIN_AUTHOR } from "./queries";
+import { 
+  ALL_ARTICLES_BY_AUTHOR_ID, 
+  ARTICLES_BY_AUTHOR_ID_EXCEPT_CURRENT, 
+  ARTICLE_BY_ID, 
+  ARTICLE_INFORMATION, 
+  AUTHOR_BY_ID, 
+  BOOKMARKED_ARTICLES_BY_LOGIN_AUTHOR, 
+  FEATURED_ARTICLES_BY_AUTHOR, 
+  FOLLOWERS_FOR_LOGIN_AUTHOR, 
+  FOLLOWING_FOR_LOGIN_AUTHOR, 
+  GET_ALL_COMMENTS_FOR_POST, 
+  LIKED_ARTICLES_BY_AUTHOR
+} from "./queries";
 import { auth } from "@/auth";
+import { BlockContent } from "../types";
 
+/**
+ * Interface definitions for better type safety
+ */
+interface SanityContent {
+  _type: string;
+  [key: string]: any;
+}
 
-// ALL CATEGORIES 
+interface CreateCommentData {
+  authorId: string;
+  postId: string;
+  content: string;
+  parentCommentId?: string;
+}
+
+/**
+ * Fetch all categories from Sanity
+ */
 export const fetchCategories = async () => {
   try {
-    const res = await client.fetch(`*[_type == "category"]{_id,title}`);
-    return res;
+    return await client.fetch(`*[_type == "category"]{_id,title}`);
   } catch (error) {
     console.error('Failed to fetch categories:', error);
+    return [];
+  }
+};
+
+export const fetchAuthor = async () => {
+  try {
+
+    const session = await auth();
+    if (!session) {
+      throw new Error('Authentication required to update a post');
+    }
+
+    return await client.fetch(`
+    *[_type == "author" && _id == $id ][0]{
+      _id,
+      googleId,
+      name,
+      username,
+      email,
+      image,
+      bio,
+      socialLinks {
+        linkedin,
+        instagram,
+        facebook
+      },
+      memberSince,
+    }
+    ` , {id : session?.id});
+  } catch (error) {
+    console.error('Failed to fetch categories:', error);
+    return [];
+  }
+};
+
+/**
+ * Fetch a post by its ID
+ */
+export const fetchPostById = async (id: string) => {
+  if (!id) {
+    throw new Error('Post ID is required');
+  }
+
+  try {
+    return await client.fetch(
+      `*[_type == "post" && _id == $postId][0]{
+        _id,
+        title,
+        mainImage,
+        content,
+        excerpt,
+        status,
+        "categoryIds": categories[]._ref
+      }`, 
+      { postId: id }
+    );
+  } catch (error) {
+    console.error('Failed to fetch post:', error);
     return null;
   }
 };
 
-export const fetchPostById = async (id: string) => {
-  try {
-    const res = await client.fetch(`*[_type == "post" && _id == $postId][0]{
-            _id,
-            title,
-            mainImage,
-            content,
-            excerpt,
-            status,
-            "categoryIds": categories[]._ref
-          }`, { postId: id });
-
-    return res;
-  } catch (error) {
-    console.error('Failed to fetch post with id:', error);
-    return null;
-  }
-}
-
-export const createDraftPost = async (session: Session) => {
+/**
+ * Create a draft post for the authenticated user
+ */
+export const createDraftPost = async (session: Session | null) => {
   if (!session?.id) {
-    throw new Error('Unauthorized user to create post');
+    throw new Error('Authentication required to create a post');
   }
 
   try {
@@ -53,7 +123,7 @@ export const createDraftPost = async (session: Session) => {
       title: tempTitle,
       slug: {
         _type: 'slug',
-        current: `${tempTitle.toLowerCase().replace(/\s+/g, '-')}`,
+        current: tempTitle.toLowerCase().replace(/\s+/g, '-'),
       },
       content: {
         _type: 'blockContent',
@@ -82,38 +152,63 @@ export const createDraftPost = async (session: Session) => {
       publishedAt: timestamp,
     };
 
-    const res = await writeClient.create(doc);
-    return res;
-  } catch (error: any) {
-    console.error('Failed to create draft post:', error.message);
+    return await writeClient.create(doc);
+  } catch (error) {
+    console.error('Failed to create draft post:', error);
     return null;
   }
 };
 
+/**
+ * Update a post's content and title
+ */
+export const updatePost = async (postId: string, title: string, content: BlockContent["content"]) => {
+  if (!postId) {
+    throw new Error('Post ID is required');
+  }
 
-export const updatePost = async (postId: string, title: string, content: SanityContent[]) => {
   try {
+    const session = await auth();
+    if (!session?.id) {
+      throw new Error('Authentication required to update a post');
+    }
+    
+    // Verify ownership before updating
+    const post = await client.fetch(
+      `*[_type == "post" && _id == $postId && author._ref == $authorId][0]._id`, 
+      { postId, authorId: session.id }
+    );
+    
+    if (!post) {
+      throw new Error('Unauthorized: You can only update your own posts');
+    }
+
     await writeClient
       .patch(postId)
       .set({
         title: title || 'Untitled Post',
         slug: {
           _type: 'slug',
-          current: `${title.toLowerCase().replace(/\s+/g, '-')}`,
+          current: `${(title || 'Untitled Post').toLowerCase().replace(/\s+/g, '-')}`,
         },
         content: {
           _type: 'blockContent',
-          content: content
+          content
         },
         updatedAt: new Date().toISOString()
       })
       .commit();
+    
+    return { success: true };
   } catch (error) {
-    console.error('Auto-save failed in updateFunction:', error);
+    console.error('Post update failed:', error);
+    throw error;
   }
-}
+};
 
-
+/**
+ * Publish a post with all required data
+ */
 export const publishPostToSanity = async (
   postId: string,
   title: string,
@@ -121,15 +216,35 @@ export const publishPostToSanity = async (
   selectedCategories: string[],
   asset?: SanityAssetDocument
 ) => {
-  try {
+  if (!postId || !title) {
+    throw new Error('Post ID and title are required');
+  }
 
-    const patchData: any = {
-      title,
+  try {
+    const session = await auth();
+    if (!session?.id) {
+      throw new Error('Authentication required to publish a post');
+    }
+    
+    const post = await client.fetch(
+      `*[_type == "post" && _id == $postId && author._ref == $authorId][0]._id`, 
+      { postId, authorId: session.id }
+    );
+    
+    if (!post) {
+      throw new Error('Unauthorized: You can only publish your own posts');
+    }
+
+    const sanitizedTitle = title.trim();
+    const slugText = sanitizedTitle.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+
+    const patchData : any = {
+      title: sanitizedTitle,
       slug: {
         _type: 'slug',
-        current: title.toLowerCase().replace(/\s+/g, '-')
+        current: slugText
       },
-      excerpt,
+      excerpt: excerpt.trim(),
       categories: selectedCategories.map(id => ({
         _type: 'reference',
         _ref: id
@@ -137,8 +252,7 @@ export const publishPostToSanity = async (
       status: 'published',
       publishedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
-    }
-
+    };
 
     if (asset) {
       patchData.mainImage = {
@@ -147,200 +261,306 @@ export const publishPostToSanity = async (
           _type: 'reference',
           _ref: asset._id
         }
-      }
+      };
     }
 
-    await writeClient.patch(postId).set(patchData).commit()
-
-    console.log('Post published successfully!')
+    await writeClient.patch(postId).set(patchData).commit();
+    return { success: true };
   } catch (error) {
-    console.error('Failed to publish post:', error)
+    console.error('Failed to publish post:', error);
+    throw error;
   }
-}
+};
 
-
+/**
+ * Upload an image to Sanity
+ */
 export const uploadImageToSanity = async (file: File) => {
+  if (!file) {
+    throw new Error('File is required');
+  }
+
   try {
-    const asset = await writeClient.assets.upload('image', file, { filename: file?.name });
-    return asset;
+    const session = await auth();
+    if (!session?.id) {
+      throw new Error('Authentication required to upload images');
+    }
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      throw new Error('Invalid file type. Only JPEG, PNG, GIF, and WebP are supported.');
+    }
+
+    // Limit file size (5MB)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      throw new Error('File size exceeds the 5MB limit');
+    }
+
+    return await writeClient.assets.upload('image', file, { filename: file.name });
   } catch (error) {
-    console.error('Error in uploading image to sanity : ', error);
+    console.error('Error uploading image:', error);
+    throw error;
   }
 };
 
-
+/**
+ * Get all draft posts for the specified author
+ */
 export const getDraftsByAuthor = async (authorId: string) => {
-  try {
-    const data = await client.fetch(`*[_type == "post" && author._ref == $id && status == "draft" ]{
-      _id,
-      title,
-      updatedAt,
-    }` , { id: authorId });
+  if (!authorId) {
+    throw new Error('Author ID is required');
+  }
 
-    return data;
+  try {
+    const session = await auth();
+    if (!session?.id || session.id !== authorId) {
+      throw new Error('You can only view your own drafts');
+    }
+
+    return await client.fetch(
+      `*[_type == "post" && author._ref == $id && status == "draft"]{
+        _id,
+        title,
+        updatedAt,
+      }`,
+      { id: authorId }
+    );
   } catch (error) {
-    console.log("Error in fetching drafts : ", error);
+    console.error("Error fetching drafts:", error);
+    return [];
   }
 };
 
-
-export async function getFeaturedPostsByAuthor(
-  authorId: string,
-  limit: number = 10
-) {
+/**
+ * Get featured posts by an author
+ */
+export async function getFeaturedPostsByAuthor(authorId: string, limit: number = 10) {
+  if (!authorId) {
+    throw new Error('Author ID is required');
+  }
 
   try {
-    const posts = await client.fetch(FEATURED_ARTICLES_BY_AUTHOR, { authorId, limit });
-    return posts;
+    return await client.fetch(FEATURED_ARTICLES_BY_AUTHOR, { 
+      authorId, 
+      limit: Math.min(limit, 50) // Cap the limit to prevent abuse
+    });
   } catch (error) {
     console.error("Error fetching featured posts:", error);
     return [];
   }
 }
 
+/**
+ * Get detailed article data by ID
+ */
+export async function getArticleData(id: string) {
+  if (!id) {
+    throw new Error('Article ID is required');
+  }
 
-export async function getArticleData(id: string, userId: string | null) {
   try {
+    const session = await auth();
+    const userId = session?.id || null;
+
+
+
     
-    const post = await client.fetch(ARTICLE_BY_ID, { id, userId });
-    return post;
+    return await client.fetch(ARTICLE_BY_ID, { id, userId });
   } catch (error) {
-    console.error("Error fetching article by id:", error);
+    console.error("Error fetching article:", error);
     return null;
   }
 }
 
-export async function getArticlesByAuthorIdExceptCurrent(authorId: string,currentPostId : string) {
+/**
+ * Get articles by an author except the current article
+ */
+export async function getArticlesByAuthorIdExceptCurrent(authorId: string, currentPostId: string) {
+  if (!authorId || !currentPostId) {
+    throw new Error('Author ID and current post ID are required');
+  }
+
   try {
-    const postsByAuthor = await client.fetch(ARTICLES_BY_AUTHOR_ID_EXCEPT_CURRENT, {
+    return await client.fetch(ARTICLES_BY_AUTHOR_ID_EXCEPT_CURRENT, {
       authorId,
       currentPostId
     });
-
-    return postsByAuthor;
   } catch (error) {
-    console.error("Error in fetching articles except currnet by author by id :", error);
+    console.error("Error fetching articles:", error);
     return [];
   }
-};
+}
 
-export async function getALLArticlesByAuthorId(authorId: string) {
+/**
+ * Get all articles by an author
+ */
+export async function getAllArticlesByAuthorId(authorId: string) {
+  if (!authorId) {
+    throw new Error('Author ID is required');
+  }
+
   try {
-    const postsByAuthor = await client.fetch(ALL_ARTICLES_BY_AUTHOR_ID, {
-      authorId
-    });
-
-    return postsByAuthor;
+    return await client.fetch(ALL_ARTICLES_BY_AUTHOR_ID, { authorId });
   } catch (error) {
-    console.error("Error in fetching articles by author by id :", error);
+    console.error("Error fetching articles:", error);
     return [];
   }
-};
+}
 
-export async function getCommentsForPost (id : string) {
+/**
+ * Get comments for a specific post
+ */
+export async function getCommentsForPost(id: string) {
+  if (!id) {
+    throw new Error('Post ID is required');
+  }
+
   try {
-    const comments = await client.withConfig({ useCdn: false }).fetch(`
-      *[_type == "comment" && post._ref == $id && !defined(parentComment)] {
-        _id,
-        author-> {
-          name,
-          image,
-          _id
-        },
-        content,
-        publishedAt,
-        "replies": *[_type == "comment" && parentComment._ref == ^._id] {
-          _id,
-          author-> {
-            name,
-            image,
-            _id
-          },
-          content,
-          publishedAt,
-          parentComment
-        }
-      }
-    `, { id });
-
-
-    
-
-    return comments;
+    // Using withConfig to bypass CDN for fresh comments
+    return await client.withConfig({ useCdn: false }).fetch(GET_ALL_COMMENTS_FOR_POST, { id });
   } catch (error) {
-    console.error("Error in fetching comments  :", error);
+    console.error("Error fetching comments:", error);
     return [];
   }
-};
+}
 
-
-
-
+/**
+ * Create a new comment
+ */
 export async function createComment(data: CreateCommentData) {
+  if (!data.authorId || !data.postId || !data.content) {
+    throw new Error('Author ID, post ID, and content are required');
+  }
+
   try {
+    const session = await auth();
+    if (!session?.id || session.id !== data.authorId) {
+      throw new Error('You can only create comments as yourself');
+    }
+
+    // Check if post exists
+    const postExists = await client.fetch(
+      `*[_type == "post" && _id == $postId][0]._id`,
+      { postId: data.postId }
+    );
+    
+    if (!postExists) {
+      throw new Error('Post not found');
+    }
+
+    // Validate parent comment if provided
+    if (data.parentCommentId) {
+      const parentCommentExists = await client.fetch(
+        `*[_type == "comment" && _id == $commentId][0]._id`,
+        { commentId: data.parentCommentId }
+      );
+      
+      if (!parentCommentExists) {
+        throw new Error('Parent comment not found');
+      }
+    }
+
     const doc = {
       _type: "comment",
       author: { _type: "reference", _ref: data.authorId },
       post: { _type: "reference", _ref: data.postId },
-      content: data.content,
+      content: data.content.trim(),
       publishedAt: new Date().toISOString(),
       ...(data.parentCommentId && {
         parentComment: { _type: "reference", _ref: data.parentCommentId },
       }),
     };
 
-    const response = await writeClient.create(doc);
-    return response;
-  } catch (err) {
-    console.error("Error creating comment:", err);
-    throw err;
+    return await writeClient.create(doc);
+  } catch (error) {
+    console.error("Error creating comment:", error);
+    throw error;
   }
 }
-;
 
-export const getALLInformationAboutArticle = async (id : string) => {
-  try {
-    const data = await client.fetch(ARTICLE_INFORMATION , {id});
-    return data;
-  } catch (err) {
-    console.error("Error in fetching all information :", err);
-    throw err;
+/**
+ * Get comprehensive information about an article
+ */
+export const getArticleInformation = async (id: string) => {
+  if (!id) {
+    throw new Error('Article ID is required');
   }
-};
 
+  try {
+    return await client.fetch(ARTICLE_INFORMATION, { id });
+  } catch (error) {
+    console.error("Error fetching article information:", error);
+    throw error;
+  }
+}
 
+/**
+ * Get followers for the authenticated user
+ */
 export const getFollowers = async () => {
   try {
     const session = await auth();
-
-    if(!session?.id) {
-      throw new Error("Unathicated for get followers , ");
+    if (!session?.id) {
+      throw new Error("Authentication required to view followers");
     }
 
-    const data = await client.fetch(FOLLOWERS_FOR_LOGIN_AUTHOR, {id : session.id});
-
-    return data;
-    
-  } catch (err) {
-    console.error("Error in fetching all followers :", err);
-    throw err;
+    return await client.fetch(FOLLOWERS_FOR_LOGIN_AUTHOR, { id: session.id });
+  } catch (error) {
+    console.error("Error fetching followers:", error);
+    return [];
   }
-};
+}
+
+/**
+ * Get users that the authenticated user is following
+ */
 export const getFollowing = async () => {
   try {
     const session = await auth();
-
-    if(!session?.id) {
-      throw new Error("Unathicated for get following , ");
+    if (!session?.id) {
+      throw new Error("Authentication required to view following");
     }
 
-    const data = await client.fetch(FOLLOWING_FOR_LOGIN_AUTHOR, {id : session.id});
-
-    return data;
-  } catch (err) {
-    console.error("Error in fetching all following :", err);
-    throw err;
+    return await client.fetch(FOLLOWING_FOR_LOGIN_AUTHOR, { id: session.id });
+  } catch (error) {
+    console.error("Error fetching following:", error);
+    return [];
   }
 };
 
 
+export const getALLlikedArticles = async () => {
+  try {
+
+    const session = await auth();
+
+    if(!session) {
+      throw new Error("Unathicated for get followers , ");
+    }
+
+    const data = await client.fetch(LIKED_ARTICLES_BY_AUTHOR , {id: session?.id});
+    return data;
+  } catch (err) {
+    console.error("Error in fetching all articles:", err);
+    throw err;
+  }
+};
+
+export const getBookmarkedArticles = async () => {
+  try {
+    const session = await auth();
+
+    if(!session) {
+      throw new Error("Unathicated for get following , ");
+    }
+
+    const data = await client.fetch(BOOKMARKED_ARTICLES_BY_LOGIN_AUTHOR, {id : session.id});
+
+    return data;
+  } catch (err) {
+    console.error("Error in fetching all bookmarked articles:", err);
+    throw err;
+  }
+};

@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Cedarville+Cursive&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap");
 
 @config "../tailwind.config.js";
 @import "tailwindcss";
@@ -20,7 +21,8 @@ html {
 }
 
 * {
-  font-family: "Roboto", sans-serif;
+  font-family: "Roboto Flex", sans-serif;
+  font-optical-sizing: auto;
   font-optical-sizing: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -32,6 +34,10 @@ html {
 
 .font-cursive {
   font-family: "Cedarville Cursive", cursive !important;
+}
+
+.font-merri_weather {
+  font-family: "Merriweather", serif;
 }
 
 body {
@@ -62,7 +68,7 @@ body {
   @apply prose max-w-none;
   min-height: 16rem;
   outline: none;
- }
+}
 
 @layer utilities {
   .flex-center {
@@ -72,7 +78,6 @@ body {
   .nav_cont {
     @apply flex items-center  lg:px-7.5  px-3 sm:px-5  xl:px-10 max-lg:py-4;
   }
-
 
   .common-padding {
     @apply lg:px-7.5 py-5 px-3 sm:px-5  xl:px-10 max-lg:py-2;
@@ -143,33 +148,40 @@ body {
   }
 
   .search-form {
-    @apply max-w-4xl w-full min-h-[50px] 
-           bg-white/90 dark:bg-black/70 
-           border border-black dark:border-white 
-           rounded-[90px] text-[20px] mt-8 px-5 
-           flex flex-row items-center gap-5 
-           hover:border-pink-300 dark:hover:border-pink-400 
-           hover:bg-white dark:hover:bg-black;
+    @apply w-full min-h-[50px]
+           bg-white/80 dark:bg-zinc-900/80
+           border border-zinc-200 dark:border-zinc-700
+           rounded-full px-6 py-2
+           flex items-center gap-4
+           shadow-sm hover:shadow-md
+           transition-all duration-300
+           backdrop-blur-md;
   }
 
   .search-input {
-    @apply flex-1 font-bold 
-           placeholder:text-black/70 dark:placeholder:text-white/70 
-           w-full placeholder:text-[15px] 
-           placeholder:tracking-widest
-           h-auto outline-none 
-           text-black dark:text-white;
+    @apply flex-1 bg-transparent font-medium
+           placeholder:text-zinc-500 dark:placeholder:text-zinc-400 
+           text-[16px] tracking-wide
+           outline-none border-none
+           text-zinc-800 dark:text-white;
   }
 
   .search-btn {
-    @apply size-[35px] rounded-full 
-           bg-pink-500 hover:bg-pink-600 
-           flex justify-center items-center 
-           text-white;
+    @apply size-9 min-w-[36px] rounded-full
+           bg-pink-500 hover:bg-pink-600
+           flex justify-center items-center
+           text-white transition-colors duration-200;
   }
 
   .view_skeleton {
     @apply bg-zinc-400 h-10 w-24 rounded-lg fixed bottom-3 right-3;
+  }
+
+  .write___link_nav {
+    @apply flex max-lg:hidden items-center gap-2 px-4 py-1.5 rounded-full 
+    text-muted-foreground hover:text-foreground 
+    bg-muted hover:bg-accent 
+    transition-all duration-300 shadow-sm;
   }
 }
 

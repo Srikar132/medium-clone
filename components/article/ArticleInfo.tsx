@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { getALLInformationAboutArticle } from "@/sanity/lib/fetches";
+import { getArticleInformation} from "@/sanity/lib/fetches";
 import { format } from "date-fns";
 import Link from "next/link";
 import { Skeleton } from "../WritePageSkeleton";
@@ -44,7 +44,7 @@ const ArticleInfo: React.FC<InfoButtonProps> = ({ id }) => {
   useEffect(() => {
     const getInfo = async () => {
       setIsLoading(true);
-      const data = await getALLInformationAboutArticle(id);
+      const data = await getArticleInformation(id);
       setData(data as InfoProps);
       setIsLoading(false);
     };

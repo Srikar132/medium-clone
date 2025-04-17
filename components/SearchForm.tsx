@@ -7,7 +7,7 @@ import { FaSearch } from "react-icons/fa";
 const SearchForm = ({query} : {query? : string}) => {
 
     return (
-        <Form action={"/home"} scroll={false}
+        <Form action={"/search"} scroll={false}
             className={`search-form`}
         >
             <input

@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useState } from "react";
-import { BsBookmarkFill, BsBookmarkPlus } from "react-icons/bs";
+import { sm } from "./ui/__ms__";
 
 interface BookmarkButtonProps {
   postId: string;
@@ -16,8 +16,7 @@ const BookmarkButton = ({ postId, initialBookmarked }: BookmarkButtonProps) => {
 
   const handleBookmark = async () => {
     if (!session) {
-      // show login model
-
+      sm({description : "Please login to bookmark this article page"});      
       return;
     }
 

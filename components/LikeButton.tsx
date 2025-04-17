@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useState } from "react";
-import { FcLike, FcLikePlaceholder } from "react-icons/fc";
+import { sm } from "./ui/__ms__";
 
 interface LikeButtonProps {
   postId: string;
@@ -22,7 +22,7 @@ const LikeButton = ({
 
   const handleLike = async () => {
     if (!session) {
-      // show login dailog
+      sm({description : "Please login to like this article page."});
       return;
     }
 

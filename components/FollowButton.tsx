@@ -2,8 +2,8 @@
 
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { FcLike, FcLikePlaceholder } from 'react-icons/fc';
 import { PiPlus } from 'react-icons/pi';
+import { sm } from './ui/__ms__';
 
 
 interface FollowButtonProps {
@@ -21,7 +21,9 @@ const FollowButton = ({
 
   const handleFollow = async () => {
     if(!session) {
-      // show login dailog
+      sm({
+        description : "Please login to follow our authors",
+      })
       return;
     }
 
@@ -58,7 +60,7 @@ const FollowButton = ({
         {isLoading ? (
           <div className="w-5 h-5 border-2 border-gray-300 border-t-black rounded-full animate-spin" />
         ) : isFollowed ? (
-          "Following"
+          "UnFollow"
         ) : (
           <div className="flex items-center gap-2">
             <PiPlus />

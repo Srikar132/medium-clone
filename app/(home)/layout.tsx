@@ -1,9 +1,9 @@
-import { auth } from "@/auth";
 import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "next-themes";
-import { redirect } from "next/navigation";
 import React from "react";
 import { Toaster } from "@/components/ui/sonner"
+import { SMProvider } from "@/components/ui/__ms__";
+import MediumFooter from "@/components/MediumFooter";
 
 export default async function RootLayout({
     children,
@@ -20,8 +20,10 @@ export default async function RootLayout({
             <main className="min-h-screen">
               {children}
             </main>
+            <MediumFooter/>
           </ThemeProvider>
           <Toaster  position="top-center"/>
+          <SMProvider/>
       </div>
     )
   };
