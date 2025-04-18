@@ -23,7 +23,7 @@ export const useFetch = <T>(fn: AsyncFunction<T> , initValue : any) => {
   };
 
   useEffect(() => {
-    if(!data) fetchData();
+    fetchData();
   }, []);
 
   const refresh = () => fetchData();

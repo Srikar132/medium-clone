@@ -97,7 +97,7 @@ const page = () => {
   });
 
   return (
-    <div className="w-full flex items-center justify-center mt-20 min-h-screen">
+    <div className="w-full flex items-center justify-center md:mt-2 min-h-screen">
       {isLoading ? (
         <div className="rounded-full w-10 h-10 border-4 border-t-pink-500 border-gray-400 animate-spin"/>
       ) : (

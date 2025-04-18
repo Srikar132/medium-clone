@@ -5,7 +5,21 @@ interface SanitySpan {
     marks: string[];
 }
 
+type FollowResponse = {
+    FOLLOWED: boolean;
+    OK : boolean;
+};
+  
 
+type LikeResponse = {
+    LIKED: boolean;
+    OK : boolean;
+};
+
+type BookmarkResponse = {
+    BOOKMARKED: boolean;
+    OK : boolean
+};
    
 interface SanityImageBlock {
     _type: 'image';

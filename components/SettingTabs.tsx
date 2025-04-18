@@ -13,7 +13,7 @@ const SettingTabs = ({ data, formAction, errors, isPending }: { data: Author, fo
       defaultValue="general"
       className="w-full mt-10 grid grid-rows-[fit-content(0)_auto] md:grid-cols-4 gap-6 bg-transparent"
     >
-      <TabsList className="col-span-1 flex md:flex-col gap-1 bg-transparent rounded-lg p-4 h-fit w-full space-y-4 max-md:overflow-x-auto">
+      <TabsList className="col-span-1 flex md:flex-col gap-1 bg-transparent rounded-lg p-4 h-fit w-full md:space-y-4 max-md:overflow-x-auto max-md:items-center">
         <TabsTrigger
           value="general"
           className="w-full py-1 px-2 font-medium text-base transition-colors rounded border-0 text-slate-700"
@@ -38,11 +38,11 @@ const SettingTabs = ({ data, formAction, errors, isPending }: { data: Author, fo
           className="w-full text-start py-1 px-2 font-medium text-base text-red-500 md:flex md:items-center md:gap-2 md:mt-auto"
         >
           <Trash className="h-4 w-4" />
-          <span>Delete Account</span>
+          <span className="max-md:hidden">Delete Account</span>
         </TabsTrigger>
       </TabsList>
 
-      <form action={formAction} className="flex-1 md:col-span-3">
+      <form action={formAction} className="flex-1 md:col-span-3 max-md:mt-3">
         <TabsContent
           value="general"
           className="border border-slate-200 rounded-lg p-2 md:p-6 bg-white shadow-sm"

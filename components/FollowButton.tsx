@@ -4,6 +4,8 @@ import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { PiPlus } from 'react-icons/pi';
 import { sm } from './ui/__ms__';
+import { toggleFollow } from '@/lib/actions';
+import { toast } from 'sonner';
 
 
 interface FollowButtonProps {
@@ -29,19 +31,14 @@ const FollowButton = ({
 
     try {
       setIsLoading(true);
-      const response = await fetch('/api/follow' , {
-        method : "POST",
-        headers : {
-          'Content-Type' : "application/json",
-        },
-        body : JSON.stringify({authorId , userId : session?.id})
-      });
+      const result = await toggleFollow(session.id , authorId);
 
-      if(response.ok) {
+      if(result.OK) {
         setIsFollowed(!isFollowed);
       }
     } catch (error : any) {
       console.log("Error togling like : " , error.message);
+      toast.error("Error in toggling follow. - Try Again!");
     }finally{
       setIsLoading(false);
     }

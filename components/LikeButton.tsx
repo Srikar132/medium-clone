@@ -3,6 +3,8 @@
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { sm } from "./ui/__ms__";
+import { toast } from "sonner";
+import { toggleLike } from "@/lib/actions";
 
 interface LikeButtonProps {
   postId: string;
@@ -28,20 +30,17 @@ const LikeButton = ({
 
     try {
       setIsLoading(true);
-      const response = await fetch("/api/likes", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ postId, userId: session?.id! }),
-      });
+      const result = await toggleLike(postId , session?.id);
 
-      if (response.ok) {
+      if (result.OK) {
         setIsLiked(!isLiked);
         setLikeCount((prevCount) => (isLiked ? prevCount - 1 : prevCount + 1));
+        toast(isLiked ? "Un liked article.  - liked page will update later!." : "Liked the article - Liked page will update later!.")
       }
+      
     } catch (error: any) {
       console.log("Error togling like : ", error.message);
+      toast.error("Error in toggling the like. Try again!");
     } finally {
       setIsLoading(false);
     }

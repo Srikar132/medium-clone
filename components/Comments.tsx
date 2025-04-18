@@ -22,7 +22,7 @@ export type CommentWithReplies = CommentWithAuthor & {
 };
 
 const Comments = ({ id }: { id: string }) => {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [newComment, setNewComment] = useState<string>("");
   const [isSendingComment, setIsSendingComment] = useState<boolean>(false);
 
@@ -31,9 +31,11 @@ const Comments = ({ id }: { id: string }) => {
     isLoading,
     refresh,
   } = useFetch<CommentWithReplies[]>(
-    async () => await getCommentsForPost(id),
+    () => getCommentsForPost(id),
     []
   );
+
+
 
   const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,13 +48,13 @@ const Comments = ({ id }: { id: string }) => {
 
     setIsSendingComment(true);
 
-    const newCom = await createComment({
+    await createComment({
       postId: id,
       authorId: session.id,
       content: newComment,
     });
 
-    refresh();
+    // refresh();
 
     toast("comment added successfully");
     setIsSendingComment(false);

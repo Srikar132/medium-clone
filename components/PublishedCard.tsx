@@ -8,6 +8,8 @@ import { HiOutlineEye, HiStar,  HiBookmark, HiHeart} from "react-icons/hi";
 import gsap from "gsap";
 import { urlFor } from "@/sanity/lib/image";
 import { useRouter } from "next/navigation";
+import BookmarkButton from "./BookmarkButton";
+import LikeButton from "./LikeButton";
 
 type Author = {
   name: string;
@@ -43,21 +45,16 @@ export type Post = {
 type PublishedCardProps = {
   post: Post;
   variant?: "default" | "liked" | "bookmarked";
-  onUnlike?: (postId: string) => Promise<void>;
-  onRemoveBookmark?: (postId: string) => Promise<void>;
 };
 
 export default function PublishedCard({
   post,
   variant = "default",
-  onUnlike,
-  onRemoveBookmark
 }: PublishedCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const optionsRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const [isLiked, setIsLiked] = useState(variant === "liked");
-  const [isBookmarked, setIsBookmarked] = useState(variant === "bookmarked");
+
 
   const formattedDate = post.publishedAt
     ? formatDistance(new Date(post.publishedAt), new Date(), {
@@ -94,31 +91,7 @@ export default function PublishedCard({
     }
   }, []);
 
-  const handleUnlike = async () => {
-    if (onUnlike && variant === "liked") {
-      try {
-        await onUnlike(post._id);
-        setIsLiked(false);
-        // Refresh the page to reflect changes
-        router.refresh();
-      } catch (error) {
-        console.error("Error unliking post:", error);
-      }
-    }
-  };
 
-  const handleRemoveBookmark = async () => {
-    if (onRemoveBookmark && variant === "bookmarked") {
-      try {
-        await onRemoveBookmark(post._id);
-        setIsBookmarked(false);
-        // Refresh the page to reflect changes
-        router.refresh();
-      } catch (error) {
-        console.error("Error removing bookmark:", error);
-      }
-    }
-  };
 
   return (
     <div
@@ -141,7 +114,6 @@ export default function PublishedCard({
           </div>
         )}
 
-        {/* Featured Badge */}
         {post.featured && (
           <div className="absolute top-3 right-3">
             <div className="bg-pink-500 p-1 rounded-full text-white">
@@ -151,9 +123,7 @@ export default function PublishedCard({
         )}
       </div>
 
-      {/* Content Section */}
       <div className="p-4 flex-1 flex flex-col">
-        {/* Categories */}
         <div className="flex flex-wrap gap-1 mb-2">
           {post.categories?.slice(0, 2).map((category, index) => (
             <span
@@ -216,7 +186,6 @@ export default function PublishedCard({
         </div>
       </div>
 
-      {/* Hover Options */}
       <div
         ref={optionsRef}
         className="absolute inset-0 bg-black/50 flex items-center justify-center gap-4"
@@ -228,26 +197,19 @@ export default function PublishedCard({
           <HiOutlineEye className="w-5 h-5" />
         </Link>
 
-        {/* Like/Unlike Button - Only show in liked variant */}
-        {variant === "liked" && onUnlike && (
-          <button
-            title="Unlike"
-            onClick={handleUnlike}
-            className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-pink-500 hover:bg-pink-200 cursor-pointer hover:text-white transition-colors"
-          >
-            <HiHeart className="w-5 h-5 text-red-500" />
-          </button>
+        {variant === "liked" && (
+         <LikeButton
+          initialIsLiked={true}
+          postId={post._id}
+          initialLikeCount={0}
+         />
         )}
 
-        {/* Bookmark/Unbookmark Button - Only show in bookmarked variant */}
-        {variant === "bookmarked" && onRemoveBookmark && (
-          <button
-            title="Remove bookmark"
-            onClick={handleRemoveBookmark}
-            className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-pink-500 cursor-pointer hover:bg-pink-200 hover:text-white transition-colors"
-          >
-            <HiBookmark className="w-5 h-5" />
-          </button>
+        {variant === "bookmarked" &&  (
+          <BookmarkButton
+            initialBookmarked={true}
+            postId={post._id}
+          />
         )}
       </div>
     </div>

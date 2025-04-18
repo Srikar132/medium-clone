@@ -208,7 +208,7 @@ export const menuItems = [
   { title: 'My Articles', url: '/my-articles/drafts', Icon: FaBook },
   { title: 'Following', url: '/follow/followers', Icon: FaUserPlus },
   { title: 'Liked', url: '/liked', Icon: GrLike },
-  { title: 'Bookmarks', url: '/bookmarks', Icon: FaBookmark },
+  { title: 'Bookmarks', url: '/bookmark', Icon: FaBookmark },
   { title: 'Logout', url: '/logout', Icon: BiLogOut },
 ];
 

@@ -424,7 +424,9 @@ export async function getCommentsForPost(id: string) {
 
   try {
     // Using withConfig to bypass CDN for fresh comments
-    return await client.withConfig({ useCdn: false }).fetch(GET_ALL_COMMENTS_FOR_POST, { id });
+    const comments = await client.fetch(GET_ALL_COMMENTS_FOR_POST, { id });
+
+    return comments;
   } catch (error) {
     console.error("Error fetching comments:", error);
     return [];

@@ -3,6 +3,8 @@
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { sm } from "./ui/__ms__";
+import { toggleBookmark } from "@/lib/actions";
+import { toast } from "sonner";
 
 interface BookmarkButtonProps {
   postId: string;
@@ -22,19 +24,14 @@ const BookmarkButton = ({ postId, initialBookmarked }: BookmarkButtonProps) => {
 
     try {
       setIsLoading(true);
-      const response = await fetch("/api/bookmarks", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ postId }),
-      });
+      const result = await toggleBookmark(postId , session.id);
 
-      if (response.ok) {
+      if (result.OK) {
         setIsBookmarked(!isBookmarked);
       }
     } catch (error: any) {
       console.log("Error toggling bookmar : ", error?.message);
+      toast.error("Error in toggling bookmark. - Try Again!");
     } finally {
       setIsLoading(false);
     }
