@@ -10,7 +10,7 @@ const page = async () => {
     const posts: DraftPost[] = await getDraftsByAuthor(session?.id as string);
 
     return (
-      <div className="w-full max-w-3xl mx-auto py-8">
+      <div className="w-full py-8">
         
         {posts.length === 0 ? (
           <div className="text-center p-8 bg-gray-50 rounded-lg">

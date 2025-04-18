@@ -13,6 +13,7 @@ import View from "../Views";
 import { getArticleData } from "@/sanity/lib/fetches";
 import MoreByAuthor from "./MoreByAuthor";
 import { Author, Post } from "@/sanity/types";
+import ToogleCommentsBtn from "../ToogleCommentsBtn";
 
 type ArticleWithCounts = Omit<Post, "author"> & {
   author: Author;
@@ -41,11 +42,11 @@ const ArticleContent = async ({ id }: { id: string }) => {
                   href={`/profile/${post?.author?._id}`}
                   className="flex items-center gap-3 group hover:opacity-90 transition-opacity"
                 >
-                  <div className="relative h-10 w-10 rounded-full overflow-hidden ring-2 ring-gray-100 dark:ring-gray-800">
+                  <div className="relative h-7 w-7 sm:h-10 sm:w-10 rounded-full overflow-hidden ring-2 ring-gray-100 dark:ring-gray-800">
                     <Image
                       className="object-cover"
                       fill
-                      sizes="40px"
+                      
                       src={post?.author?.image || "/default-avatar.jpg"}
                       alt={post?.author?.name || "Author"}
                     />
@@ -107,8 +108,9 @@ const ArticleContent = async ({ id }: { id: string }) => {
                   postId={post?._id}
                   initialBookmarked={post?.isBookmarked}
                 />
-                <ShareButton id={id} />
-                <ArticleInfo id={id} />
+                <ToogleCommentsBtn side="bottom"/>
+                <ShareButton side="bottom" id={id} />
+                <ArticleInfo side="bottom" id={id} />
               </div>
 
               <div className="w-full mt-10 pt-6 border-t border-gray-200 dark:border-gray-800">

@@ -14,7 +14,7 @@ const NavSearchFormWrapper = ({children} : {
   return (
     <div
       className={
-        pathname.includes("home") ? "hidden" : "hidden md:block w-full max-w-xl flex items-center justify-center"
+        pathname.includes("home") || pathname.includes("onboarding") ? "hidden" : "hidden md:block w-full max-w-md flex items-center justify-center"
       }
     >
       {children}

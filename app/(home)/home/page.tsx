@@ -77,6 +77,7 @@ export default async function HomePage({
     if (error instanceof SanityError && error.status === 404) {
       notFound();
     }
+    
     throw error;
   }
 }

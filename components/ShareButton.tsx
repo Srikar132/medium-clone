@@ -10,12 +10,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import TooltipWrapper, { CustomTooltipProps } from './TooltipWrapper';
 
 interface ShareButtonProps {
   id: string;
+  side?  : CustomTooltipProps["side"];
 }
 
-const ShareButton: React.FC<ShareButtonProps> = ({ id }) => {
+const ShareButton: React.FC<ShareButtonProps> = ({ id , side = "left" }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   
@@ -37,11 +39,13 @@ const ShareButton: React.FC<ShareButtonProps> = ({ id }) => {
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <DialogTrigger asChild>
-        <div className='rounded-full p-2 border hover:bg-gray-100 cursor-pointer'>
-          <Upload className="w-5 h-5 text-black font-thin" />
-        </div>
-      </DialogTrigger>
+        <TooltipWrapper side={side} content={"Share article"}>
+          <DialogTrigger asChild>
+              <div className='rounded-full p-2 border hover:bg-gray-100 cursor-pointer dark:hover:bg-zinc-800'>
+                <Upload className="w-5 h-5  font-thin" />
+              </div>
+          </DialogTrigger>
+        </TooltipWrapper>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Share Article</DialogTitle>

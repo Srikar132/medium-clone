@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { formatDistance } from "date-fns";
-import { HiOutlineEye, HiStar,  HiBookmark, HiHeart} from "react-icons/hi";
+import { HiOutlineEye, HiStar, HiBookmark, HiHeart } from "react-icons/hi";
 import gsap from "gsap";
 import { urlFor } from "@/sanity/lib/image";
 import { useRouter } from "next/navigation";
@@ -55,7 +55,6 @@ export default function PublishedCard({
   const optionsRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-
   const formattedDate = post.publishedAt
     ? formatDistance(new Date(post.publishedAt), new Date(), {
         addSuffix: true,
@@ -90,8 +89,6 @@ export default function PublishedCard({
       };
     }
   }, []);
-
-
 
   return (
     <div
@@ -198,18 +195,15 @@ export default function PublishedCard({
         </Link>
 
         {variant === "liked" && (
-         <LikeButton
-          initialIsLiked={true}
-          postId={post._id}
-          initialLikeCount={0}
-         />
+          <LikeButton
+            initialIsLiked={true}
+            postId={post._id}
+            initialLikeCount={0}
+          />
         )}
 
-        {variant === "bookmarked" &&  (
-          <BookmarkButton
-            initialBookmarked={true}
-            postId={post._id}
-          />
+        {variant === "bookmarked" && (
+          <BookmarkButton initialBookmarked={true} postId={post._id} />
         )}
       </div>
     </div>

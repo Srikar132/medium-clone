@@ -24,7 +24,7 @@ interface ReplyCommentProps {
 
 interface CommentCardProps {
   comment: CommentWithReplies
-  onReply?: (commentId: string, content: string) => void;
+  onReply?: (commentId: string, content: string) => Promise<CommentWithAuthor | null>;
 }
 
 const ReplyComment: React.FC<ReplyCommentProps> = ({ reply }) => {
@@ -68,12 +68,14 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, onReply }) => {
     if (replyContent.trim() && onReply) {
       setIsSubmitting(true);
       try {
-        await onReply(comment._id, replyContent);
+        const tempReply : CommentWithAuthor | null = await onReply(comment._id, replyContent);
         setReplyContent("");
+
+        if(tempReply )setReplies((prev) => [...prev , tempReply])
         
       } catch (error) {
         console.error("Failed to post reply:", error);
-        // Show error notification if needed
+        
       } finally {
         setIsSubmitting(false);
       }

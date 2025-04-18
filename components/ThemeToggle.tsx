@@ -17,7 +17,7 @@ const ThemeToggle = () => {
   return (
     <button
         onClick={() => setTheme(theme ==  "dark" ? "light" : "dark" )}
-        className={`px-3 py-2 rounded-md transition-colors duration-200 flex items-center justify-center gap-2 cursor-pointer `}
+        className={` sm:px-3 py-2 rounded-md transition-colors duration-200 flex items-center justify-center gap-2 cursor-pointer `}
     >
         {theme == "dark" ? <FaSun size={20} /> 
         : <FaMoon className="text-black dark:text-white" size={20} />

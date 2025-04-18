@@ -160,44 +160,44 @@ const EditorPage = ({ initialPostId }: EditorPageProps) => {
     );
   };
 
-  const finalizePublish = async () => {
-    if (!postId || !title) {
-      toast.error("Cannot find your post");
-      return;
-    }
+  // const finalizePublish = async () => {
+  //   if (!postId || !title) {
+  //     toast.error("Cannot find your post");
+  //     return;
+  //   }
 
-    if (!excerpt.trim()) {
-      toast.error("Please add an excerpt before publishing");
-      return;
-    }
+  //   if (!excerpt.trim()) {
+  //     toast.error("Please add an excerpt before publishing");
+  //     return;
+  //   }
 
-    try {
-      setIsSaving(true);
+  //   try {
+  //     setIsSaving(true);
 
-      let asset: SanityImageAssetDocument | undefined = undefined;
-      if (coverImage) {
-        asset = await uploadImageToSanity(coverImage);
-      }
+  //     let asset: SanityImageAssetDocument | undefined = undefined;
+  //     if (coverImage) {
+  //       asset = await uploadImageToSanity(coverImage);
+  //     }
 
-      await publishPostToSanity(
-        postId,
-        title,
-        excerpt,
-        selectedCategories,
-        asset
-      );
+  //     await publishPostToSanity(
+  //       postId,
+  //       title,
+  //       excerpt,
+  //       selectedCategories,
+  //       asset
+  //     );
 
-      setPublishStatus("published");
-      setLastSaved(new Date());
-      toast("Post published successfullly");
+  //     setPublishStatus("published");
+  //     setLastSaved(new Date());
+  //     toast("Post published successfullly");
 
-      router.replace(`/article/${postId}`);
-    } catch (error) {
-      toast.error("Failed to publish post. Please try again.");
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  //     router.replace(`/article/${postId}`);
+  //   } catch (error) {
+  //     toast.error("Failed to publish post. Please try again.");
+  //   } finally {
+  //     setIsSaving(false);
+  //   }
+  // };
 
   return isLoading ? (
     <WritePageSkeleton />
@@ -321,7 +321,7 @@ const EditorPage = ({ initialPostId }: EditorPageProps) => {
                 <div className="flex w-full justify-end gap-2 mt-6">
                   <button
                     disabled={isSaving}
-                    onClick={finalizePublish}
+                    // onClick={finalizePublish}
                     className="px-4 py-2 bg-black text-white  flex items-center gap-1"
                   >
                     <Check size={16} />{" "}
@@ -335,7 +335,7 @@ const EditorPage = ({ initialPostId }: EditorPageProps) => {
       </div>
 
       <div className="p-4">
-        <TipTap content={content} onChange={setContent} />
+        {/* <TipTap content={content} onChange={setContent} /> */}
       </div>
     </div>
   );

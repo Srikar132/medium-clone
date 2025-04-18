@@ -4,12 +4,12 @@ import { FaTwitter, FaFacebook, FaInstagram } from 'react-icons/fa';
 
 const MediumFooter: React.FC = () => {
   return (
-    <footer className="bg-white border-t border-gray-200 py-8">
+    <footer className="bg-white dark:invert border-t border-gray-200 py-8">
       <div className="container mx-auto px-4">
         <div className="flex flex-wrap justify-between">
           {/* Logo */}
           <div className="mb-6 md:mb-0">
-            <Link href="/" className="text-xl font-bold font-cursive">
+            <Link href="/" className="text-xl dark:invert font-bold font-cursive">
               Medium
             </Link>
           </div>

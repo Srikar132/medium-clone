@@ -15,7 +15,7 @@ const page = async () => {
             <p className="text-gray-600">You don't have any PUBLISHED posts yet.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2  gap-5">
+          <div className="grid___fit_screen  gap-5">
             {posts.map((post : any) => (
               <PublishedCard key={post._id} post={post} />
             ))}

@@ -457,7 +457,6 @@ export async function createComment(data: CreateCommentData) {
       throw new Error('Post not found');
     }
 
-    // Validate parent comment if provided
     if (data.parentCommentId) {
       const parentCommentExists = await client.fetch(
         `*[_type == "comment" && _id == $commentId][0]._id`,

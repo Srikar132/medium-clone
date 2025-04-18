@@ -8,7 +8,7 @@ const page = async () => {
 
 
   return (
-    <div className='w-full p-5'>
+    <div className='w-full mt-3 md:mt-5'>
       <div className="flex flex-col space-y-3 ">
         {data.length === 0 ? (
           <p className='font-thin text-xl'>No follower for you</p>

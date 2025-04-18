@@ -6,6 +6,7 @@ import { PiPlus } from 'react-icons/pi';
 import { sm } from './ui/__ms__';
 import { toggleFollow } from '@/lib/actions';
 import { toast } from 'sonner';
+import TooltipWrapper from './TooltipWrapper';
 
 
 interface FollowButtonProps {
@@ -35,6 +36,7 @@ const FollowButton = ({
 
       if(result.OK) {
         setIsFollowed(!isFollowed);
+        toast(!isFollowed ? "Followed the author successfully - liked page will update later!." : "Unfollowed the author successfully - Liked page will update later!.")
       }
     } catch (error : any) {
       console.log("Error togling like : " , error.message);
@@ -48,14 +50,13 @@ const FollowButton = ({
       <button
         disabled={isLoading}
         onClick={handleFollow}
-        className={`relative min-w-32 px-5 py-2 rounded-full flex items-center justify-center 
-                    tracking-wid
-                    e lowercase transition-all duration-300 ease-in-out 
+        className={`relative sm:min-w-32 px-2 sm:px-5 py-2 rounded-full flex items-center justify-center 
+                    sm:tracking-widest lowercase transition-all duration-300 ease-in-out 
                     ${isFollowed ? "bg-black text-white" : "bg-white text-black border border-black"} 
                     ${isLoading ? "cursor-not-allowed" : "cursor-pointer"} font-cursive`}
       >
         {isLoading ? (
-          <div className="w-5 h-5 border-2 border-gray-300 border-t-black rounded-full animate-spin" />
+          <div className="w-5 h-5 border-3 border-pink-400 border-t-black rounded-full animate-spin" />
         ) : isFollowed ? (
           "UnFollow"
         ) : (

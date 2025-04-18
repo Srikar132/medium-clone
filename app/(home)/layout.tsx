@@ -4,6 +4,7 @@ import React from "react";
 import { Toaster } from "@/components/ui/sonner"
 import { SMProvider } from "@/components/ui/__ms__";
 import MediumFooter from "@/components/MediumFooter";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export default async function RootLayout({
     children,
@@ -16,12 +17,15 @@ export default async function RootLayout({
     return (
       <div className="py-3 px-4">
           <ThemeProvider  attribute="class" defaultTheme="system" enableSystem>
-            <Navbar/>
-            <main className="min-h-screen">
-              {children}
-            </main>
-            <MediumFooter/>
+            <TooltipProvider>
+              <Navbar/>
+              <main className="min-h-screen">
+                {children}
+              </main>
+              <MediumFooter/>
+            </TooltipProvider>
           </ThemeProvider>
+
           <Toaster  position="top-center"/>
           <SMProvider/>
       </div>

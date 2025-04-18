@@ -23,7 +23,7 @@ const DraftCard = ({ post }: { post: DraftPost }) => {
   };
 
   return (
-    <div className="w-full border border-gray-200 rounded-lg p-4 flex flex-col gap-2 shadow-sm hover:shadow-md transition-shadow">
+    <div className="w-full max-w-md border border-gray-200 rounded-lg p-4 flex flex-col gap-2 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start">
         <h3 className="text-lg font-semibold leading-relaxed">{post.title}</h3>
 

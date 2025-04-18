@@ -1,7 +1,7 @@
 "use client";
 
 import { createComment, getCommentsForPost } from "@/sanity/lib/fetches";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ShareButton from "./ShareButton";
 import ArticleInfo from "./article/ArticleInfo";
 import CommentCard from "./CommentCard";
@@ -12,6 +12,7 @@ import { Button } from "./ui/button";
 import { useFetch } from "@/hooks/useFetch";
 import { sm } from "./ui/__ms__";
 import { Author, Comment } from "@/sanity/types";
+import ToogleCommentsBtn from "./ToogleCommentsBtn";
 
 export type CommentWithAuthor = Omit<Comment, "author"> & {
   author: Author;
@@ -25,9 +26,10 @@ const Comments = ({ id }: { id: string }) => {
   const { data: session } = useSession();
   const [newComment, setNewComment] = useState<string>("");
   const [isSendingComment, setIsSendingComment] = useState<boolean>(false);
-
+  
+  const [comments, setComments] = useState<CommentWithReplies[]>([]);
   const {
-    data: comments,
+    data: fetchedComments,
     isLoading,
     refresh,
   } = useFetch<CommentWithReplies[]>(
@@ -35,6 +37,16 @@ const Comments = ({ id }: { id: string }) => {
     []
   );
 
+
+  useEffect(() => {refresh()} , [id]);
+
+
+
+  useEffect(() => {
+    if (fetchedComments) {
+      setComments(fetchedComments);
+    }
+  }, [fetchedComments]);
 
 
   const handleAddComment = async (e: React.FormEvent) => {
@@ -48,41 +60,106 @@ const Comments = ({ id }: { id: string }) => {
 
     setIsSendingComment(true);
 
-    await createComment({
+    const createdComment = await createComment({
       postId: id,
       authorId: session.id,
       content: newComment,
     });
 
-    // refresh();
+    const tempComment: CommentWithReplies = {
+      _id: Date.now().toString(), // Temporary ID
+      _type: "comment",
+      content: newComment,
+      author: {
+        _id: session.id,
+        name: session.user?.name || "Anonymous",
+        image: session.user?.image || "",
+        _type: "author",
+        _createdAt: new Date().toISOString(),
+        _updatedAt: new Date().toISOString(),
+        _rev: ""
+      },
+      replies: [],
+      _createdAt: new Date().toISOString(),
+      _updatedAt: new Date().toISOString(),
+      publishedAt: new Date().toISOString(),
+      _rev: "",
+      post: {
+        _type : "reference",
+        _ref : id
+      }
+    };
+    
+    // Add the new comment to the local state
+    setComments(prevComments => [tempComment, ...prevComments]);
+
+    
 
     toast("comment added successfully");
     setIsSendingComment(false);
     setNewComment("");
   };
 
-  const onReply = async (commentId: string, replyContent: string) => {
+  const onReply = async (commentId: string, replyContent: string) : Promise<CommentWithAuthor | null> => {
     if (!session) {
-      sm({ description: "its like a reply , Please login to continue" });
-      return;
+      sm({ description: "Please login to reply to comments" });
+      return null;
     }
 
-    const comm = await createComment({
-      postId: id,
-      authorId: session?.id!,
-      content: replyContent,
-      parentCommentId: commentId,
-    });
+    try {
+      await createComment({
+        postId: id,
+        authorId: session.id,
+        content: replyContent,
+        parentCommentId: commentId,
+      });
 
-    // refresh();
+      const tempReply: CommentWithAuthor = {
+        _id: Date.now().toString(),
+        _type: "comment",
+        content: replyContent,
+        author: {
+          _id: session.id,
+          name: session.user?.name || "Anonymous",
+          image: session.user?.image || "",
+          _type: "author",
+          _createdAt: new Date().toISOString(),
+          _updatedAt: new Date().toISOString(),
+          _rev: ""
+        },
+        _createdAt: new Date().toISOString(),
+        _updatedAt: new Date().toISOString(),
+        publishedAt: new Date().toISOString(),
+        _rev: "",
+        post : {
+          _ref : id,
+          _type : "reference"
+        }
+      };
+
+
+      
+      toast("Reply added successfully");
+
+      return tempReply;
+    } catch (error) {
+      toast("Failed to add reply. Please try again.");
+      console.error("Error adding reply:", error);
+      return null
+    }
   };
 
   return (
     <div className="w-full h-full overflow-y-scroll py-3 px-1">
       <div className="w-full h-full flex flex-col space-y-4">
-        <div className="w-full max-lg:justify-end flex gap-x-3">
-          <ShareButton id={id} />
-          <ArticleInfo id={id} />
+        <div className="w-full justify-between flex items-center ">
+          <div className="lg:hidden">
+            <ToogleCommentsBtn/>
+          </div>
+          <div className="flex items-center gap-1">
+            <ShareButton id={id} />
+            <ArticleInfo id={id} />
+          </div>
         </div>
 
         <div className="mt-2">
@@ -111,13 +188,13 @@ const Comments = ({ id }: { id: string }) => {
             </form>
           ) : (
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Please <button className="underline text-blue-500">login</button>{" "}
+              Please <button onClick={() => sm({description : "Please Login to continue."})} className="underline text-blue-500">login</button>{" "}
               to comment.
             </p>
           )}
         </div>
 
-        {/* Comments */}
+        
         <div className="space-y-2 overflow-y-scroll">
           {isLoading ? (
             Array.from({ length: 5 }).map((_, i) => <CommentSkeleton key={i} />)

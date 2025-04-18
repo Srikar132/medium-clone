@@ -64,7 +64,7 @@ export default function LikedLayout({
 
               <div className="mt-6 flex flex-wrap items-center gap-4">
                 <Link
-                  href="/bookmarks"
+                  href="/bookmark"
                   className="px-5 py-2.5 border border-pink-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-pink-50 dark:hover:bg-gray-800 transition-all flex items-center gap-2 group"
                 >
                   <IoBookmarkOutline className="text-lg text-pink-500 group-hover:scale-110 transition-transform" />

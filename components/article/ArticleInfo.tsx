@@ -14,9 +14,11 @@ import { getArticleInformation} from "@/sanity/lib/fetches";
 import { format } from "date-fns";
 import Link from "next/link";
 import { Skeleton } from "../WritePageSkeleton";
+import TooltipWrapper, { CustomTooltipProps } from "../TooltipWrapper";
 
 interface InfoButtonProps {
   id: string;
+  side? : CustomTooltipProps["side"]
 }
 
 interface Category {
@@ -35,9 +37,10 @@ interface InfoProps {
   commentsCount: number;
   publishedAt: string;
   categories: Category[];
+
 }
 
-const ArticleInfo: React.FC<InfoButtonProps> = ({ id }) => {
+const ArticleInfo: React.FC<InfoButtonProps> = ({ id , side = "left" }) => {
   const [data, setData] = useState<InfoProps | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -54,11 +57,13 @@ const ArticleInfo: React.FC<InfoButtonProps> = ({ id }) => {
 
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <div className="rounded-full p-2 border hover:bg-gray-100 cursor-pointer">
-          <InfoIcon className="w-5 h-5 text-black font-thin" />
-        </div>
-      </DialogTrigger>
+        <TooltipWrapper content=" info " side={side}>
+          <DialogTrigger asChild>
+              <div className="rounded-full p-2 border hover:bg-gray-100 cursor-pointer dark:hover:bg-zinc-800">
+                <InfoIcon className="w-5 h-5  font-thin" />
+              </div>
+          </DialogTrigger>
+        </TooltipWrapper>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Shot Details</DialogTitle>
