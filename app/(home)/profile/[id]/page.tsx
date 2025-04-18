@@ -150,7 +150,7 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
                   ) : (
                     <>
                       <div className="relative p-2 border cursor-pointer rounded-full hover:bg-sky-50 w-fit">
-                        <Link href="/"><FaLinkedin size={25} className="text-blue-600" /></Link>
+                        <Link href="/profile/edit"><FaLinkedin size={25} className="text-blue-600" /></Link>
                         <FaPlus
                           className="absolute text-gray-600 text-md font-medium p-[2px]"
                           style={{ top: "-4%", right: "-4%" }}
@@ -171,7 +171,7 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
                   ) : (
                     <>
                       <div className="relative p-2 border cursor-pointer rounded-full hover:bg-sky-50 w-fit">
-                        <Link href = "/"><FaInstagram size={25} className="text-pink-500" /></Link>
+                        <Link href = "/profile/edit"><FaInstagram size={25} className="text-pink-500" /></Link>
                         <FaPlus
                           className="absolute text-gray-600 text-md font-medium p-[2px]"
                           style={{ top: "-4%", right: "-4%" }}
@@ -192,7 +192,7 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
                   ) : (
                     <>
                       <div className="relative cursor-pointer p-2 border rounded-full w-fit hover:bg-sky-50">
-                        <Link href="/"><FaFacebook size={25} className="text-blue-800" /></Link>
+                        <Link href="/profile/edit"><FaFacebook size={25} className="text-blue-800" /></Link>
                         <FaPlus
                           className="absolute text-gray-600 text-md font-medium p-[2px]"
                           style={{ top: "-4%", right: "-4%" }}

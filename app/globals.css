@@ -183,6 +183,18 @@ body {
     bg-muted hover:bg-accent 
     transition-all duration-300 shadow-sm;
   }
+
+  .edit-form_input {
+    @apply w-full px-4 py-2 border border-pink-300 rounded-xl focus:ring-pink-500 focus:border-pink-500;
+  }
+
+  .edit-form_label {
+    @apply text-xl font-semibold mb-6;
+  }
+
+  .edit-form_label-2 {
+    @apply block text-lg font-medium text-gray-700 mb-1;
+  }
 }
 
 @theme inline {

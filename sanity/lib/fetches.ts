@@ -19,6 +19,7 @@ import {
 } from "./queries";
 import { auth } from "@/auth";
 import { BlockContent } from "../types";
+import { urlFor } from "./image";
 
 /**
  * Interface definitions for better type safety
@@ -55,7 +56,7 @@ export const fetchAuthor = async () => {
       throw new Error('Authentication required to update a post');
     }
 
-    return await client.fetch(`
+    return await client.withConfig({useCdn : false}).fetch(`
     *[_type == "author" && _id == $id ][0]{
       _id,
       googleId,
@@ -72,6 +73,8 @@ export const fetchAuthor = async () => {
       memberSince,
     }
     ` , {id : session?.id});
+
+    
   } catch (error) {
     console.error('Failed to fetch categories:', error);
     return [];
@@ -298,7 +301,9 @@ export const uploadImageToSanity = async (file: File) => {
       throw new Error('File size exceeds the 5MB limit');
     }
 
-    return await writeClient.assets.upload('image', file, { filename: file.name });
+    const asset = await writeClient.assets.upload('image', file, { filename: file.name });
+
+    return urlFor(asset).url();
   } catch (error) {
     console.error('Error uploading image:', error);
     throw error;

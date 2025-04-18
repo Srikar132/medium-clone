@@ -14,6 +14,17 @@ interface SanityImageBlock {
     asset: { _ref: string };
 }
 
+type FormValues = {
+    username: string;
+    email: string;
+    image: string;
+    name: string;
+    bio?: string;
+    linkedin?: string;
+    instagram?: string;
+    facebook?: string;
+}
+
 
 type SanityContent = SanityBlock | SanityImageBlock;
 
