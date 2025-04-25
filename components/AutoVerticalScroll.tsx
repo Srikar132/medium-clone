@@ -23,7 +23,7 @@ export default function AutoScrollCarousel() {
     }, 2000);
     
     return () => clearInterval(interval);
-  }, [cardData.length]);
+  }, []);
   
   return (
     <div className="w-full overflow-hidden relative" style={{ height: "300px" }}>

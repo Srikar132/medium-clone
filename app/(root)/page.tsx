@@ -7,13 +7,14 @@ import HowItWorks from "@/components/landing-page/HowItWorks";
 import Testimonials from "@/components/landing-page/Testimonials";
 import TopWriters from "@/components/landing-page/TopWriters";
 import Trending from "@/components/landing-page/Trending";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
   const session = await auth();
 
-  // if(session){
-  //   redirect("/home");
-  // }
+  if(session) {
+    redirect("/home");
+  }
 
   return (
     <>

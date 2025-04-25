@@ -64,14 +64,7 @@ export function PreferencesTabs({
     </div>
   );
 
-  const handleError = (error: any) => {
-    return (
-      <ErrorCard
-        title="Failed to load posts" 
-        description="There was an error loading your posts. Please try again later." 
-      />
-    );
-  };
+
 
   return (
     <Tabs defaultValue="liked" className="w-full">

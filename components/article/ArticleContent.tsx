@@ -20,6 +20,7 @@ import { Copy } from "lucide-react";
 import { SocialLinks } from "./SocialButton";
 import Comments from "../Comments";
 import RelatedPosts, { RelatedPostsSkeleton } from "../RelatedPosts";
+import ErrorCard from "../ErrorCard";
 
 const md = MarkDownIt();
 
@@ -207,13 +208,7 @@ const ArticleContent = async ({ slug }: { slug: string }) => {
     );
   } catch (error: any) {
     return (
-      <div className="w-full max-w-3xl mx-auto py-8">
-        <div className="p-4 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-red-700">
-            Error loading article. Please try again later. -{error?.message}
-          </p>
-        </div>
-      </div>
+      <ErrorCard/>
     );
   }
 };

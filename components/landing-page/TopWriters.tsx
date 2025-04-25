@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { writers } from "@/constants/writers";
 import Cone from "@/components/design/Cone";
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
-import { animateGSAP } from "@/utils";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import Image from "next/image";

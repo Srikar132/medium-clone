@@ -15,7 +15,7 @@ const SearchedPosts = async ({
 }: {
   params: { search: string | null };
   start: number;
-  end: number;
+  end ?: number;
 }) => {
   const posts: CustomPost[] = await client.fetch(ALL_ARTICLES, params);
 
@@ -84,7 +84,7 @@ const page = async ({
         <section className="w-full mt-10 grid grid-cols-1 lg:grid-cols-3 gap-5 pb-20">
           <div className="w-full gap-y-5 md:col-span-2 min-h-screen">
             <Suspense fallback={<ALLArticlesSkeleton />}>
-              <SearchedPosts params={params} start={start} end={end} />
+              <SearchedPosts params={params} start={start} />
             </Suspense>
           </div>
 

@@ -7,7 +7,6 @@ import {
     Users,
     MapPin,
     Calendar,
-    ExternalLink,
     BookOpen,
   } from "lucide-react";
 import { Edit, LucideNotebookPen } from "lucide-react";

@@ -1,8 +1,6 @@
 import AutoScrollCarousel from "./AutoVerticalScroll";
-import { Mail } from "lucide-react";
 import Ping from "./Ping";
 import NavLink from "./ui/nav-link";
-import { Button } from "./ui/button";
 
 const Recommendations = () => {
   return (

@@ -84,7 +84,6 @@ export default function SocialButton({
 
   const { hoverBgClass, glowClass, textClass } = getVariantStyles(variant);
 
-  // Base theme styles
   const baseThemeStyles = isDarkMode
     ? "text-gray-300 hover:text-white"
     : "text-gray-600 hover:text-white";

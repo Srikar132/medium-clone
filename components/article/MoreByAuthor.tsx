@@ -28,7 +28,7 @@ const MoreByAuthor = async ({
 
         <div className="grid grid-cols-2 gap-2">
           {postsByThisAuthor.map((post: CustomPost, i: number) => (
-            <div className="flex items-center rounded-lg p-3 hover:bg-opacity-70 bg-secondary-dark transition-colors rounded-lg border  cursor-pointer gap-3">
+            <div key={i} className="flex items-center rounded-lg p-3 hover:bg-opacity-70 bg-secondary-dark transition-colors rounded-lg border  cursor-pointer gap-3">
               <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
                 <Image
                   src={urlFor(post?.mainImage).url() || "/default-avatar.jpg"}

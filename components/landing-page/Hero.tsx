@@ -10,7 +10,6 @@ import Link from "next/link";
 import Circle from "../design/CircleSvg";
 import { CurvedButton, PinkContainer } from "../design/CustomBorderSVG";
 import StepsCard from "../design/StepCard";
-import GetAccessBtn from "../design/AccessBtn";
 import { useRef } from "react";
 import CurvedRhombus from "../design/CurvedRhombus";
 

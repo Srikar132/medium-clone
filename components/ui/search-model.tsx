@@ -7,8 +7,7 @@ import {
   ReactNode,
   useRef,
 } from "react";
-import { Search, X } from "lucide-react";
-import { Button } from "./button";
+import { Search } from "lucide-react";
 
 // 1. Context Setup
 interface SearchDialogContextType {

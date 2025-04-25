@@ -1,4 +1,3 @@
-// page.tsx - Main profile settings page
 "use client";
 
 import SettingTabs from "@/components/SettingTabs";
@@ -9,14 +8,12 @@ import { fetchAuthor, uploadImageToSanity } from "@/sanity/lib/fetches";
 import { urlFor } from "@/sanity/lib/image";
 import { Author } from "@/sanity/types";
 import Image from "next/image";
-import { useTheme } from "next-themes";
 import { useActionState, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
 const ProfileSettingsPage = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { theme } = useTheme();
   const { data, isLoading, refresh } = useFetch<Author>(fetchAuthor, null);
 
   const handleFormSubmit = async (prevState: any, formData: FormData) => {

@@ -1,4 +1,3 @@
-import { auth } from "@/auth";
 import ALLArticles, { ALLArticlesSkeleton } from "@/components/article/ALLArticles";
 import Categories from "@/components/Categories";
 import ParticlesBackground from "@/components/design/Particles";
@@ -28,8 +27,8 @@ export default async function HomePage({
     const start = (Number(page) - 1) * ARTICLES_PER_PAGE;
     const end = start + ARTICLES_PER_PAGE;
 
-    let query: any = ALL_ARTICLES;
-    let params: any = {
+    const query: any = ALL_ARTICLES;
+    const params: any = {
       search: null,
       start,
       end,

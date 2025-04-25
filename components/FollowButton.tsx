@@ -6,7 +6,6 @@ import { PiPlus } from 'react-icons/pi';
 import { sm } from './ui/__ms__';
 import { toggleFollow } from '@/lib/actions';
 import { toast } from 'sonner';
-import TooltipWrapper from './TooltipWrapper';
 
 
 interface FollowButtonProps {

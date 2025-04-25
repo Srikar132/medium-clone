@@ -3,12 +3,14 @@ import { useState } from "react";
 import GoogleSvg from "@/components/design/GoogleSvg";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trash, Linkedin, Instagram, Facebook, User, Mail, FileText } from "lucide-react";
+import { Trash, User, Mail, FileText } from "lucide-react";
 import Image from "next/image";
 import UploadProfile from "./UploadProfile";
 import { Author } from "@/sanity/types";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
+import { BsInstagram, BsLinkedin } from "react-icons/bs";
+import { FaFacebook } from "react-icons/fa6";
 
 interface SettingTabsProps {
   data: Author;
@@ -65,7 +67,7 @@ const SettingTabs = ({ data, formAction, errors, isPending }: SettingTabsProps) 
               : "text-muted-foreground"
           )}
         >
-          <Linkedin className="h-4 w-4" />
+          <BsLinkedin className="h-4 w-4" />
           <span>Social Links</span>
         </TabsTrigger>
         <div className="flex-grow hidden md:block"></div>
@@ -265,7 +267,7 @@ const SettingTabs = ({ data, formAction, errors, isPending }: SettingTabsProps) 
             <div className="space-y-6">
               <div className="space-y-2">
                 <label htmlFor="linkedin" className="flex items-center gap-2 text-sm font-medium text-card-foreground">
-                  <Linkedin className="h-4 w-4" />
+                  <BsLinkedin className="h-4 w-4" />
                   LinkedIn
                 </label>
                 <div className="relative">
@@ -285,7 +287,7 @@ const SettingTabs = ({ data, formAction, errors, isPending }: SettingTabsProps) 
 
               <div className="space-y-2">
                 <label htmlFor="instagram" className="flex items-center gap-2 text-sm font-medium text-card-foreground">
-                  <Instagram className="h-4 w-4" />
+                  <BsInstagram className="h-4 w-4" />
                   Instagram
                 </label>
                 <input
@@ -303,7 +305,7 @@ const SettingTabs = ({ data, formAction, errors, isPending }: SettingTabsProps) 
 
               <div className="space-y-2">
                 <label htmlFor="facebook" className="flex items-center gap-2 text-sm font-medium text-card-foreground">
-                  <Facebook className="h-4 w-4" />
+                  <FaFacebook className="h-4 w-4" />
                   Facebook
                 </label>
                 <input

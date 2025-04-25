@@ -1,6 +1,5 @@
 "use client";
 
-import { category } from '@/sanity/schemaTypes/category';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import slugify from "slugify"

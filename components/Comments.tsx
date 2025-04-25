@@ -35,7 +35,7 @@ const Comments = ({ id }: { id: string }) => {
 
   useEffect(() => {
     refresh();
-  }, [id]);
+  }, [id , refresh]);
 
   useEffect(() => {
     if (fetchedComments) {
@@ -54,7 +54,7 @@ const Comments = ({ id }: { id: string }) => {
 
     setIsSendingComment(true);
 
-    const createdComment = await createComment({
+    await createComment({
       postId: id,
       authorId: session.id,
       content: newComment,

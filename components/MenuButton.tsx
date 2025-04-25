@@ -2,7 +2,6 @@
 
 import { Menu } from "lucide-react";
 import { useState } from "react";
-import { useSidebar } from "./ui/sidebar";
 
 const MenuButton = ({
   isOpen,

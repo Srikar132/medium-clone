@@ -22,9 +22,6 @@ following,
   onActionComplete ?: () => void
 }) {
 
-  const handleActionSuccess = () => {
-    if (onActionComplete) onActionComplete();
-  };
 
   const renderEmptyState = (message: string) => (
     <div className="text-center p-8 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700">
@@ -48,14 +45,6 @@ following,
     </div>
   );
 
-  const handleError = (error: any) => {
-    return (
-      <ErrorCard
-        title="Failed to load posts" 
-        description="There was an error loading your posts. Please try again later." 
-      />
-    );
-  };
 
   return (
     <Tabs defaultValue="Followers" className="w-full">
