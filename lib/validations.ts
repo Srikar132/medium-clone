@@ -16,3 +16,13 @@ export const profileSchema = z.object({
   ),
   image: z.string().url("Invalid image URL"),
 });
+
+
+export const formSchema = z.object({
+  title: z.string().min(1, "Title is required").max(96, "Title is too long"),
+  excerpt: z.string().min(1, "Excerpt is required"),
+  content: z.string().min(1, "Content is required"),
+  status: z.enum(["draft", "published", "archived"]).default("draft"),
+  featured: z.boolean().default(false),
+  categories: z.array(z.string()).min(1, "At least one category is required"),
+});

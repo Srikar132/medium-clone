@@ -1,83 +1,99 @@
 import { auth } from "@/auth";
 import ALLArticles, { ALLArticlesSkeleton } from "@/components/article/ALLArticles";
 import Categories from "@/components/Categories";
+import ParticlesBackground from "@/components/design/Particles";
+import Pagination from "@/components/Pagination";
+import PopularBlogs from "@/components/PopularBlogs";
+import Recommendations from "@/components/Recommandations";
 import SearchForm from "@/components/SearchForm";
-import { ALL_ARTICLES, ALL_ARTICLES_BY_CATEGORY, ALL_FEATURED_ARTICLES, ALL_FOLLOWING_ARTICLES } from "@/sanity/lib/queries";
+import NavLink from "@/components/ui/nav-link";
+import {
+  ALL_ARTICLES,
+} from "@/sanity/lib/queries";
 import { SanityError } from "@/types/sanity";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { BsSearch } from "react-icons/bs";
 
+export const ARTICLES_PER_PAGE = 5;
 export const experimental_ppr = true;
-
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams:  Promise<{ feed: string , category : string }>;
+  searchParams: Promise<{ feed?: string; category?: string; page?: string }>;
 }) {
   try {
 
-    const {feed = "" , category = "" } = (await searchParams);
+    const { page = 1 } = await searchParams;
 
-    let query : any = ALL_ARTICLES
-    let params : any = {search : null};
+    const start = (Number(page) - 1) * ARTICLES_PER_PAGE;
+    const end = start + ARTICLES_PER_PAGE;
 
-    if(category) {
-      query = ALL_ARTICLES_BY_CATEGORY;
-      params = {category , search : null}
-    }else if (feed === "following") {
-      const session = await auth();
-      const userId = session?.id;
-      
-      if (!userId) {
-        query = ALL_ARTICLES;
-      } else {
-        query = ALL_FOLLOWING_ARTICLES
-        params = { userId , search : null};
-      }
-    } else if (feed === "featured") {
-      query = ALL_FEATURED_ARTICLES;
-    }
-    
-
+    let query: any = ALL_ARTICLES;
+    let params: any = {
+      search: null,
+      start,
+      end,
+    };
 
     return (
-      <div className="w-full h-full pt-10">
-        <section className="flex-1 container mx-auto p-8 flex flex-col items-center justify-center gap-3">
-          <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl w-full  text-center text-black dark:text-white dark:font-thin leading-normal tracking-wider lg:max-w-2xl font-bold font-merri_weather">
-            Discover the World's top Writers.
-          </h1>
-          <p className="text-center tracking capitalize text-black dark:text-white/50 text-lg lg:max-w-xl">
-            Explore work from the most talented and accomplished designers ready
-            to take on your next project
-          </p>
-
-          <div className="w-full max-w-2xl mt-8">
-            <SearchForm  />
+      <>
+        <section className="relative py-10 ">
+          <div className="absolute inset-0 -z-10 overflow-hidden">
+            <ParticlesBackground />
           </div>
 
-          <div className="w-full mt-3 max-w-xl">
-            <h5 className="text-center w-fit mx-auto text-xs text-black dark:text-gray-200/50 tracking-wider items-center flex gap-1 font-cursive">
-              <BsSearch /> Trending Categores
-            </h5>
-            <Categories />
+          <div className="relative z-10 w-full py-20 h-full mx-auto flex-center flex-col">
+            <h1 className="text-xl sm:text-3xl md:text-4xl max-w-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-pink-500">
+              Discover, Write & Inspire the World
+            </h1>
+            <p className="mt-4 text-gray-600 text-2xl sm:text-5xl dark:text-white font-bold text-center max-w-xl mx-auto">
+              Speak for themselves
+            </p>
+
+            <div className="mt-10 w-full mx-auto max-w-2xl">
+              <SearchForm />
+            </div>
+
+            <div className="mx-auto flex-center gap-x-5 flex-wrap mt-10">
+              <span className="text-sm capitalized text-secondary-dark dark:text-gray-100/50  tracking-wider ">
+                Popular Searches
+              </span>
+              <NavLink variant="green" title="Life Style" />
+              <NavLink variant="pink" title="Robotics" />
+              <NavLink variant="blue" title="Deep Learning" />
+            </div>
           </div>
         </section>
 
-        <Suspense fallback={<ALLArticlesSkeleton/>}>
-          <ALLArticles
-            query={query}
-            params={params}
-          />
-        </Suspense>
+        <Categories />
 
-      </div>
+        <hr className="w-full h-px  dark:text-gray-100/30 text-secondary-dark/10" />
+
+        <PopularBlogs />
+
+        <hr className="w-full h-px  dark:text-gray-100/30 text-secondary-dark/10" />
+
+        <section className="w-full mt-10 grid grid-cols-1 lg:grid-cols-3 gap-5 pb-20">
+          <div className="w-full gap-y-5 md:col-span-2 min-h-screen ">
+            <Suspense fallback={<ALLArticlesSkeleton/>}>
+              <ALLArticles query={query} params={params}/>
+              <Pagination baseUrl="/home" currentPage={Number(page)} />
+            </Suspense>
+          </div>
+
+          <aside className="lg:block relative">
+            <div className="lg:sticky lg:top-10">
+              <Recommendations />
+            </div>
+          </aside>
+        </section>
+      </>
     );
   } catch (error) {
     if (error instanceof SanityError && error.status === 404) {
       notFound();
     }
-    
+
     throw error;
   }
 }

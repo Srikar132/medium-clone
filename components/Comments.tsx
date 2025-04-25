@@ -12,7 +12,6 @@ import { Button } from "./ui/button";
 import { useFetch } from "@/hooks/useFetch";
 import { sm } from "./ui/__ms__";
 import { Author, Comment } from "@/sanity/types";
-import ToogleCommentsBtn from "./ToogleCommentsBtn";
 
 export type CommentWithAuthor = Omit<Comment, "author"> & {
   author: Author;
@@ -26,28 +25,23 @@ const Comments = ({ id }: { id: string }) => {
   const { data: session } = useSession();
   const [newComment, setNewComment] = useState<string>("");
   const [isSendingComment, setIsSendingComment] = useState<boolean>(false);
-  
+
   const [comments, setComments] = useState<CommentWithReplies[]>([]);
   const {
     data: fetchedComments,
     isLoading,
     refresh,
-  } = useFetch<CommentWithReplies[]>(
-    () => getCommentsForPost(id),
-    []
-  );
+  } = useFetch<CommentWithReplies[]>(() => getCommentsForPost(id), []);
 
-
-  useEffect(() => {refresh()} , [id]);
-
-
+  useEffect(() => {
+    refresh();
+  }, [id]);
 
   useEffect(() => {
     if (fetchedComments) {
       setComments(fetchedComments);
     }
   }, [fetchedComments]);
-
 
   const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,7 +71,7 @@ const Comments = ({ id }: { id: string }) => {
         _type: "author",
         _createdAt: new Date().toISOString(),
         _updatedAt: new Date().toISOString(),
-        _rev: ""
+        _rev: "",
       },
       replies: [],
       _createdAt: new Date().toISOString(),
@@ -85,22 +79,23 @@ const Comments = ({ id }: { id: string }) => {
       publishedAt: new Date().toISOString(),
       _rev: "",
       post: {
-        _type : "reference",
-        _ref : id
-      }
+        _type: "reference",
+        _ref: id,
+      },
     };
-    
-    // Add the new comment to the local state
-    setComments(prevComments => [tempComment, ...prevComments]);
 
-    
+    // Add the new comment to the local state
+    setComments((prevComments) => [tempComment, ...prevComments]);
 
     toast("comment added successfully");
     setIsSendingComment(false);
     setNewComment("");
   };
 
-  const onReply = async (commentId: string, replyContent: string) : Promise<CommentWithAuthor | null> => {
+  const onReply = async (
+    commentId: string,
+    replyContent: string
+  ): Promise<CommentWithAuthor | null> => {
     if (!session) {
       sm({ description: "Please login to reply to comments" });
       return null;
@@ -125,27 +120,25 @@ const Comments = ({ id }: { id: string }) => {
           _type: "author",
           _createdAt: new Date().toISOString(),
           _updatedAt: new Date().toISOString(),
-          _rev: ""
+          _rev: "",
         },
         _createdAt: new Date().toISOString(),
         _updatedAt: new Date().toISOString(),
         publishedAt: new Date().toISOString(),
         _rev: "",
-        post : {
-          _ref : id,
-          _type : "reference"
-        }
+        post: {
+          _ref: id,
+          _type: "reference",
+        },
       };
 
-
-      
       toast("Reply added successfully");
 
       return tempReply;
     } catch (error) {
       toast("Failed to add reply. Please try again.");
       console.error("Error adding reply:", error);
-      return null
+      return null;
     }
   };
 
@@ -153,13 +146,24 @@ const Comments = ({ id }: { id: string }) => {
     <div className="w-full h-full overflow-y-scroll py-3 px-1">
       <div className="w-full h-full flex flex-col space-y-4">
         <div className="w-full justify-between flex items-center ">
-          <div className="lg:hidden">
-            <ToogleCommentsBtn/>
-          </div>
           <div className="flex items-center gap-1">
             <ShareButton id={id} />
             <ArticleInfo id={id} />
           </div>
+        </div>
+
+        <div className="space-y-2 overflow-y-scroll">
+          {isLoading ? (
+            Array.from({ length: 5 }).map((_, i) => <CommentSkeleton key={i} />)
+          ) : (comments as Array<CommentWithReplies>).length > 0 ? (
+            comments?.map((comment, i) => (
+              <CommentCard key={i} onReply={onReply} comment={comment} />
+            ))
+          ) : (
+            <p className="text-center text-gray-500 dark:text-gray-400 mt-6">
+              No comments yet. Be the first to share your thoughts!
+            </p>
+          )}
         </div>
 
         <div className="mt-2">
@@ -188,23 +192,14 @@ const Comments = ({ id }: { id: string }) => {
             </form>
           ) : (
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Please <button onClick={() => sm({description : "Please Login to continue."})} className="underline text-blue-500">login</button>{" "}
+              Please{" "}
+              <button
+                onClick={() => sm({ description: "Please Login to continue." })}
+                className="underline text-blue-500"
+              >
+                login
+              </button>{" "}
               to comment.
-            </p>
-          )}
-        </div>
-
-        
-        <div className="space-y-2 overflow-y-scroll">
-          {isLoading ? (
-            Array.from({ length: 5 }).map((_, i) => <CommentSkeleton key={i} />)
-          ) : (comments as Array<CommentWithReplies>).length > 0 ? (
-            comments?.map((comment, i) => (
-              <CommentCard key={i} onReply={onReply} comment={comment} />
-            ))
-          ) : (
-            <p className="text-center text-gray-500 dark:text-gray-400 mt-6">
-              No comments yet. Be the first to share your thoughts!
             </p>
           )}
         </div>

@@ -166,8 +166,8 @@ export default function HowItWorks() {
       <div ref={containerRef} className="flex w-screen flex-col lg:flex-row lg:w-[300vw] h-screen">
         {/* Step 1 */}
         <div className="step w-screen h-full flex text-white relative">
-          <div className="grid lg:grid-cols-2 w-full px-12 py-10 h-full items-center">
-            <div className="w gap-10 space-y-20 lg:space-y-40">
+          <div className="grid lg:grid-cols-2 w-full px-5 sm:px-12 py-10 h-full items-center">
+            <div className=" gap-10 space-y-20 lg:space-y-40">
               <div className="flex flex-col gap-2">
                 <span
                   id="step1_text-1"

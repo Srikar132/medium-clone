@@ -1,70 +1,76 @@
-import Link from "next/link";
-import UserProfile from "./UserProfile";
-import { auth, signIn } from "@/auth";
-import { PiPencilFill } from "react-icons/pi";
-import { Button } from "@/components/ui/button"; // shadcn/ui button
-import { BsGoogle } from "react-icons/bs";
-import SearchForm from "./SearchForm";
-import NavSearchFormWrapper from "./NavSearchFormWrapper";
-import ThemeToggle from "./ThemeToggle";
-import { Search } from "lucide-react";
+"use client";
 
-const Navbar = async () => {
-  const session = await auth();
+import Link from "next/link";
+import ThemeToggle from "./ThemeToggle";
+import Image from "next/image";
+import MenuButton from "./MenuButton";
+import NavigationMenu from "./NavigationMenu";
+import { usePathname } from "next/navigation";
+import { SearchToggleButton } from "./ui/search-model";
+import { useSidebar } from "./ui/sidebar";
+import { useSession } from "next-auth/react";
+import CreatePostButton from "./CreatePostBtn";
+import JoinUsbtn from "./JoinUsbtn";
+
+const Navbar = () => {
+  const pathname = usePathname();
+  const { data: session } = useSession();
+
+  const { isOpen, toggle } = useSidebar();
+  const isHomePage = pathname === "/home";
+  const isWritePage = pathname.includes("/article/write");
 
   return (
-    <header className="w-full">
-      <div className="nav_cont w-full relative !py-2 !lg:py-5 flex items-center gap-10">
-        <Link className="gap-5 items-center flex" href="/home">
-          <span className="font-cursive dark:text-white text-lg sm:text-2xl font-semibold text-black">
-            Medium
+    <header
+      className={`w-full ${isHomePage ? "bg-transparent mt-5" : "dark:bg-secondary-dark max-lg:dark:bg-transparent"}`}
+    >
+      <div className="flex items-center justify-between w-full mx-auto px-5 sm:px-10 py-2  screen-max-width-1700 gap-y-5 md:gap-0 flex-col lg:flex-row">
+        <Link href="/home" className="flex items-center gap-1">
+          <Image
+            src="/logo.png"
+            height={50}
+            width={50}
+            alt="LOGO"
+            className="w-10 h-10"
+          />
+          <span className="dark:text-white sm:text-3xl poppins-extrabold-italic text-black ">
+            Syron
           </span>
         </Link>
-        
 
-        <NavSearchFormWrapper>
-          <SearchForm/>
-        </NavSearchFormWrapper>
-        
-        
-        <div className="ml-auto flex items-center gap-3">
-          <ThemeToggle/>
-          <Link
-            href="/search"
-            className="flex md:hidden items-center gap-2 px-4 py-1 rounded-full  transition-colors duration-500"
-          >
-            <Search className="text-lg" />
-          </Link>
-          {session ? (
-            <>
-            
-            <Link
-              href="/article/write"
-              className="write___link_nav"
+        <nav
+          className={`${
+            isHomePage
+              ? "mx-auto bg-white dark:bg-secondary-dark shadow-md rounded-lg"
+              : "ml-auto bg-transparent"
+          } w-full max-w-3xl py-1 px-2 flex items-center justify-between`}
+        >
+          <NavigationMenu />
+          <div className="flex items-center gap-x-3 max-lg:justify-between max-lg:w-full">
+            {!isHomePage &&
+              (session ? (
+                !isWritePage && <CreatePostButton />
+              ) : (
+               <JoinUsbtn/>
+              ))}
+
+            {!isHomePage && <SearchToggleButton />}
+
+            <div
+              className={`${isHomePage ? "lg:w-fit w-full" : "w-fit"} flex items-center justify-between gap-1`}
             >
-              <PiPencilFill className="text-base sm:text-lg" />
-              <span className="hidden sm:inline font-medium">Write</span>
-            </Link>
+              <ThemeToggle />
+              <MenuButton toggle={toggle} isOpen={isOpen} />
+            </div>
+          </div>
+        </nav>
 
-              
-              <UserProfile session={session} />
-            </>
+        {isHomePage &&
+          (session ? (
+            <CreatePostButton />
           ) : (
-            <>
-              <form
-                action={async () => {
-                  "use server";
-                  await signIn("google");
-                }}
-              >
-                <Button variant="outline" className="flex items-center sm:gap-x-2 gap-x-1">
-                  <BsGoogle className="text-pink-500"/>
-                  LOGIN
-                </Button>
-              </form>
-            </>
-          )}
-        </div>
+            <JoinUsbtn/>
+          ))}
       </div>
     </header>
   );

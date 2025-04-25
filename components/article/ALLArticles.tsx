@@ -1,34 +1,45 @@
 import { client } from "@/sanity/lib/client";
-import React from "react";
-import HorizontalScrollSection from "../HorizontalScrollSection";
+import React from "react";;
 import { Skeleton } from "../WritePageSkeleton";
-import ArticleCard from "./ArticleCard";
+import ArticleCard, { CustomPost } from "./ArticleCard";
 
-const ALLArticles = async ({ query, params }: { query: any; params: any }) => {
-  const posts = await client.fetch(query, params);
+const ALLArticles = async ({
+  query,
+  params,
+}: {
+  query?: any;
+  params?: any;
+}) => {
 
-  return (
-    <section className="w-full flex justify-center p-1 sm:p-3 overflow-hidden">
-      <div className="w-full min-h-screen flex flex-col container mx-auto">
-        <HorizontalScrollSection />
-
-        <ul className="mt-5 max-lg:divide-y-[1px] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-5">
-          {posts.map((post: any, i: number) => (
-            <ArticleCard key={post.id || i} post={post} />
-          ))}
-        </ul>
+  try {
+    const posts = await client.fetch(query, params);
+  
+    return (
+      <ul className="flex flex-col gap-2 md:gap-5">
+        {posts.map((post: CustomPost, i: number) => (
+          <ArticleCard key={post._id || i} post={post} i={i} />
+        ))}
+      </ul>
+    );
+    
+  }  catch (error : any) {
+    return (
+      <div className="w-full max-w-3xl mx-auto py-8">
+        <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-red-700">Error loading blogs. Please try again later. -{error?.message}</p>
+        </div>
       </div>
-    </section>
-  );
+    );
+  }
 };
 
 export default ALLArticles;
 
 export const ALLArticlesSkeleton = () => {
   return (
-    <ul className="mt-5 max-lg:divide-y-[1px] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    <ul className="flex flex-col gap-2 md:gap-5">
       {Array(6).map((_, i) => (
-        <Skeleton key={i} className="w-full h-full" />
+        <Skeleton key={i} className="w-full h-64" />
       ))}
     </ul>
   );

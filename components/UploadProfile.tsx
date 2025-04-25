@@ -1,65 +1,120 @@
-"use client";
-
+// UploadProfile.tsx
+import { useState, useRef } from "react";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { Camera, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-type Props = {
-  actualImageURL: string;
-};
-
-const UploadProfile = ({ actualImageURL }: Props) => {
-  const [profile, setProfile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string>(actualImageURL);
+const UploadProfile = ({ actualImageURL }: { actualImageURL: string }) => {
+  const [preview, setPreview] = useState<string | null>(actualImageURL || null);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setProfile(file);
-      const tempUrl = URL.createObjectURL(file);
-      setPreview(tempUrl);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      
+      // Update file input value
+      if (fileInputRef.current) {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        fileInputRef.current.files = dataTransfer.files;
+      }
+    }
+  };
+
+  const resetImage = () => {
+    setPreview(actualImageURL);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
   return (
-    <>
-      <label className="edit-form_label-2">Profile Picture</label>
-      <div className="flex items-center gap-8">
-        <Image
-          src={preview || "/default-avatar.jpg"}
-          alt="Profile"
-          width={80}
-          height={80}
-          className="rounded-full object-cover border border-pink-200"
-        />
-
-        <div>
-          <label
-            htmlFor="profile"
-            className="px-4 py-2 bg-pink-100 border border-pink-300 rounded-full hover:bg-pink-200 mt-4 cursor-pointer inline-block"
-          >
-            Choose File
-          </label>
+    <div className="space-y-4">
+      <div className="flex items-center space-x-4">
+        {preview ? (
+          <div className="relative">
+            <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-primary/20 shadow-md">
+              <Image 
+                src={preview} 
+                alt="Profile preview" 
+                fill
+                sizes="96px"
+                className="object-cover" 
+              />
+            </div>
+            <button
+              type="button"
+              onClick={resetImage}
+              className="absolute -top-1 -right-1 p-1 bg-destructive text-white rounded-full hover:bg-destructive/90 transition-colors"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        ) : null}
+        
+        <div
+          className={cn(
+            "relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors",
+            preview ? "w-auto" : "w-full h-32",
+            isDragging 
+              ? "border-primary bg-primary/5" 
+              : "border-border hover:border-primary/50 hover:bg-muted/50"
+          )}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          <div className="flex flex-col items-center justify-center text-center space-y-2">
+            <Camera className="h-8 w-8 text-muted-foreground" />
+            <div className="text-sm text-muted-foreground">
+              <span className="font-medium text-primary">Click to upload</span> or drag and drop
+            </div>
+            <p className="text-xs text-muted-foreground">
+              PNG, JPG or GIF (max. 2MB)
+            </p>
+          </div>
           <input
-            type="file"
+            ref={fileInputRef}
             id="profile"
             name="profile"
-            className="hidden"
+            type="file"
             accept="image/*"
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             onChange={handleFileChange}
           />
-          <span className="ml-2 text-sm text-gray-500">
-            {profile ? profile.name : "No file chosen"}
-          </span>
-          <p className="mt-2 text-xs text-gray-500">
-            Recommended: Square image, at least 400x400px
-          </p>
         </div>
-
-
-        <input type="hidden" name="currentImageURL" value={actualImageURL} />
-
       </div>
-    </>
+    </div>
   );
 };
 

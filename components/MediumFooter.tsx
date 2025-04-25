@@ -4,53 +4,49 @@ import { FaTwitter, FaFacebook, FaInstagram } from 'react-icons/fa';
 
 const MediumFooter: React.FC = () => {
   return (
-    <footer className="bg-white dark:invert border-t border-gray-200 py-8">
-      <div className="container mx-auto px-4">
+    <footer className=" w-full border-t py-8 ">
+      <div className="w-full mx-auto screen-max-width-1700 sm:px-10 px-5">
         <div className="flex flex-wrap justify-between">
-          {/* Logo */}
           <div className="mb-6 md:mb-0">
-            <Link href="/" className="text-xl dark:invert font-bold font-cursive">
+            <Link href="/" className="text-xl  font-bold font-cursive">
               Medium
             </Link>
           </div>
 
-          {/* Primary Navigation */}
           <nav className="flex flex-wrap md:space-x-6 mb-6 md:mb-0">
-            <Link href="/for-writers" className="mr-6 mb-2 md:mb-0 text-black hover:text-gray-900">
+            <Link href="/for-writers" className="mr-6 mb-2 md:mb-0 ">
               For Writers
             </Link>
-            <Link href="/explore" className="mr-6 mb-2 md:mb-0 text-black hover:text-gray-900">
+            <Link href="/explore" className="mr-6 mb-2 md:mb-0 ">
               Explore
             </Link>
-            <Link href="/blog" className="mr-6 mb-2 md:mb-0 text-black hover:text-gray-900">
+            <Link href="/blog" className="mr-6 mb-2 md:mb-0 ">
               Blog
             </Link>
-            <Link href="/about" className="mr-6 mb-2 md:mb-0 text-black hover:text-gray-900">
+            <Link href="/about" className="mr-6 mb-2 md:mb-0 ">
               About
             </Link>
-            <Link href="/careers" className="mr-6 mb-2 md:mb-0 text-black hover:text-gray-900">
+            <Link href="/careers" className="mr-6 mb-2 md:mb-0 ">
               Careers
             </Link>
-            <Link href="/help" className="text-black hover:text-gray-900">
+            <Link href="/help" className="">
               Help
             </Link>
           </nav>
 
-          {/* Social Links */}
           <div className="flex space-x-6">
-            <a href="https://twitter.com/medium" aria-label="Twitter" className="text-black hover:text-gray-900">
+            <a href="https://twitter.com/medium" aria-label="Twitter" className="">
               <FaTwitter size={20} />
             </a>
-            <a href="https://facebook.com/medium" aria-label="Facebook" className="text-black hover:text-gray-900">
+            <a href="https://facebook.com/medium" aria-label="Facebook" className="">
               <FaFacebook size={20} />
             </a>
-            <a href="https://instagram.com/medium" aria-label="Instagram" className="text-black hover:text-gray-900">
+            <a href="https://instagram.com/medium" aria-label="Instagram" className="">
               <FaInstagram size={20} />
             </a>
           </div>
         </div>
 
-        {/* Secondary Links */}
         <div className="mt-16 flex flex-wrap justify-between">
           <div className="mb-4 md:mb-0">
             <span className="text-gray-500">© 2025 Medium</span>

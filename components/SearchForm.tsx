@@ -14,9 +14,9 @@ const SearchForm = ({query} : {query? : string}) => {
                 name="query"
                 defaultValue={query}
                 className={"search-input"}
-                placeholder="What are you looking for ?"
+                placeholder="Search..."
             />
-            <div className={`flex gap-2`}>
+            <div className={`flex gap-2 `}>
                 {/* {query && <SearchFormRest/>} */}
                 <button type={"submit"} className={"search-btn text-white"}>
                     <FaSearch className={"size-5"}/>

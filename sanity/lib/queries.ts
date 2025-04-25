@@ -1,7 +1,7 @@
 import { defineQuery } from "next-sanity";
 
-export const AUTHOR_BY_GOOGLE_ID = defineQuery(`
-*[_type == "author" && googleId == $id][0] {
+export const AUTHOR_BY_EMAIL_ID = defineQuery(`
+*[_type == "author" && email == $id][0] {
     _id,
     googleId,
     name,
@@ -64,13 +64,14 @@ export const ALL_ARTICLES = defineQuery(`
   _type == "post" &&
   status == "published" &&
   defined(slug.current) &&
+  featured == false &&
   (
     !defined($search) || 
     title match $search || 
     categories[]->slug match $search || 
     author->name match $search
   )
-] | order(publishedAt desc) {
+] | order(publishedAt desc) [$start...$end] {
   _id,
   title,
   slug,
@@ -90,6 +91,12 @@ export const ALL_ARTICLES = defineQuery(`
   publishedAt,
   "commentCount": count(*[_type == "comment" && post._ref == ^._id]),
   "likeCount": count(*[_type == "like" && post._ref == ^._id]),
+  categories[] -> {
+    title ,
+    _id,
+    slug
+  },
+  views
 }
 `);
 
@@ -119,7 +126,7 @@ export const ALL_FOLLOWING_ARTICLES = defineQuery(`
 
 
 export const ALL_FEATURED_ARTICLES = defineQuery(`
-*[_type == "post" && status == "published" &&  featured == true ] | order(publishedAt desc) {
+*[_type == "post" && status == "published" &&  featured == true ] | order(publishedAt desc)[0...3] {
     _id,
     title,
     mainImage {
@@ -138,10 +145,16 @@ export const ALL_FEATURED_ARTICLES = defineQuery(`
     publishedAt,
     "commentCount": count(*[_type == "comment" && post._ref == ^._id]),
     "likeCount": count(*[_type == "like" && post._ref == ^._id]),
+    categories[] -> {
+      _id ,
+      title
+    },
+    slug,
+    views
 }
 `);
 export const ALL_ARTICLES_BY_CATEGORY = defineQuery(`
-*[_type == "post" && status == "published" && $category in categories[]->slug.current ] | order(publishedAt desc) {
+*[_type == "post" && status == "published" && $slug in categories[]->slug.current ] | order(publishedAt desc) [$start...$end] {
     _id,
     title,
     mainImage {
@@ -160,14 +173,21 @@ export const ALL_ARTICLES_BY_CATEGORY = defineQuery(`
     publishedAt,
     "commentCount": count(*[_type == "comment" && post._ref == ^._id]),
     "likeCount": count(*[_type == "like" && post._ref == ^._id]),
+    categories[]-> {
+      _id ,
+      title,
+      description
+    },
+    views
 }
 `);
 
-export const ARTICLE_BY_ID = defineQuery(`
-*[_type == "post" && _id == $id ][0]{
+export const ARTICLE_BY_SLUG = defineQuery(`
+*[_type == "post" && $slug == slug.current ][0]{
   _id, 
   title, 
   excerpt,
+  slug,
   content, 
   publishedAt, 
   readTime,
@@ -202,13 +222,14 @@ export const ARTICLE_BY_ID = defineQuery(`
     _type == "follow" && 
     follower._ref == $userId && 
     following._ref == ^._id
-  ]) > 0
+  ]) > 0,
+  views
 }
 `);
 
 
 export const ARTICLES_BY_AUTHOR_ID_EXCEPT_CURRENT = defineQuery(`
-*[_type == "post" && status == "published" && author._ref == $authorId && _id != $currentPostId ] | order(publishedAt desc) {
+*[_type == "post" && status == "published" && author._ref == $authorId && _id != $currentPostId ] | order(publishedAt desc) [0...2] {
     _id,
     title,
     mainImage {
@@ -227,6 +248,8 @@ export const ARTICLES_BY_AUTHOR_ID_EXCEPT_CURRENT = defineQuery(`
     publishedAt,
     "commentCount": count(*[_type == "comment" && post._ref == ^._id]),
     "likeCount": count(*[_type == "like" && post._ref == ^._id]),
+    slug,
+    views
 }`);
 
 export const ALL_ARTICLES_BY_AUTHOR_ID = defineQuery(`
@@ -234,6 +257,7 @@ export const ALL_ARTICLES_BY_AUTHOR_ID = defineQuery(`
     _id,
     title,
     slug,
+    views,
     mainImage {
         asset-> {
           _id,
@@ -251,6 +275,8 @@ export const ALL_ARTICLES_BY_AUTHOR_ID = defineQuery(`
     "commentCount": count(*[_type == "comment" && post._ref == ^._id]),
     "likeCount": count(*[_type == "like" && post._ref == ^._id]),
 }`);
+
+
 
 export const FEATURED_ARTICLES_BY_AUTHOR = defineQuery(`*[
   _type == "post" && 
@@ -344,7 +370,7 @@ export const LIKED_ARTICLES_BY_AUTHOR = defineQuery(`
       _id,
       title,
       slug,
-       mainImage {
+       mainImage  {
     asset->{
       _ref,
       url
@@ -365,7 +391,6 @@ export const LIKED_ARTICLES_BY_AUTHOR = defineQuery(`
       },
       "likeCount": count(*[_type == "like" && post._ref == ^._id]),
       },
-      createdAt
   }
 `);
 

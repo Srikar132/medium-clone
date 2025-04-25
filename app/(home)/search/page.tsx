@@ -1,78 +1,112 @@
-import ArticleCard from "@/components/article/ArticleCard";
+import ArticleCard, { CustomPost } from "@/components/article/ArticleCard";
 import { client } from "@/sanity/lib/client";
 import { ALL_ARTICLES } from "@/sanity/lib/queries";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Search } from "lucide-react";
 import SearchForm from "@/components/SearchForm";
+import { ARTICLES_PER_PAGE } from "../home/page";
+import { Suspense } from "react";
+import { ALLArticlesSkeleton } from "@/components/article/ALLArticles";
+import Pagination from "@/components/Pagination";
+import Recommendations from "@/components/Recommandations";
+
+const SearchedPosts = async ({
+  params,
+  start,
+  end,
+}: {
+  params: { search: string | null };
+  start: number;
+  end: number;
+}) => {
+  const posts: CustomPost[] = await client.fetch(ALL_ARTICLES, params);
+
+  return (
+    <>
+      <ul className="flex flex-col gap-2 md:gap-5">
+        {posts.map((post: CustomPost, i: number) => (
+          <ArticleCard key={post._id || i} post={post} i={i} />
+        ))}
+      </ul>
+      {posts.length > 0 && (
+        <div className="mt-8">
+          <Pagination
+            currentPage={Math.floor(start / ARTICLES_PER_PAGE) + 1}
+            baseUrl={`/search`}
+          />
+        </div>
+      )}
+      {posts.length === 0 && (
+        <div className="w-full p-8 text-center">
+          <p>No articles found in this category.</p>
+        </div>
+      )}
+    </>
+  );
+};
 
 const page = async ({
   searchParams,
 }: {
-  searchParams: Promise<{ query: string }>;
+  searchParams: Promise<{ query: string; page: string }>;
 }) => {
-  const query = (await searchParams)?.query;
-  const params = {
-    search: query || null
-  };
+  try {
+    const { query, page = 1 } = await searchParams;
+    
+    const start = (Number(page) - 1) * ARTICLES_PER_PAGE;
+    const end = start + ARTICLES_PER_PAGE;
+    const params = {
+      search: query || null,
+      start,
+      end
+    };
 
-  const data = await client.fetch(ALL_ARTICLES, params);
+    return (
+      <div className="w-full min-h-screen pt-20">
+        <div className="w-full dark:bg-secondary-dark rounded-lg p-5 flex">
+          <div className="flex-1 flex flex-col items-center">
+            <h5 className="capitalize text-xs dark:text-gray-300">
+              Search here
+            </h5>
+            <h2 className="font-bold text-lg space-x-1 mt-1">
+              <span className="text-xl text-pink-500">#</span>
+              {query}
+            </h2>
 
-  return (
-    <div className='max-w-6xl mx-auto py-8 px-4'>
+            <div className="w-full max-w-3xl mt-10">
+              <SearchForm query={query} />
+            </div>
 
-      <div className="my-4 md:hidden">
-        <SearchForm query={query}/>
-      </div>
-      <div className="space-y-2 mb-8">
-        <h1 className="text-3xl font-bold">Search Results</h1>
-        
-        {query && (
-          <div className="flex items-center">
-            <p className="text-gray-600 dark:text-gray-300">
-              {data.length} {data.length === 1 ? 'result' : 'results'} found for 
-            </p>
-            <Badge variant="outline" className="ml-2 font-medium">"{query}"</Badge>
+            <div className="mt-3 rounded-xl px-3 py-1 bg-gray-50 dark:bg-secondary-dark/50 text-sm font-thin">
+              Loading articles...
+            </div>
           </div>
-        )}
-        <Separator className="mt-4" />
-      </div>
+        </div>
 
-      {query ? (
-        <>
-          {data.length > 0 ? (
-            <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-              {data.map((article: any, i: number) => (
-                <div key={i} className="group transition-all duration-300  rounded-xl overflow-hidden">
-                  <ArticleCard key={i} post={article} />
-                </div>
-              ))}
+        <section className="w-full mt-10 grid grid-cols-1 lg:grid-cols-3 gap-5 pb-20">
+          <div className="w-full gap-y-5 md:col-span-2 min-h-screen">
+            <Suspense fallback={<ALLArticlesSkeleton />}>
+              <SearchedPosts params={params} start={start} end={end} />
+            </Suspense>
+          </div>
+
+          <aside className="lg:block relative">
+            <div className="lg:sticky lg:top-10">
+              <Recommendations />
             </div>
-          ) : (
-            <div className="py-12 text-center">
-              <Search className="h-12 w-12 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
-              <p className="text-lg font-medium text-gray-700 dark:text-gray-200">No articles found matching your search.</p>
-              <p className="mt-2 text-gray-500 dark:text-gray-400">Try a different search term or browse all articles.</p>
-            </div>
-          )}
-        </>
-      ) : (
-        <div className="py-12 text-center">
-          <Search className="h-12 w-12 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
-          <p className="text-lg font-medium text-gray-700 dark:text-gray-200">Enter a search term to find articles.</p>
-          <p className="mt-2 text-gray-500 dark:text-gray-400">Use the search bar above to discover content.</p>
+          </aside>
+        </section>
+      </div>
+    );
+  } catch (error: any) {
+    return (
+      <div className="w-full max-w-3xl mx-auto py-8">
+        <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-red-700">
+            Error loading blogs. Please try again later. -{error?.message}
+          </p>
         </div>
-      )}
-      
-      {data && data.length > 9 && (
-        <div className="flex justify-center mt-10">
-          <button className="px-6 py-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-200">
-            Load more
-          </button>
-        </div>
-      )}
-    </div>
-  );
+      </div>
+    );
+  }
 };
 
 export default page;

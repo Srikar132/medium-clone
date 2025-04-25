@@ -207,59 +207,12 @@ export type Post = {
     [internalGroqTypeReferenceTo]?: "category";
   }>;
   excerpt?: string;
-  content?: BlockContent;
+  content?: string;
   publishedAt?: string;
   updatedAt?: string;
   featured?: boolean;
   views?: number;
   status?: "draft" | "published" | "archived";
-};
-
-export type Slug = {
-  _type: "slug";
-  current?: string;
-  source?: string;
-};
-
-export type BlockContent = {
-  _type: "blockContent";
-  content?: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "normal" | "h1" | "h2" | "h3" | "blockquote";
-    listItem?: "bullet" | "number";
-    markDefs?: Array<{
-      href?: string;
-      _type: "link";
-      _key: string;
-    }>;
-    level?: number;
-    _type: "block";
-    _key: string;
-  } | {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    caption?: string;
-    _type: "image";
-    _key: string;
-  } | {
-    language?: "javascript" | "typescript" | "html" | "css" | "python" | "json";
-    code?: string;
-    _type: "code";
-    _key: string;
-  }>;
 };
 
 export type SanityImageCrop = {
@@ -319,6 +272,12 @@ export type SanityImageMetadata = {
   isOpaque?: boolean;
 };
 
+export type Slug = {
+  _type: "slug";
+  current?: string;
+  source?: string;
+};
+
 export type Author = {
   _id: string;
   _type: "author";
@@ -339,5 +298,7 @@ export type Author = {
   memberSince?: string;
 };
 
-export type AllSanitySchemaTypes = SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityFileAsset | Geopoint | Comment | Like | Follow | Bookmark | Category | Post | Slug | BlockContent | SanityImageCrop | SanityImageHotspot | SanityImageAsset | SanityAssetSourceData | SanityImageMetadata | Author;
+export type Markdown = string;
+
+export type AllSanitySchemaTypes = SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityFileAsset | Geopoint | Comment | Like | Follow | Bookmark | Category | Post | SanityImageCrop | SanityImageHotspot | SanityImageAsset | SanityAssetSourceData | SanityImageMetadata | Slug | Author | Markdown;
 export declare const internalGroqTypeReferenceTo: unique symbol;

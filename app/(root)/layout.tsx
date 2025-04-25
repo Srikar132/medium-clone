@@ -5,5 +5,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return children;
+  return (
+    <main className="relative flex flex-col items-center justify-center  mx-auto  bg-gradient-to-b from-white to-gray-50">
+      <div className="w-full">
+        {children}
+      </div>
+    </main>
+  )
 };

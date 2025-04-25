@@ -43,8 +43,6 @@ const UserProfile = ({ session }: { session: Session | null }) => {
   return (
     <div className="relative flex items-center justify-center">
       <button
-        ref={buttonRef}
-        onClick={() => setOpenDialog((prev) => !prev)}
         className="w-8 h-8 lg:w-10 lg:h-10 rounded-full overflow-hidden border border-gray-300 hover:ring-2 hover:ring-pink-500 transition"
       >
         <Image
@@ -58,7 +56,6 @@ const UserProfile = ({ session }: { session: Session | null }) => {
 
       {openDialog && (
         <div
-          ref={dialogRef}
           id="dialog"
           className="absolute top-full right-0 mt-2 w-56 p-3 rounded-xl bg-white shadow-lg border border-gray-200 opacity-0 -translate-y-4 z-50"
         >

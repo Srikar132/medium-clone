@@ -5,7 +5,7 @@ const StepsCard = ({ width = "400", height = "300" }) => (
     className=""
     width={width} 
     height={height} 
-    viewBox="0 0 200 100" 
+    viewBox="0 0 180 100" 
     fill="none" 
     xmlns="http://www.w3.org/2000/svg"
     role="presentation"

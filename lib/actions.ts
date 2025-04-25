@@ -1,9 +1,12 @@
 "use server";
 
-import { auth } from "@/auth";
+import { auth, signIn } from "@/auth";
 import { parseServerActionResponse } from "@/lib/utils";
 import { client } from "@/sanity/lib/client";
+import { uploadImageToSanity } from "@/sanity/lib/fetches";
 import { writeClient } from "@/sanity/lib/write-client";
+import slugify from "slugify";
+import { toast } from "sonner";
 
 export const updateProfile = async (
   state: any,formValues : FormValues
@@ -16,8 +19,6 @@ export const updateProfile = async (
       status: "ERROR",
     });
   }
-
-
 
   const {
     username,
@@ -97,10 +98,6 @@ export async function toggleLike(postId: string, userId: string): Promise<LikeRe
 };
 
 
-
-
-
-
 export async  function toggleBookmark(postId: string, userId: string): Promise<BookmarkResponse> {
   return client
     .fetch<any>(
@@ -159,5 +156,180 @@ export async function toggleFollow(userId: string, authorId: string): Promise<Fo
     });
 
     return parseServerActionResponse({ FOLLOWED: true , OK : true });
+  }
+}
+
+
+
+export const createPost = async (
+  state: any,
+  form: FormData,
+  content: string,
+  imageFile: File | null,
+  selectedCategories: string[]
+) => {
+  try {
+    const session = await auth();
+    
+    if (!session)
+      return {
+        error: "Not signed in",
+        status: "ERROR",
+      };
+
+    const formEntries = Object.fromEntries(
+      Array.from(form).filter(([key]) => key !== "content")
+    );
+    
+    const { title, excerpt, status, featured } = formEntries;
+    const slug = slugify(title as string, { lower: true, strict: true });
+    
+    // Create new post object
+    const post : any= {
+      title,
+      excerpt,
+      content,
+      status,
+      featured: featured === "on",
+      slug: {
+        _type: "slug",
+        current: slug,
+      },
+      author: {
+        _type: "reference",
+        _ref: session?.id,
+      },
+      categories: selectedCategories.map(id => ({
+        _type: "reference",
+        _ref: id
+      })),
+      publishedAt: status === "published" ? new Date().toISOString() : null,
+      updatedAt: new Date().toISOString(),
+    };
+    
+    if (imageFile) {
+      const imageAsset = await uploadImageToSanity(imageFile);
+      post.mainImage = {
+        _type: 'image',
+        asset: {
+          _type: "reference",
+          _ref: imageAsset._id
+        }
+      };
+    }
+    
+
+    const result = await writeClient.create({ _type: "post", ...post });
+    
+    return {
+      ...result,
+      error: "",
+      status: "SUCCESS",
+    };
+  } catch (error) {
+    console.error(error);
+    
+    return {
+      error: JSON.stringify(error),
+      status: "ERROR",
+      slug : {current : ""}
+    };
+  }
+};
+
+export const updatePost = async (
+  state: any,
+  postId: string,
+  form: FormData,
+  content: string,
+  imageFile: File | null,
+  selectedCategories: string[],
+  existingImageUrl: string | null
+) => {
+  try {
+    const session = await auth();
+    
+    if (!session)
+      return {
+        error: "Not signed in",
+        status: "ERROR",
+        slug : {current : ""}
+      };
+
+    const formEntries = Object.fromEntries(
+      Array.from(form).filter(([key]) => key !== "content")
+    );
+    
+    const { title, excerpt, status, featured } = formEntries;
+    const slug = slugify(title as string, { lower: true, strict: true });
+    
+    const updateData: any = {
+      title,
+      excerpt,
+      content,
+      status,
+      featured: featured === "on",
+      slug: {
+        _type: "slug",
+        current: slug,
+      },
+      categories: selectedCategories.map(id => ({
+        _type: "reference",
+        _ref: id
+      })),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    if (status === "published") {
+      const currentPost = await writeClient.fetch(`*[_type == "post" && _id == $postId][0]{publishedAt}`, { postId });
+      
+      if (!currentPost.publishedAt) {
+        updateData.publishedAt = new Date().toISOString();
+      }
+    }
+    
+    if (imageFile) {
+      const imageAsset = await uploadImageToSanity(imageFile);
+      updateData.mainImage = {
+        _type: 'image',
+        asset: {
+          _type: "reference",
+          _ref: imageAsset._id
+        }
+      };
+    } else if (existingImageUrl === null) {
+      updateData.mainImage = null;
+    }
+
+    const result = await writeClient
+      .patch(postId)
+      .set(updateData)
+      .commit();
+    
+    return {
+      ...result,
+      error: "",
+      status: "SUCCESS",
+    };
+  } catch (error) {
+    console.error("Error updating post:", error);
+    
+    return {
+      error: JSON.stringify(error),
+      status: "ERROR",
+      _slug : {
+        current : ""
+      }
+    };
+  }
+};
+
+
+export const handleSignInServer = async () => {
+  try {
+    await signIn("google" , {redirectTo : "/home"});;
+    toast("Login Successfull")
+  } catch (error) {
+    console.log(error);
   }
 }

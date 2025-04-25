@@ -48,11 +48,7 @@ type Category = {
     title : string;
 }
 
-interface DraftPost {
-    _id: string;
-    title: string;
-    updatedAt: string;
-  }
+
 
 
  interface CreateCommentData {

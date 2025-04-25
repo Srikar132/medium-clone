@@ -1,344 +1,393 @@
 "use client";
 
-import dynamic from "next/dynamic";
-
-const TipTap = dynamic(() => import("./TipTap") , {
-  ssr : false
-});
-import {
-  createDraftPost,
-  fetchCategories,
-  fetchPostById,
-  publishPostToSanity,
-  updatePost,
-  uploadImageToSanity,
-} from "@/sanity/lib/fetches";
-import { urlFor } from "@/sanity/lib/image";
-import { Camera, Check } from "lucide-react";
-import { Session } from "next-auth";
-import { useEffect, useRef, useState } from "react";
-import { FaSave } from "react-icons/fa";
-import { toast } from "sonner";
-import WritePageSkeleton from "./WritePageSkeleton";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-  DialogHeader,
-  DialogFooter,
-} from "./ui/dialog";
-import { Label } from "./ui/label";
-import { Switch } from "./ui/switch";
+import React, { useState, useRef, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import MDEditor from "@uiw/react-md-editor";
+import { Button } from "@/components/ui/button";
+import { Send, Camera, X, FileImage, CalendarClock, Tag, Loader2 } from "lucide-react";
+import { z } from "zod";
 import { useRouter } from "next/navigation";
-import { SanityImageAssetDocument } from "next-sanity";
-import { useSession } from "next-auth/react";
-import Image from "next/image";
-import { BlockContent, Category } from "@/sanity/types";
+import { toast } from "sonner";
+import { useActionState } from "react";
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { formSchema } from "@/lib/validations";
+import { createPost, updatePost } from "@/lib/actions";
 import { useFetch } from "@/hooks/useFetch";
+import { Category, Post } from "@/sanity/types";
+import { fetchCategories, fetchPostById } from "@/sanity/lib/fetches";
+import { CustomPost } from "./article/ArticleCard";
+import { urlFor } from "@/sanity/lib/image";
 
-interface EditorPageProps {
-  initialPostId?: string;
-}
-
-type PublishStatus = "draft" | "published" | "archived";
-
-const EditorPage = ({ initialPostId }: EditorPageProps) => {
-  const router = useRouter();
-  const session = useSession();
-  const [postId, setPostId] = useState<string | null>(null);
-  const [content, setContent] = useState<BlockContent["content"] | []>([]);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [coverImage, setCoverImage] = useState<File | null>(null);
-  const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
-  const [publishStatus, setPublishStatus] = useState<PublishStatus>("draft");
-  const [selectedCategories, setSelectedCategories] = useState([]);
-
+const BlogPostForm = ({ postId }: { postId?: string }) => {
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [content, setContent] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [title, setTitle] = useState("");
+  const [excerpt, setExcerpt] = useState("");
+  const [status, setStatus] = useState<"draft" | "published" | "archived">("draft");
+  const [featured, setFeatured] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const saveTimeoutRef = useRef<NodeJS.Timeout>(null);
-  const hasInitialized = useRef<boolean>(false);
+  const router = useRouter();
+  const isEditMode = Boolean(postId);
 
-  const [title, setTitle] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [excerpt, setExcerpt] = useState<string>("");
-  const [featured, setFeatured] = useState<boolean>(false);
+  const { data: availableCategories, isLoading: categoriesLoading, error: categoriesError } = 
+    useFetch<Category[]>(fetchCategories, []);
 
-  const { data: categories } = useFetch<Category[]>(fetchCategories, []);
-
+  // Fetch existing post data if in edit mode
   useEffect(() => {
-    if (hasInitialized.current) return;
-    hasInitialized.current = true;
-
-    const setupPost = async () => {
+    const fetchPost = async () => {
+      if (!postId) return;
+      
       setIsLoading(true);
-
-      if (initialPostId) {
-        try {
-          const post = await fetchPostById(initialPostId);
-
-          if (post) {
-            setPostId(post?._id);
-            setTitle(post.title || "");
-            setContent(post.content?.content || []);
-            setExcerpt(post.excerpt || "");
-            setPublishStatus(post.status || "draft");
-            setSelectedCategories(post.categoryIds || []);
-
-            if (post.mainImage?.asset?._ref) {
-              const imageUrl = urlFor(post.mainImage).url();
-              setCoverImageUrl(imageUrl);
-            }
-
-            toast("Recovered Draft Post");
+      try {
+        const post : CustomPost = await fetchPostById(postId);
+        if (post) {
+          setTitle(post.title || "");
+          setExcerpt(post.excerpt || "");
+          setContent(post.content || "");
+          setStatus(post.status || "draft");
+          setFeatured(post.featured || false);
+          setSelectedCategories(post.categories?.map(cat=> cat._id) || []);
+          
+          if (post.mainImage) {
+            const url = urlFor(post.mainImage).url();
+            setExistingImageUrl(url);
+            setImagePreview(url);
           }
-        } catch (error) {
-          console.error("Failed to fetch post:", error);
-          toast.error("Failed to recover post");
+        }
+      } catch (error) {
+        console.error("Error fetching post:", error);
+        toast.error("Failed to load post data");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPost();
+  }, [postId]);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      setExistingImageUrl(null); 
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setExistingImageUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleCategorySelect = (categoryId: string) => {
+    setSelectedCategories(prev => {
+      if (prev.includes(categoryId)) {
+        return prev.filter(id => id !== categoryId);
+      } else {
+        return [...prev, categoryId];
+      }
+    });
+  };
+
+  const handleFormSubmit = async (prevState: any, formData: FormData) => {
+    try {
+      formData.set("title", title);
+      formData.set("excerpt", excerpt);
+      formData.set("status", status);
+      formData.set("featured", featured ? "on" : "off");
+
+      const formValues = {
+        title,
+        excerpt,
+        status,
+        featured,
+        content,
+        categories: selectedCategories,
+      };
+
+      await formSchema.parseAsync(formValues);
+
+      let result;
+      
+      if (isEditMode) {
+        result = await updatePost(
+          prevState,
+          postId!,
+          formData,
+          content,
+          imageFile,
+          selectedCategories,
+          existingImageUrl
+        );
+        
+        if (result.status === "SUCCESS") {
+          toast.success("Your post has been updated successfully");
+          router.push(`/article/${result?.slug?.current}`);
         }
       } else {
-        const newPost = await createDraftPost(session.data as Session);
-
-        setPostId(newPost?._id as string);
-        setTitle(newPost?.title as string);
-        toast("New post created.");
-      }
-
-      setIsLoading(false);
-    };
-
-    setupPost();
-  }, []);
-
-  useEffect(() => {
-    const autoSave = async () => {
-      if (postId && ((content || []).length > 0 || title)) {
-        try {
-          setIsSaving(true);
-
-          await updatePost(postId, title, content);
-
-          setLastSaved(new Date());
-        } catch (error) {
-          toast.error("Auto save failed");
-          console.log(error);
-        } finally {
-          setIsSaving(false);
+        result = await createPost(
+          prevState,
+          formData,
+          content,
+          imageFile,
+          selectedCategories
+        );
+        
+        if (result.status === "SUCCESS") {
+          toast.success("Your post has been created successfully");
+          router.push(`/article/${result?.slug?.current}`);
         }
       }
-    };
 
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-    }
-
-    saveTimeoutRef.current = setTimeout(autoSave, 5000);
-
-    return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
+      return result;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors = error.flatten().fieldErrors;
+        setErrors(fieldErrors as unknown as Record<string, string>);
+        toast.error("Please check your inputs and try again");
+        return { ...prevState, error: "Validation failed", status: "ERROR" };
       }
-    };
-  }, [content, title, postId]);
 
-  const handleCoverImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file: File | undefined = e.target.files?.[0];
-    if (!file) return;
-
-    setCoverImage(file);
-
-    const imageUrl = URL.createObjectURL(file);
-    setCoverImageUrl(imageUrl);
+      toast.error("An unexpected error occurred");
+      return {
+        ...prevState,
+        error: "An unexpected error occurred",
+        status: "ERROR",
+      };
+    }
   };
 
-  const toggleCategory = (categoryId: never) => {
-    setSelectedCategories((prev) =>
-      prev.includes(categoryId)
-        ? prev.filter((id) => id !== categoryId)
-        : [...prev, categoryId]
-    );
-  };
+  const [state, formAction, isPending] = useActionState(handleFormSubmit, {
+    error: "",
+    status: "INITIAL",
+  });
 
-  // const finalizePublish = async () => {
-  //   if (!postId || !title) {
-  //     toast.error("Cannot find your post");
-  //     return;
-  //   }
-
-  //   if (!excerpt.trim()) {
-  //     toast.error("Please add an excerpt before publishing");
-  //     return;
-  //   }
-
-  //   try {
-  //     setIsSaving(true);
-
-  //     let asset: SanityImageAssetDocument | undefined = undefined;
-  //     if (coverImage) {
-  //       asset = await uploadImageToSanity(coverImage);
-  //     }
-
-  //     await publishPostToSanity(
-  //       postId,
-  //       title,
-  //       excerpt,
-  //       selectedCategories,
-  //       asset
-  //     );
-
-  //     setPublishStatus("published");
-  //     setLastSaved(new Date());
-  //     toast("Post published successfullly");
-
-  //     router.replace(`/article/${postId}`);
-  //   } catch (error) {
-  //     toast.error("Failed to publish post. Please try again.");
-  //   } finally {
-  //     setIsSaving(false);
-  //   }
-  // };
-
-  return isLoading ? (
-    <WritePageSkeleton />
-  ) : (
-    <div className="w-full  max-w-3xl mx-auto  h-full">
-      <div className="relative w-full   flex  items-center">
-        {coverImageUrl ? (
-          <div className="w-full h-64 relative">
-            <Image
-              height={100}
-              width={100}
-              src={coverImageUrl}
-              alt="Cover"
-              className="w-full h-full object-cover rounded-t-lg shadow-sm"
-            />
-            <button
-              onClick={() => fileInputRef?.current?.click()}
-              className="absolute bottom-4 right-4 bg-black/70 text-white p-2 rounded-full"
-            >
-              <Camera size={20} />
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => fileInputRef?.current?.click()}
-            className="flex items-center gap-2  hover:bg-gray-100 px-4 py-1 rounded-full transition-colors duration-200 cursor-pointer tracking-tighter"
-          >
-            <Camera size={18} /> @add image
-          </button>
-        )}
-        <input
-          ref={fileInputRef}
-          type="file"
-          hidden
-          accept="image/*"
-          onChange={handleCoverImageUpload}
-        />
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <span className="ml-2">Loading post data...</span>
       </div>
-      <div className="p-4  flex items-center justify-between">
-        <input
-          type="text"
-          placeholder="Post Title"
-          className="text-2xl font-bold border-none outline-none w-full"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500">
-            {isSaving ? (
-              <div className="flex items-center gap-1 animate-pulse w-full h-full justify-center">
-                <FaSave className="animate-spin text-lg" />
-              </div>
-            ) : lastSaved ? (
-              `Saved At ${lastSaved?.toLocaleTimeString()}`
-            ) : (
-              ""
-            )}
-          </span>
-          <Dialog>
-            <DialogTrigger asChild>
-              <button className="bg-black text-white px-4 py-1 hover:bg-black/80 cursor-pointer transition-colors duration-500">
-                publish
-              </button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>
-                  {publishStatus === "published"
-                    ? "Update your post"
-                    : "Publish your post"}
-                </DialogTitle>
-                <DialogDescription>
-                  After publishing your article will visible to every one.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="bg-white rounded-lg w-full max-w-lg p-6">
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">
-                    Excerpt (required)
-                  </label>
-                  <textarea
-                    value={excerpt}
-                    onChange={(e) => setExcerpt(e.target.value)}
-                    placeholder="Write a short description of your post"
-                    className="w-full border rounded-md p-2"
-                    rows={3}
-                  ></textarea>
-                </div>
+    );
+  }
 
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">
-                    Categories
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {categories.map((category) => (
-                      <button
-                        key={category?._id}
-                        onClick={() => toggleCategory(category?._id as never)}
-                        className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
-                          selectedCategories.includes(category?._id as never)
-                            ? "bg-blue-600 text-white"
-                            : "bg-gray-200 text-gray-800"
-                        }`}
-                      >
-                        {category?.title}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="featured"
-                    checked={featured}
-                    onCheckedChange={setFeatured}
-                  />
-                  <Label htmlFor="featured">Featured</Label>
-                </div>
-              </div>
-              <DialogFooter className="sm:justify-start">
-                <div className="flex w-full justify-end gap-2 mt-6">
-                  <button
-                    disabled={isSaving}
-                    // onClick={finalizePublish}
-                    className="px-4 py-2 bg-black text-white  flex items-center gap-1"
-                  >
-                    <Check size={16} />{" "}
-                    {publishStatus === "published" ? "Update" : "Publish"}
-                  </button>
-                </div>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+  return (
+    <form action={formAction} className="space-y-8 mt-10 border-t border-dotted w-full max-w-4xl mx-auto p-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">
+          {isEditMode ? "Edit Post" : "Create New Post"}
+        </h1>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Switch 
+              id="featured" 
+              name="featured" 
+              checked={featured}
+              onCheckedChange={setFeatured}
+            />
+            <label htmlFor="featured" className="text-sm cursor-pointer">Featured Post</label>
+          </div>
+          <Select 
+            name="status" 
+            value={status}
+            onValueChange={(value: "draft" | "published" | "archived") => setStatus(value)}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="draft">Draft</SelectItem>
+              <SelectItem value="published">Published</SelectItem>
+              <SelectItem value="archived">Archived</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
-      <div className="p-4">
-        {/* <TipTap content={content} onChange={setContent} /> */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-6 md:col-span-2">
+          <div>
+            <label htmlFor="title" className="block text-sm font-medium mb-2">
+              Title
+            </label>
+            <Input
+              id="title"
+              name="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className={cn(
+                "w-full", 
+                errors.title && "border-red-500 focus-visible:ring-red-500"
+              )}
+              placeholder="Enter post title"
+            />
+            {errors.title && (
+              <p className="text-red-500 text-sm mt-1">{errors.title}</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="excerpt" className="block text-sm font-medium mb-2">
+              Excerpt
+            </label>
+            <Textarea
+              id="excerpt"
+              name="excerpt"
+              value={excerpt}
+              onChange={(e) => setExcerpt(e.target.value)}
+              className={cn(
+                "w-full resize-none", 
+                errors.excerpt && "border-red-500 focus-visible:ring-red-500"
+              )}
+              placeholder="Write a short summary of your post"
+              rows={3}
+            />
+            {errors.excerpt && (
+              <p className="text-red-500 text-sm mt-1">{errors.excerpt}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="md:col-span-2">
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Categories
+            </label>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {categoriesLoading ? (
+                <div className="flex items-center">
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <span>Loading categories...</span>
+                </div>
+              ) : (
+                availableCategories?.map((category) => (
+                  <Badge
+                    key={category._id}
+                    variant={selectedCategories.includes(category._id) ? "default" : "outline"}
+                    className={cn(
+                      "cursor-pointer transition-all",
+                      selectedCategories.includes(category._id) 
+                        ? "bg-primary text-primary-foreground" 
+                        : "hover:bg-secondary"
+                    )}
+                    onClick={() => handleCategorySelect(category._id)}
+                  >
+                    <Tag className="w-3 h-3 mr-1" />
+                    {category.title}
+                  </Badge>
+                ))
+              )}
+            </div>
+            {errors.categories && (
+              <p className="text-red-500 text-sm mt-1">{errors.categories}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium mb-2">
+            Main Image
+          </label>
+          <div className="border-2 border-dashed rounded-lg p-4 relative">
+            {imagePreview ? (
+              <div className="relative">
+                <img 
+                  src={imagePreview} 
+                  alt="Preview" 
+                  className="w-full h-64 object-cover rounded-md"
+                />
+                <button
+                  type="button"
+                  onClick={removeImage}
+                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <div 
+                onClick={() => fileInputRef.current?.click()}
+                className="flex flex-col items-center justify-center h-64 cursor-pointer"
+              >
+                <FileImage className="w-12 h-12 text-muted-foreground" />
+                <p className="text-muted-foreground mt-2">Click to upload an image</p>
+                <p className="text-xs text-muted-foreground">PNG, JPG or WebP (max 4MB)</p>
+              </div>
+            )}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImageUpload}
+              accept="image/png, image/jpeg, image/webp"
+              className="hidden"
+            />
+          </div>
+        </div>
+
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium mb-2">
+            Content
+          </label>
+          <div data-color-mode="auto">
+            <MDEditor
+              value={content}
+              onChange={(value) => setContent(value || "")}
+              preview="edit"
+              height={400}
+              className="rounded-md overflow-hidden"
+              textareaProps={{
+                placeholder: "Write your post content here...",
+              }}
+            />
+            {errors.content && (
+              <p className="text-red-500 text-sm mt-1">{errors.content}</p>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+
+      <div className="flex justify-end gap-4">
+        <Button 
+          type="button" 
+          variant="outline"
+          onClick={() => router.back()}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          disabled={isPending}
+          className="gap-2"
+        >
+          {isPending ? (isEditMode ? "Updating..." : "Saving...") : isEditMode ? "Update Post" : "Save Post"}
+          <Send className="w-4 h-4" />
+        </Button>
+      </div>
+    </form>
   );
 };
 
-export default EditorPage;
+export default BlogPostForm;

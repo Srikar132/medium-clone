@@ -85,7 +85,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, onReply }) => {
   const replyCount = replies?.length || 0;
 
   return (
-    <div className="bg-white dark:bg-zinc-900 shadow-md rounded-xl p-4 flex gap-4 border border-gray-200 dark:border-zinc-800 mb-4">
+    <div className=" p-4 flex gap-4  mb-4">
       <Link href={`/profile/${comment?.author._id}`}>
         <Image
           src={comment.author?.image || "/default-avatar.jpg"}

@@ -52,8 +52,7 @@ export const post = defineType({
         defineField({
             name : "content",
             title : "Content",
-            type : "blockContent",
-            validation : (Rule) => Rule.required()
+            type : "markdown"
         }),
         defineField({
             name : "publishedAt",

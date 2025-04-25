@@ -11,23 +11,11 @@ import Link from "next/link";
 
 const Testimonials = () => {
 
-  useGSAP(() => {
-    animateGSAP("#spring" , {
-      opacity : 1,
-      x : 0,
-      y : 0,
-      duration : 1.2,
-      ease : "ealstic.inout"
-    } , {
-      toggleActions : "play none none none"
-    });
-
-
-  } , []);
+ 
   return (
     <section
     id='testimonials'
-    className='common-padding  relative min-h-[80vh] text-black mt-20 !py-30'
+    className='common-padding screen-max-width-1700 relative  text-black mt-20 !py-30'
     >
       <div className="absolute w-[75%] h-px bg-black/60 left-1/2 top-0 -translate-x-1/2" />
     
@@ -52,9 +40,7 @@ const Testimonials = () => {
     </div>
 
 
-      <div id='spring' className="absolute left-[10%] top-3/5 rotate-45 opacity-0 -translate-x-40 translate-y-60">
-        <Image src={"/gsap-spring.png"} width={10} height={10} alt='spring' className='md:w-20 md:h-40 h-20 w-10 animate-pulse '/>
-      </div>
+
 
       <Wave/>
 

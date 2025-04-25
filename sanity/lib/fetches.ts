@@ -6,8 +6,9 @@ import { writeClient } from "./write-client";
 import { SanityAssetDocument } from "next-sanity";
 import { 
   ALL_ARTICLES_BY_AUTHOR_ID, 
+  ALL_ARTICLES_BY_CATEGORY, 
   ARTICLES_BY_AUTHOR_ID_EXCEPT_CURRENT, 
-  ARTICLE_BY_ID, 
+  ARTICLE_BY_SLUG, 
   ARTICLE_INFORMATION, 
   AUTHOR_BY_ID, 
   BOOKMARKED_ARTICLES_BY_LOGIN_AUTHOR, 
@@ -18,7 +19,6 @@ import {
   LIKED_ARTICLES_BY_AUTHOR
 } from "./queries";
 import { auth } from "@/auth";
-import { BlockContent } from "../types";
 import { urlFor } from "./image";
 
 /**
@@ -47,6 +47,24 @@ export const fetchCategories = async () => {
     return [];
   }
 };
+
+
+export const fetchCategory = async (slug: string) => {
+  try {
+    if (!slug) {
+      throw new Error('Slug is required');
+    }
+
+    return await client.fetch(
+      `*[_type == "category" && slug.current == $category][0]{_id, title, description, icon}`,
+      { category: slug }
+    );
+  } catch (error) {
+    console.error('Failed to fetch categories:', error);
+    return [];
+  }
+};
+
 
 export const fetchAuthor = async () => {
   try {
@@ -98,7 +116,10 @@ export const fetchPostById = async (id: string) => {
         content,
         excerpt,
         status,
-        "categoryIds": categories[]._ref
+        categories[] -> {
+          _id ,
+          title
+        }
       }`, 
       { postId: id }
     );
@@ -108,172 +129,8 @@ export const fetchPostById = async (id: string) => {
   }
 };
 
-/**
- * Create a draft post for the authenticated user
- */
-export const createDraftPost = async (session: Session | null) => {
-  if (!session?.id) {
-    throw new Error('Authentication required to create a post');
-  }
 
-  try {
-    const tempTitle = 'Untitled Post';
-    const timestamp = new Date().toISOString();
-    const uniqueKey = `${timestamp}-${Math.random().toString(36).substring(2, 10)}`;
 
-    const doc = {
-      _type: 'post',
-      title: tempTitle,
-      slug: {
-        _type: 'slug',
-        current: tempTitle.toLowerCase().replace(/\s+/g, '-'),
-      },
-      content: {
-        _type: 'blockContent',
-        content: [
-          {
-            _type: 'block',
-            style: 'normal',
-            _key: `block-${uniqueKey}`,
-            markDefs: [],
-            children: [
-              {
-                _type: 'span',
-                _key: `span-${uniqueKey}`,
-                text: '',
-                marks: [],
-              },
-            ],
-          },
-        ],
-      },
-      author: {
-        _type: 'reference',
-        _ref: session.id,
-      },
-      status: 'draft',
-      publishedAt: timestamp,
-    };
-
-    return await writeClient.create(doc);
-  } catch (error) {
-    console.error('Failed to create draft post:', error);
-    return null;
-  }
-};
-
-/**
- * Update a post's content and title
- */
-export const updatePost = async (postId: string, title: string, content: BlockContent["content"]) => {
-  if (!postId) {
-    throw new Error('Post ID is required');
-  }
-
-  try {
-    const session = await auth();
-    if (!session?.id) {
-      throw new Error('Authentication required to update a post');
-    }
-    
-    // Verify ownership before updating
-    const post = await client.fetch(
-      `*[_type == "post" && _id == $postId && author._ref == $authorId][0]._id`, 
-      { postId, authorId: session.id }
-    );
-    
-    if (!post) {
-      throw new Error('Unauthorized: You can only update your own posts');
-    }
-
-    await writeClient
-      .patch(postId)
-      .set({
-        title: title || 'Untitled Post',
-        slug: {
-          _type: 'slug',
-          current: `${(title || 'Untitled Post').toLowerCase().replace(/\s+/g, '-')}`,
-        },
-        content: {
-          _type: 'blockContent',
-          content
-        },
-        updatedAt: new Date().toISOString()
-      })
-      .commit();
-    
-    return { success: true };
-  } catch (error) {
-    console.error('Post update failed:', error);
-    throw error;
-  }
-};
-
-/**
- * Publish a post with all required data
- */
-export const publishPostToSanity = async (
-  postId: string,
-  title: string,
-  excerpt: string,
-  selectedCategories: string[],
-  asset?: SanityAssetDocument
-) => {
-  if (!postId || !title) {
-    throw new Error('Post ID and title are required');
-  }
-
-  try {
-    const session = await auth();
-    if (!session?.id) {
-      throw new Error('Authentication required to publish a post');
-    }
-    
-    const post = await client.fetch(
-      `*[_type == "post" && _id == $postId && author._ref == $authorId][0]._id`, 
-      { postId, authorId: session.id }
-    );
-    
-    if (!post) {
-      throw new Error('Unauthorized: You can only publish your own posts');
-    }
-
-    const sanitizedTitle = title.trim();
-    const slugText = sanitizedTitle.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
-
-    const patchData : any = {
-      title: sanitizedTitle,
-      slug: {
-        _type: 'slug',
-        current: slugText
-      },
-      excerpt: excerpt.trim(),
-      categories: selectedCategories.map(id => ({
-        _type: 'reference',
-        _ref: id
-      })),
-      status: 'published',
-      publishedAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    if (asset) {
-      patchData.mainImage = {
-        _type: 'image',
-        asset: {
-          _type: 'reference',
-          _ref: asset._id
-        }
-      };
-    }
-
-    await writeClient.patch(postId).set(patchData).commit();
-    return { success: true };
-  } catch (error) {
-    console.error('Failed to publish post:', error);
-    throw error;
-  }
-};
 
 /**
  * Upload an image to Sanity
@@ -303,7 +160,7 @@ export const uploadImageToSanity = async (file: File) => {
 
     const asset = await writeClient.assets.upload('image', file, { filename: file.name });
 
-    return urlFor(asset).url();
+    return asset;
   } catch (error) {
     console.error('Error uploading image:', error);
     throw error;
@@ -319,16 +176,38 @@ export const getDraftsByAuthor = async (authorId: string) => {
   }
 
   try {
-    const session = await auth();
-    if (!session?.id || session.id !== authorId) {
-      throw new Error('You can only view your own drafts');
-    }
 
     return await client.fetch(
       `*[_type == "post" && author._ref == $id && status == "draft"]{
         _id,
         title,
         updatedAt,
+        mainImage,
+        
+      }`,
+      { id: authorId }
+    );
+  } catch (error) {
+    console.error("Error fetching drafts:", error);
+    return [];
+  }
+};
+/**
+ * Get all archieved posts for the specified author
+ */
+export const getArchievedByAuthor = async (authorId: string) => {
+  if (!authorId) {
+    throw new Error('Author ID is required');
+  }
+
+  try {
+
+    return await client.fetch(
+      `*[_type == "post" && author._ref == $id && status == "archived"]{
+        _id,
+        title,
+        updatedAt,
+        mainImage,
       }`,
       { id: authorId }
     );
@@ -360,8 +239,9 @@ export async function getFeaturedPostsByAuthor(authorId: string, limit: number =
 /**
  * Get detailed article data by ID
  */
-export async function getArticleData(id: string) {
-  if (!id) {
+
+export async function getArticleData(slug: string) {
+  if (!slug) {
     throw new Error('Article ID is required');
   }
 
@@ -372,10 +252,11 @@ export async function getArticleData(id: string) {
 
 
     
-    return await client.fetch(ARTICLE_BY_ID, { id, userId });
+    return await client.fetch(ARTICLE_BY_SLUG, { slug, userId });
   } catch (error) {
     console.error("Error fetching article:", error);
-    return null;
+    
+    throw error;
   }
 }
 
@@ -408,6 +289,24 @@ export async function getAllArticlesByAuthorId(authorId: string) {
 
   try {
     return await client.fetch(ALL_ARTICLES_BY_AUTHOR_ID, { authorId });
+  } catch (error) {
+    console.error("Error fetching articles:", error);
+    return [];
+  }
+}
+
+
+
+/**
+ * Get all articles by category
+ */
+export async function getAllArticlesByCategory(slug: string ,start : number , end : number) {
+  if (!slug) {
+    throw new Error('Author ID is required');
+  }
+
+  try {
+    return await client.fetch(ALL_ARTICLES_BY_CATEGORY, { slug , start , end });
   } catch (error) {
     console.error("Error fetching articles:", error);
     return [];
@@ -505,9 +404,8 @@ export const getArticleInformation = async (id: string) => {
 /**
  * Get followers for the authenticated user
  */
-export const getFollowers = async () => {
+export const getFollowers = async (session : Session | null) => {
   try {
-    const session = await auth();
     if (!session?.id) {
       throw new Error("Authentication required to view followers");
     }
@@ -522,9 +420,8 @@ export const getFollowers = async () => {
 /**
  * Get users that the authenticated user is following
  */
-export const getFollowing = async () => {
+export const getFollowing = async (session : Session | null) => {
   try {
-    const session = await auth();
     if (!session?.id) {
       throw new Error("Authentication required to view following");
     }
@@ -537,10 +434,8 @@ export const getFollowing = async () => {
 };
 
 
-export const getALLlikedArticles = async () => {
+export const getALLlikedArticles = async (session : Session | null) => {
   try {
-
-    const session = await auth();
 
     if(!session) {
       throw new Error("Unathicated for get followers , ");
@@ -554,9 +449,8 @@ export const getALLlikedArticles = async () => {
   }
 };
 
-export const getBookmarkedArticles = async () => {
+export const getBookmarkedArticles = async (session : Session | null) => {
   try {
-    const session = await auth();
 
     if(!session) {
       throw new Error("Unathicated for get following , ");
