@@ -81,7 +81,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({ id , side = "left" }) => {
             </Button>
           </div>
           
-          <div className="mt-4 flex space-x-3">
+          <div className="mt-4 flex flex-wrap space-x-3">
             <Button size="sm" variant="outline" className="flex-1" onClick={() => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(articleUrl)}`, '_blank')}>
               Twitter
             </Button>

@@ -34,7 +34,7 @@ const Navbar = () => {
             className="w-10 h-10"
           />
           <span className="dark:text-white sm:text-3xl poppins-extrabold-italic text-black ">
-            Syron
+            Medium
           </span>
         </Link>
 

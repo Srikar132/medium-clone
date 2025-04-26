@@ -42,7 +42,7 @@ export default async function HomePage({
           </div>
 
           <div className="relative z-10 w-full py-20 h-full mx-auto flex-center flex-col">
-            <h1 className="text-xl sm:text-3xl md:text-4xl max-w-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-pink-500">
+            <h1 className="text-2xl text-center  sm:text-4xl md:text-5xl max-w-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-pink-500">
               Discover, Write & Inspire the World
             </h1>
             <p className="mt-4 text-gray-600 text-2xl sm:text-5xl dark:text-white font-bold text-center max-w-xl mx-auto">

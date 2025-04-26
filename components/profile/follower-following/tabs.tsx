@@ -31,7 +31,7 @@ following,
 
   // Function to render post items
   const renderAuthors = (authors: CustomAuthor[]) => (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-wrap gap-5">
       {authors.map((author: CustomAuthor , i : number) => (
         <div key={i} className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 bg-white dark:bg-card rounded-lg border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 transition-all flex-wrap" >
           <div className="flex-grow">

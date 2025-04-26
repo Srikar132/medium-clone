@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import GoogleSvg from "../design/GoogleSvg";
 import { Separator } from "@radix-ui/react-separator";
+import { Link } from "lucide-react";
 
 const dialogState = {
   isOpen: false,
@@ -63,7 +64,7 @@ export function SMProvider() {
   // };
 
   return (
-    <Dialog open={isOpen}  onOpenChange={setIsOpen} >
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-md p-8 rounded-xl">
         <DialogHeader className="space-y-6">
           <div className="flex justify-between items-center">
@@ -75,29 +76,11 @@ export function SMProvider() {
         </DialogHeader>
 
         <div className="flex flex-col gap-6 py-4">
-          <Button
-            onClick={handleGoogleLogin}
-            variant="outline"
-            className="bg-gray-950 text-white hover:bg-gray-900 py-6 relative"
-          >
-            <div className="absolute left-4">
-              <GoogleSvg/>
-            </div>
-            Sign up with Google
-          </Button>
-
-          <div className="flex items-center gap-4">
-            <Separator className="flex-1" />
-            <span className="text-gray-500 text-sm">or</span>
-            <Separator className="flex-1" />
-          </div>
-
-          <Button
-            variant="outline"
-            className="bg-white text-black border border-gray-200 hover:bg-gray-50 py-6"
-          >
-            Continue with email
-          </Button>
+          <Link href="/login" className="w-full">
+            <Button variant="outline" className="w-full py-6">
+              Log in
+            </Button>
+          </Link>
 
           <div className="text-xs text-center text-gray-500 mt-2">
             By creating an account you agree with our{" "}
@@ -113,15 +96,6 @@ export function SMProvider() {
               Notification Settings
             </a>
             .
-          </div>
-        </div>
-
-        <div className="flex justify-center mt-2">
-          <div className="text-sm">
-            Already have an account?{" "}
-            <a href="#" className="text-gray-700 font-medium hover:underline">
-              Log in
-            </a>
           </div>
         </div>
       </DialogContent>

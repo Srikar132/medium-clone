@@ -341,10 +341,6 @@ export async function createComment(data: CreateCommentData) {
   }
 
   try {
-    const session = await auth();
-    if (!session?.id || session.id !== data.authorId) {
-      throw new Error('You can only create comments as yourself');
-    }
 
     // Check if post exists
     const postExists = await client.fetch(

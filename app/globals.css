@@ -238,7 +238,11 @@
   }
 
   .signup_write-btn {
-    @apply bg-pink-600 px-3 rounded-none hover:bg-pink-500 gap-x-2 max-lg:hidden
+    @apply bg-pink-600 px-3 rounded-none hover:bg-pink-500 gap-x-2 max-lg:hidden py-2 flex items-center justify-center
+  }
+
+  .control-btn {
+    @apply ml-4 p-4 rounded-full bg-zinc-700 backdrop-blur flex items-center justify-center
   }
 }
 

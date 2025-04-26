@@ -6,11 +6,9 @@ import Link from "next/link";
 const JoinUsbtn = () => {
 
   return (
-    <Link href={"/login"}>
-      <Button type="submit" className="signup_write-btn">
+    <Link href={"/login"} className="cursor-pointer signup_write-btn" >
         <BsSend className="text-white" />
         <span className="font-semibold text-white">Join us</span>
-      </Button>
     </Link>
   );
 };

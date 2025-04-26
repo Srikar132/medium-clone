@@ -265,7 +265,7 @@ export const ArticleActionButtons: React.FC<ArticleActionButtonsProps> = ({ post
   const router = useRouter();
 
   const handleEdit = (): void => {
-    router.push(`/edit-article/${post.slug?.current}`);
+    router.push(`/article/edit/${post._id}`);
   };
 
   return (

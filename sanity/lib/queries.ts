@@ -360,7 +360,9 @@ export const GET_ALL_COMMENTS_FOR_POST = `
     content,
     publishedAt,
     parentComment
-  }
+  },
+  _createdAt,
+  _updatedAt
 }
 `
 

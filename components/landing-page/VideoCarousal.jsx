@@ -162,7 +162,7 @@ const VideoCarousal = () => {
                             </video>
                         </div>
 
-                        <div className="absolute top-12 left-[5%] z-10">
+                        <div className="absolute text-white top-12 left-[5%] z-10">
                             {list.textLists.map((text , i) => (
                                 <p key={i} className='md:text-2xl text-xl font-medium'>{text}</p>
                             ))}
@@ -174,7 +174,7 @@ const VideoCarousal = () => {
         </div>
 
         <div className="relative flex-center mt-10">
-            <div className="flex-center py-5 px-7 bg-gray-300 backdrop-blur rounded-full">
+            <div className="flex-center py-5 px-7 bg-zinc-500 backdrop-blur rounded-full">
                 {videoRef.current.map((_, i) => (
                     <span
                         key={i}

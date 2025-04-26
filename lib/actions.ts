@@ -6,7 +6,8 @@ import { client } from "@/sanity/lib/client";
 import { uploadImageToSanity } from "@/sanity/lib/fetches";
 import { writeClient } from "@/sanity/lib/write-client";
 import slugify from "slugify";
-import { toast } from "sonner";
+import { createComment } from "@/sanity/lib/fetches";
+import { revalidatePath } from "next/cache";
 
 export const updateProfile = async (
   state: any,formValues : FormValues
@@ -325,11 +326,41 @@ export const updatePost = async (
 };
 
 
-export const handleSignInServer = async () => {
+
+
+export async function addComment(formData: FormData) {
+  const postId = formData.get('postId') as string;
+  const authorId = formData.get('authorId') as string;
+  const content = formData.get('content') as string;
+  const parentCommentId = formData.get('parentCommentId') as string || undefined;
+  
+  if (!postId || !authorId || !content) {
+    return { 
+      success: false, 
+      message: "Missing required fields" 
+    };
+  }
+
   try {
-    await signIn("google" , {redirectTo : "/home"});;
-    toast("Login Successfull")
+    await createComment({
+      postId,
+      authorId,
+      content,
+      parentCommentId: parentCommentId || undefined
+    });
+    
+    // Revalidate the path to refresh the comments
+    revalidatePath(`/posts/${postId}`);
+    
+    return { 
+      success: true, 
+      message: parentCommentId ? "Reply added successfully" : "Comment added successfully" 
+    };
   } catch (error) {
-    console.log(error);
+    console.error("Error adding comment:", error);
+    return { 
+      success: false, 
+      message: "Failed to add comment. Please try again." 
+    };
   }
 }

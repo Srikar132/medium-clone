@@ -35,31 +35,35 @@ const AuthorProfilePage = async ({
             </Suspense>
 
             {/* My Articles -> published  , drafts , archived  */}
-            <Suspense
-              fallback={<Skeleton className="w-full mt-10 rounded-lg h-96" />}
-            >
-              <MyArticles session={session} />
-            </Suspense>
+            {id === session?.id && (
+            <>
+              <Suspense
+                fallback={<Skeleton className="w-full mt-10 rounded-lg h-96" />}
+              >
+                <MyArticles session={session} />
+              </Suspense>
 
-            <Suspense
-              fallback={<Skeleton className="w-full mt-10 rounded-lg h-96" />}
-            >
-              <MyPreferences session={session} />
-            </Suspense>
+              <Suspense
+                fallback={<Skeleton className="w-full mt-10 rounded-lg h-96" />}
+              >
+                <MyPreferences session={session} />
+              </Suspense>
 
-            {/* Followers/ Following */}
-            <Suspense
-              fallback={<Skeleton className="w-full mt-10 rounded-lg h-96" />}
-            >
-              <MyFollows session={session} />
-            </Suspense>
+              {/* Followers/ Following */}
+              <Suspense
+                fallback={<Skeleton className="w-full mt-10 rounded-lg h-96" />}
+              >
+                <MyFollows session={session} />
+              </Suspense>
 
 
-            <div className="mt-10">
-              <LogoutButton/>
-            </div>
+              <div className="mt-10">
+                <LogoutButton/>
+              </div>
+            
+            </>
+            )}
           </div>
-
           <aside className="lg:block relative">
             <div className="lg:sticky lg:top-10">
               <Recommendations />

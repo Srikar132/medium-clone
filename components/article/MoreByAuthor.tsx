@@ -26,8 +26,10 @@ const MoreByAuthor = async ({
           <h3 className="text-white text-sm font-medium">Other Articles</h3>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          {postsByThisAuthor.map((post: CustomPost, i: number) => (
+        <div className="grid grid-cols-1 md::grid-cols-2 gap-2">
+          {postsByThisAuthor.length == 0 
+           ? (<span className="text-sm font-medium">Author has no more artiles.</span>)
+           :postsByThisAuthor.map((post: CustomPost, i: number) => (
             <div key={i} className="flex items-center rounded-lg p-3 hover:bg-opacity-70 bg-secondary-dark transition-colors rounded-lg border  cursor-pointer gap-3">
               <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
                 <Image

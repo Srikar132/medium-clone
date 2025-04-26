@@ -109,37 +109,35 @@ const AppSidebar = () => {
 
           <div className="overflow-y-auto border-l border-accent pl-3 lg:pl-5 flex-1 max-w-md scrollbar">
             <div className="mb-5 text-sm p-4 capitalize font-medium">Menu</div>
-            {!!session ? (
-              <AccordionSection title="You">
-                <div id="dialog" className="mt-2">
-                  <ul className="flex flex-col gap-2">
-                    <Link
-                      href={`/article/write`}
-                      key={"Write Article"}
-                      className="flex items-center gap-3 px-3 py-2 rounded-md transition lg:hidden mb-1"
-                    >
-                      <FaPencilAlt className="text-sm" />
-                      <span className="text-sm font-medium  capitalize">
-                        {"Write"}
-                      </span>
-                    </Link>
+            {session ? (
+              <div id="dialog" className="mt-2">
+                <ul className="flex flex-col gap-2">
+                  <Link
+                    href={`/article/write`}
+                    key={"Write Article"}
+                    className="flex items-center gap-3 px-3 py-2 rounded-md transition lg:hidden mb-1"
+                  >
+                    <FaPencilAlt className="text-sm" />
+                    <span className="text-sm font-medium  capitalize">
+                      {"Write"}
+                    </span>
+                  </Link>
 
-                    <hr className="bg-black/50 dark:bg-accent" />
-                    <Link
-                      href={`/profile/${session?.id}`}
-                      key={"My Profile"}
-                      className="flex items-center gap-3 px-3 py-2 rounded-md  transition"
-                    >
-                      <FaUser className=" text-sm" />
-                      <span className="text-sm font-medium  capitalize">
-                        {"My Profile"}
-                      </span>
-                    </Link>
-                  </ul>
-                </div>
-              </AccordionSection>
+                  <hr className="bg-black/50 dark:bg-accent" />
+                  <Link
+                    href={`/profile/${session?.id}`}
+                    key={"My Profile"}
+                    className="flex items-center gap-3 px-3 py-2 rounded-md  transition"
+                  >
+                    <FaUser className=" text-sm" />
+                    <span className="text-sm font-medium  capitalize">
+                      {"My Profile"}
+                    </span>
+                  </Link>
+                </ul>
+              </div>
             ) : (
-              <JoinUsbtn/>
+              <JoinUsbtn />
             )}
             <AccordionSection title="Trending Articles">
               <div className="space-y-2">

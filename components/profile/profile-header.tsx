@@ -21,7 +21,7 @@ const ProfileHeader = async ({
         {/* Author Profile Section */}
         <div className="flex flex-col items-center mb-6">
           <div className="text-center">
-            <div className="text-gray-400 text-sm font-medium mb-1">Author</div>
+            <div className="dark:text-gray-400 text-sm font-medium mb-1">Author</div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
               <span className="text-pink-500">#</span>
               {author?.name}
@@ -38,7 +38,7 @@ const ProfileHeader = async ({
           </div>
         </div>
 
-        <div className="text-center text-gray-300 italic mb-8 max-w-2xl">
+        <div className="text-center dark:text-gray-300 italic mb-8 max-w-2xl">
           <p>
             I am so happy, my dear friend, so absorbed in the exquisite sense of
             mere tranquil existence, that I neglect my talents. I should be

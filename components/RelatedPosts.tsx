@@ -41,9 +41,10 @@ const RelatedPosts = async () => {
                     className="object-cover w-full h-full"
                   />
                 </div>
-                <div className="flex-1">
-                  <Link href={`/article/${post.slug?.current}`} className="font-bold mb-1 hover:underline">{post.title}</Link>
-                  <p className="text-sm text-gray-400">By {post.author.name}</p>
+                <div className="flex-1 flex flex-col">
+                  <Link href={`/article/${post.slug?.current}`} className="font-bold mb-1 line-clamp-2 hover:underline">{post.title}</Link>
+                  <p className="text-sm text-gray-200 text-sm mt-1 line-clamp-2">{post.excerpt}</p>
+                  <p className="text-sm text-gray-400 mt-3">By {post.author.name}</p>
                 </div>
               </div>
               
@@ -72,7 +73,7 @@ export default RelatedPosts;
 
 export const RelatedPostsSkeleton = () => {
   return (
-    <div className="py-8 bg-gray-900 text-white">
+    <div className="py-8 text-white">
     <div className="c">
       <h2 className="flex items-center gap-x-2 text-xl font-bold mb-6">
         <Skeleton className="w-60 h-28 rounded-lg"/>

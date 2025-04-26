@@ -255,7 +255,7 @@ function Hero() {
         <div className="flex flex-col">
           <h1
             id="heading-text"
-            className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-black tracking-tight text-black leading-[1.1] max-md:text-center"
+            className="text-4xl md:text-5xl xl:text-6xl font-black tracking-tight text-black leading-[1.1] max-md:text-center"
           >
             Share Ideas,
             <br />
