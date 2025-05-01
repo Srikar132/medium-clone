@@ -1,34 +1,31 @@
-import Image from "next/image";
-import Link from "next/link";
-import { urlFor } from "@/sanity/lib/image";
-import LikeButton from "../LikeButton";
-import BookmarkButton from "../BookmarkButton";
-import FollowButton from "../FollowButton";
-import MoreByAuthor from "./MoreByAuthor";
-import { Suspense } from "react";
-import { Skeleton } from "../WritePageSkeleton";
-import View from "../Views";
-import { getArticleData } from "@/sanity/lib/fetches";
-import { Category } from "@/sanity/types";
-import Recommendations from "../Recommandations";
-import MarkDownIt from "markdown-it";
+import { urlFor } from '@/sanity/lib/image';
+import { Category } from '@/sanity/types';
+import MarkDownIt from 'markdown-it';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Suspense } from 'react';
+import BookmarkButton from '../BookmarkButton';
+import FollowButton from '../FollowButton';
+import LikeButton from '../LikeButton';
+import Recommendations from '../Recommandations';
+import View from '../Views';
+import { Skeleton } from '../WritePageSkeleton';
+import MoreByAuthor from './MoreByAuthor';
 
-import Ping from "../Ping";
-import NavLink, { ColorVariant, colors } from "../ui/nav-link";
-import { CustomPost } from "./ArticleCard";
-import { Copy } from "lucide-react";
-import { SocialLinks } from "./SocialButton";
-import Comments from "../Comments";
-import RelatedPosts, { RelatedPostsSkeleton } from "../RelatedPosts";
-import ErrorCard from "../ErrorCard";
+import { Copy } from 'lucide-react';
+import Comments from '../Comments';
+import ErrorCard from '../ErrorCard';
+import Ping from '../Ping';
+import RelatedPosts, { RelatedPostsSkeleton } from '../RelatedPosts';
+import NavLink, { ColorVariant, colors } from '../ui/nav-link';
+import { CustomPost } from './ArticleCard';
+import { SocialLinks } from './SocialButton';
 
 const md = MarkDownIt();
 
-const ArticleContent = async ({ slug }: { slug: string }) => {
+const ArticleContent = async ({ post }: { post: CustomPost }) => {
   try {
-    const post: CustomPost = await getArticleData(slug);
-
-    const parsedData = md.render(post?.content || "");
+    const parsedData = md.render(post?.content || '');
 
     return (
       <div className="w-full  relative">
@@ -48,13 +45,11 @@ const ArticleContent = async ({ slug }: { slug: string }) => {
                     <Image
                       className="object-cover"
                       fill
-                      src={post?.author?.image || "/default-avatar.jpg"}
-                      alt={post?.author?.name || "Author"}
+                      src={post?.author?.image || '/default-avatar.jpg'}
+                      alt={post?.author?.name || 'Author'}
                     />
                   </div>
-                  <span className="text-sm font-medium">
-                    {post?.author?.name}
-                  </span>
+                  <span className="text-sm font-medium">{post?.author?.name}</span>
                 </Link>
 
                 <div className="flex items-center gap-4">
@@ -63,10 +58,7 @@ const ArticleContent = async ({ slug }: { slug: string }) => {
                     initialLikeCount={post?.likeCount!}
                     initialIsLiked={post?.isLiked!}
                   />
-                  <BookmarkButton
-                    postId={post?._id}
-                    initialBookmarked={post?.isBookmarked!}
-                  />
+                  <BookmarkButton postId={post?._id} initialBookmarked={post?.isBookmarked!} />
                 </div>
               </div>
 
@@ -78,7 +70,7 @@ const ArticleContent = async ({ slug }: { slug: string }) => {
                     priority
                     quality={100}
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 50vw"
-                    alt={post.title || "Article cover"}
+                    alt={post.title || 'Article cover'}
                     className="object-cover"
                   />
                 </div>
@@ -108,16 +100,14 @@ const ArticleContent = async ({ slug }: { slug: string }) => {
                       <Ping className="animate-pulse" />
                       <span className="relative">Categories</span>
                     </h3>
-                    {post.categories?.map(
-                      (category: Category, index: number) => (
-                        <NavLink
-                          key={index}
-                          variant={colors[index] as ColorVariant}
-                          title={category.title!}
-                          showUnderline={false}
-                        />
-                      )
-                    )}
+                    {post.categories?.map((category: Category, index: number) => (
+                      <NavLink
+                        key={index}
+                        variant={colors[index] as ColorVariant}
+                        title={category.title!}
+                        showUnderline={false}
+                      />
+                    ))}
                   </div>
                   <div className="flex flex-col items-center py-">
                     <div className="text-gray-400 mb-4">Share Article</div>
@@ -127,7 +117,7 @@ const ArticleContent = async ({ slug }: { slug: string }) => {
                     <div className="search-form dark:bg-gray-900/70!">
                       <input
                         type="text"
-                        value={`https://meduim-clone.com/${slug}`}
+                        value={`https://meduim-clone.com/${post.slug?.current}`}
                         readOnly
                         className="search-input"
                       />
@@ -141,7 +131,7 @@ const ArticleContent = async ({ slug }: { slug: string }) => {
                 <div className="bg-white dark:bg-secondary-dark rounded-lg w-full h-auto p-3 sm:p-5 md:p-7 relative mt-20">
                   <div className="w-38 h-36 absolute left-1/2 -translate-x-1/2 -top-[72px] rounded-full overflow-hidden mb-3">
                     <Image
-                      src={post?.author?.image || "/default-avatar.jpg"}
+                      src={post?.author?.image || '/default-avatar.jpg'}
                       width={50}
                       height={50}
                       alt="Jessica Smith"
@@ -149,16 +139,14 @@ const ArticleContent = async ({ slug }: { slug: string }) => {
                     />
                   </div>
                   <div className="flex flex-col items-center py-8 pt-24">
-                    <div className="text-sm dark:text-gray-400 text-black/50 mb-1">
-                      Author
-                    </div>
+                    <div className="text-sm dark:text-gray-400 text-black/50 mb-1">Author</div>
                     <div className="dark:text-white text-black font-medium mb-4">
                       {post?.author?.name}
                     </div>
 
                     <p className="dark:text-gray-300 text-black/60 text-center italic text-sm mb-6 max-w-lg">
                       {post?.author?.bio ||
-                        "I am so happy, my dear friend, so absorbed in the exquisite sense of mere tranquil existence, that I neglect my talents. I should be incapable of drawing a single stroke at the  present moment, and yet I feel that I never was a greater artist than now."}
+                        'I am so happy, my dear friend, so absorbed in the exquisite sense of mere tranquil existence, that I neglect my talents. I should be incapable of drawing a single stroke at the  present moment, and yet I feel that I never was a greater artist than now.'}
                     </p>
 
                     {/*  */}
@@ -179,10 +167,7 @@ const ArticleContent = async ({ slug }: { slug: string }) => {
                 </div>
 
                 <Suspense fallback={<>Loading..</>}>
-                  <MoreByAuthor
-                    authorId={post?.author?._id}
-                    currentPostId={post._id}
-                  />
+                  <MoreByAuthor authorId={post?.author?._id} currentPostId={post._id} />
                 </Suspense>
               </div>
 
@@ -194,8 +179,8 @@ const ArticleContent = async ({ slug }: { slug: string }) => {
             </main>
 
             <footer className="w-full mt-12 pt-8">
-              <Suspense fallback={<RelatedPostsSkeleton/>}>
-                <RelatedPosts/>
+              <Suspense fallback={<RelatedPostsSkeleton />}>
+                <RelatedPosts />
               </Suspense>
             </footer>
           </article>
@@ -207,9 +192,7 @@ const ArticleContent = async ({ slug }: { slug: string }) => {
       </div>
     );
   } catch (error: any) {
-    return (
-      <ErrorCard/>
-    );
+    return <ErrorCard />;
   }
 };
 
