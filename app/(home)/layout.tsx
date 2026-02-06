@@ -1,14 +1,14 @@
+import AppSearchModel from "@/components/app-search-model";
+import AppSidebar from "@/components/app-sidebar";
+import InfraInkFooter from "@/components/MediumFooter";
 import Navbar from "@/components/Navbar";
+import { SMProvider } from "@/components/ui/__ms__";
+import { SearchDialogProvider } from "@/components/ui/search-model";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "next-themes";
 import React from "react";
-import { Toaster } from "@/components/ui/sonner";
-import { SMProvider } from "@/components/ui/__ms__";
-import MediumFooter from "@/components/MediumFooter";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import AppSidebar from "@/components/app-sidebar";
-import AppSearchModel from "@/components/app-search-model";
-import { SearchDialogProvider} from "@/components/ui/search-model";
 
 export default async function RootLayout({
   children,
@@ -27,7 +27,7 @@ export default async function RootLayout({
               <div className="w-full screen-max-width-1700  px-5 w-full sm:px-10">
                 {children}
               </div>
-              <MediumFooter />
+              <InfraInkFooter />
               <Toaster position="top-center" />
               <SMProvider />
             </main>

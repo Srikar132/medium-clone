@@ -60,7 +60,7 @@ const AuthorProfilePage = async ({
               <div className="mt-10">
                 <LogoutButton/>
               </div>
-            
+
             </>
             )}
           </div>
@@ -73,6 +73,7 @@ const AuthorProfilePage = async ({
       </div>
     );
   } catch (error) {
+    console.log("Error loading profile page:", error);
     return <></>;
   }
 };

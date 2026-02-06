@@ -5,11 +5,19 @@ interface SanitySpan {
     marks: string[];
 }
 
+interface SanityBlock {
+    _type: 'block';
+    _key: string;
+    children: SanitySpan[];
+    markDefs: any[];
+    style?: string;
+}
+
 type FollowResponse = {
     FOLLOWED: boolean;
     OK : boolean;
 };
-  
+
 
 type LikeResponse = {
     LIKED: boolean;
@@ -20,7 +28,7 @@ type BookmarkResponse = {
     BOOKMARKED: boolean;
     OK : boolean
 };
-   
+
 interface SanityImageBlock {
     _type: 'image';
     _key: string;
@@ -55,7 +63,7 @@ type Category = {
     authorId: string;
     postId: string;
     content: string;
-    parentCommentId?: string; 
+    parentCommentId?: string;
  }
 
 

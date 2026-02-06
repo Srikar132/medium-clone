@@ -1,17 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import GoogleSvg from "../design/GoogleSvg";
-import { Separator } from "@radix-ui/react-separator";
 import { Link } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const dialogState = {
   isOpen: false,
@@ -41,7 +38,6 @@ export function sm(options: ShowLoginOptions) {
 
 export function SMProvider() {
   const [isOpen, setIsOpen] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     dialogState.setIsOpen = setIsOpen;
@@ -51,10 +47,10 @@ export function SMProvider() {
     };
   }, []);
 
-  const handleGoogleLogin = () => {
-    setIsOpen(false);
-    router.push("/login");
-  };
+  // const handleGoogleLogin = () => {
+  //   setIsOpen(false);
+  //   router.push("/login");
+  // };
 
   // const handleClose = () => {
   //   setIsOpen(false);
@@ -68,7 +64,7 @@ export function SMProvider() {
       <DialogContent className="sm:max-w-md p-8 rounded-xl">
         <DialogHeader className="space-y-6">
           <div className="flex justify-between items-center">
-            <div className="font-bold text-2xl italic">Medium</div>
+            <div className="font-bold text-2xl italic">InfraInk</div>
           </div>
           <DialogTitle className="text-xl font-normal">
             {dialogState.options.description}

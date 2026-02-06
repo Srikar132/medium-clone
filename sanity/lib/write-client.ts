@@ -1,7 +1,10 @@
-import { createClient } from 'next-sanity'
+import { createClient } from 'next-sanity';
 
-import { apiVersion, dataset, projectId , token } from '../env'
+import { apiVersion, dataset, projectId, token } from '../env';
 
+if (!token) {
+  console.warn("⚠️ SANITY_WRITE_TOKEN is missing. Write operations will fail.");
+}
 
 export const writeClient = createClient({
   projectId,
@@ -9,8 +12,13 @@ export const writeClient = createClient({
   apiVersion,
   useCdn: false,
   token,
+  withCredentials: true,
+  perspective: 'published',
 });
 
-// if(!writeClient.config().token) {
-//   throw new Error("Write client token is missing")
-// }
+// Validate client configuration
+if (!writeClient.config().token) {
+  console.error("❌ Write client token is missing - check your SANITY_WRITE_TOKEN environment variable");
+} else {
+  console.log("✅ Write client initialized with token");
+}

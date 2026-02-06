@@ -5,9 +5,6 @@ import {
   highlightThirdmv,
 } from "@/utils";
 
-import { FaBook, FaUser } from "react-icons/fa";
-import { FaBookmark, FaUserPlus } from "react-icons/fa6";
-import { GrLike } from "react-icons/gr";
 import { Code, Layout, Palette, Rocket, Terminal, Type } from "lucide-react";
 
 export const navigation = [

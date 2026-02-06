@@ -1,20 +1,21 @@
-"use client"; 
-import React from 'react';
-import { Trash2, Archive, FileEdit, Send, Undo2 } from 'lucide-react';
+"use client";
+import { deletePost } from '@/lib/actions';
 import { client } from '@/sanity/lib/client';
-import { toast } from 'sonner';
+import { Archive, FileEdit, Send, Trash2, Undo2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import React from 'react';
+import { toast } from 'sonner';
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
 import { CustomPost } from './article/ArticleCard';
 
 // Define interfaces for props
@@ -43,10 +44,15 @@ export const DeleteButton: React.FC<BaseButtonProps> = ({ postId, onSuccess, pos
   const handleDelete = async (): Promise<void> => {
     try {
       setIsDeleting(true);
-      await client.delete(postId);
-      toast.success('Post deleted successfully');
-      setOpen(false);
-      if (onSuccess) onSuccess();
+      const result = await deletePost(postId);
+
+      if (result.status === 'SUCCESS') {
+        toast.success('Post deleted successfully');
+        setOpen(false);
+        if (onSuccess) onSuccess();
+      } else {
+        toast.error(result.error || 'Failed to delete post');
+      }
     } catch (error) {
       console.error('Error deleting post:', error);
       toast.error('Failed to delete post');
@@ -184,7 +190,7 @@ export const MoveToDraftButton: React.FC<MoveToDraftButtonProps> = ({ postId, on
         <DialogHeader>
           <DialogTitle>{buttonText}</DialogTitle>
           <DialogDescription>
-            {currentStatus === 'archived' 
+            {currentStatus === 'archived'
               ? `Are you sure you want to unarchive ${postTitle ? `"${postTitle}"` : "this post"}? It will be moved to the drafts section.`
               : `Are you sure you want to move ${postTitle ? `"${postTitle}"` : "this post"} to drafts?`}
           </DialogDescription>
@@ -212,7 +218,7 @@ export const PublishButton: React.FC<BaseButtonProps> = ({ postId, onSuccess, po
       setIsPublishing(true);
       await client
         .patch(postId)
-        .set({ 
+        .set({
           status: 'published',
           publishedAt: new Date().toISOString()
         })
@@ -282,48 +288,48 @@ export const ArticleActionButtons: React.FC<ArticleActionButtonsProps> = ({ post
 
       {post.status === 'published' && (
         <>
-          <MoveToDraftButton 
-            postId={post._id} 
-            onSuccess={onSuccess} 
-            postTitle={post.title} 
-            currentStatus="published" 
+          <MoveToDraftButton
+            postId={post._id}
+            onSuccess={onSuccess}
+            postTitle={post.title}
+            currentStatus="published"
           />
-          <ArchiveButton 
-            postId={post._id} 
-            onSuccess={onSuccess} 
-            postTitle={post.title} 
+          <ArchiveButton
+            postId={post._id}
+            onSuccess={onSuccess}
+            postTitle={post.title}
           />
         </>
       )}
 
       {post.status === 'draft' && (
         <>
-          <PublishButton 
-            postId={post._id} 
-            onSuccess={onSuccess} 
-            postTitle={post.title} 
+          <PublishButton
+            postId={post._id}
+            onSuccess={onSuccess}
+            postTitle={post.title}
           />
-          <ArchiveButton 
-            postId={post._id} 
-            onSuccess={onSuccess} 
-            postTitle={post.title} 
+          <ArchiveButton
+            postId={post._id}
+            onSuccess={onSuccess}
+            postTitle={post.title}
           />
         </>
       )}
 
       {post.status === 'archived' && (
-        <MoveToDraftButton 
-          postId={post._id} 
-          onSuccess={onSuccess} 
-          postTitle={post.title} 
-          currentStatus="archived" 
+        <MoveToDraftButton
+          postId={post._id}
+          onSuccess={onSuccess}
+          postTitle={post.title}
+          currentStatus="archived"
         />
       )}
 
-      <DeleteButton 
-        postId={post._id} 
-        onSuccess={onSuccess} 
-        postTitle={post.title} 
+      <DeleteButton
+        postId={post._id}
+        onSuccess={onSuccess}
+        postTitle={post.title}
       />
     </div>
   );

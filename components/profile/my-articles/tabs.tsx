@@ -7,7 +7,6 @@ import { CustomPost } from "@/components/article/ArticleCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { urlFor } from "@/sanity/lib/image";
 import { ArticleActionButtons } from '@/components/ActionButtons';
-import ErrorCard from '@/components/ErrorCard';
 
 export function ArticleTabs({
   allPosts,
@@ -62,23 +61,23 @@ export function ArticleTabs({
         <TabsTrigger value="drafts">Drafts</TabsTrigger>
         <TabsTrigger value="archived">Archived</TabsTrigger>
       </TabsList>
-      
+
       <TabsContent value="published">
-        {allPosts.length === 0 
+        {allPosts.length === 0
           ? renderEmptyState("You don't have any published posts yet.")
           : renderPosts(allPosts)
         }
       </TabsContent>
-      
+
       <TabsContent value="drafts">
-        {draftPosts.length === 0 
+        {draftPosts.length === 0
           ? renderEmptyState("You don't have any draft posts yet.")
           : renderPosts(draftPosts)
         }
       </TabsContent>
-      
+
       <TabsContent value="archived">
-        {archivedPosts.length === 0 
+        {archivedPosts.length === 0
           ? renderEmptyState("You don't have any archived posts yet.")
           : renderPosts(archivedPosts)
         }

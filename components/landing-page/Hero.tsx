@@ -307,7 +307,7 @@ function Hero() {
                 <div className="absolute   top-16 left-8 md:left-10 w-[75%] text-black">
                   <span className="text-sm sm:text-lg md:text-xl font-semibold leading-relaxed">
                     Speak your mind <BiBrain className="inline" /> — your unique
-                    perspective might be the voice someone's been waiting
+                    perspective might be the voice someones been waiting
                     <br className="sm:hidden" />
                     to hear <BsEar className="inline" />.
                   </span>
@@ -353,7 +353,7 @@ function Hero() {
             </span>
             <p className="mt-4 text-sm text-gray-600 max-w-xs">
               Medium connects millions of minds through powerful storytelling.
-              Whether you're a seasoned writer or just getting started, it's the
+              Whether youre a seasoned writer or just getting started, its the
               place to share, discover, and grow.
             </p>
             <div className="mt-5 flex items-center gap-2 text-sm text-gray-800">
@@ -371,7 +371,7 @@ function Hero() {
         >
           <div className="relative w-fullmax-w-lg">
             <div className="aspect-[2/1]  w-full relative">
-              
+
               <CurvedRhombus/>
               <div className="absolute inset-0 flex items-center justify-center p-7 px-10 ">
                 <div className="w-full max-w-md">
@@ -391,7 +391,7 @@ function Hero() {
                     </div>
                   </div>
                   <p className="text-zinc-800 text-sm md:text-base leading-relaxed italic font-semibold text-center">
-                    "Writing on Medium has helped me find my voice, share my
+                    Writing on Medium has helped me find my voice, share my
                     story
                   </p>
                 </div>

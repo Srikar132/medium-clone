@@ -1,24 +1,8 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import MDEditor from "@uiw/react-md-editor";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Send,
-  Camera,
-  X,
-  FileImage,
-  CalendarClock,
-  Tag,
-  Loader2,
-} from "lucide-react";
-import { z } from "zod";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { useActionState } from "react";
-import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -26,15 +10,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { formSchema } from "@/lib/validations";
-import { createPost, updatePost } from "@/lib/actions";
+import { Textarea } from "@/components/ui/textarea";
 import { useFetch } from "@/hooks/useFetch";
-import { Category, Post } from "@/sanity/types";
+import { createPost, updatePost } from "@/lib/actions";
+import { cn } from "@/lib/utils";
+import { formSchema } from "@/lib/validations";
 import { fetchCategories, fetchPostById } from "@/sanity/lib/fetches";
-import { CustomPost } from "./article/ArticleCard";
 import { urlFor } from "@/sanity/lib/image";
+import { Category } from "@/sanity/types";
+import MDEditor from "@uiw/react-md-editor";
+import {
+  FileImage,
+  Loader2,
+  Send,
+  Tag,
+  X,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import React, { useActionState, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { z } from "zod";
+import { CustomPost } from "./article/ArticleCard";
 
 const BlogPostForm = ({ postId }: { postId?: string }) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -57,7 +54,6 @@ const BlogPostForm = ({ postId }: { postId?: string }) => {
   const {
     data: availableCategories,
     isLoading: categoriesLoading,
-    error: categoriesError,
   } = useFetch<Category[]>(fetchCategories, []);
 
   // Fetch existing post data if in edit mode
@@ -147,7 +143,6 @@ const BlogPostForm = ({ postId }: { postId?: string }) => {
 
       if (isEditMode) {
         result = await updatePost(
-          prevState,
           postId!,
           formData,
           content,
@@ -162,7 +157,6 @@ const BlogPostForm = ({ postId }: { postId?: string }) => {
         }
       } else {
         result = await createPost(
-          prevState,
           formData,
           content,
           imageFile,

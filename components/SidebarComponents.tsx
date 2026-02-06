@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDate } from "@/utils/index";
 import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -17,23 +18,23 @@ export const AccordionSection = ({
     const [isOpen, setIsOpen] = useState(false);
     const contentRef = useRef<HTMLDivElement>(null);
     const [height, setHeight] = useState<number>(0);
-  
+
     const toggleAccordion = () => {
       if (isOpen) {
         setHeight(0);
         setTimeout(() => setIsOpen(false), 300);
       } else {
         setIsOpen(true);
-        setHeight(contentRef?.current?.scrollHeight!);
+        setHeight(contentRef?.current?.scrollHeight ?? 0);
       }
     };
-  
+
     React.useEffect(() => {
       if (isOpen) {
-        setHeight(contentRef?.current?.scrollHeight!);
+        setHeight(contentRef?.current?.scrollHeight ?? 0);
       }
     }, [children, isOpen]);
-  
+
     return (
       <div>
         <button
@@ -51,7 +52,7 @@ export const AccordionSection = ({
             <ChevronDown size={16} />
           </span>
         </button>
-  
+
         <div
           ref={contentRef}
           className="overflow-hidden border-l shadow-inner transition-all duration-300 ease-in-out"
@@ -62,23 +63,26 @@ export const AccordionSection = ({
       </div>
     );
   };
-  
+
 
 export const CategoryItem = ({
     title,
     href,
     icon,
     description,
+    onClick,
   }: {
     title: string;
     href: string;
     icon: any;
     description: string;
+    onClick?: () => void;
   }) => {
     return (
       <Link
         href={href}
         className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-primary transition-colors group"
+        onClick={onClick}
       >
         {icon && <span className="text-pink-500">{icon}</span>}
         <div>
@@ -104,16 +108,21 @@ export const ArticleRecommendation = ({
     date,
     iconSrc,
     href,
-    showImage = true
+    showImage = true,
+    onClick,
   }: {
     title: string;
     date: string;
     iconSrc: string;
     href: string;
-    showImage ?: boolean
+    showImage ?: boolean;
+    onClick?: () => void;
   }) => {
-    const formattedDate = "March 13 , 2006"
-  
+    // Format the actual date passed as prop with better handling
+    const formattedDate = date && date !== null && date !== undefined
+      ? formatDate(date)
+      : null;
+
     return (
       <div className="flex items-center gap-4  dark:text-white p-4 rounded-lg">
         {showImage && (<div className="relative w-8 h-8 flex-shrink-0">
@@ -128,10 +137,12 @@ export const ArticleRecommendation = ({
           </div>
         </div>)}
         <div className="flex flex-col ml-2">
-          <Link href={href} className="font-bold text-sm hover:underline">
+          <Link href={href} className="font-bold text-sm hover:underline" onClick={onClick}>
             <div className="line-clamp-1">{title}</div>
           </Link>
-          <p className="text-gray-400 text-xs">{formattedDate}</p>
+          {formattedDate && (
+            <p className="text-gray-400 text-xs">{formattedDate}</p>
+          )}
         </div>
       </div>
     );

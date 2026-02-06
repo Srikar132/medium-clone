@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React from "react";
-import NavLink, { ColorVariant, colors } from "../ui/nav-link";
+import NavLink from "../ui/nav-link";
 import { GrLike } from "react-icons/gr";
 import { BsEye } from "react-icons/bs";
 import { Author, Category, Post } from "@/sanity/types";
@@ -48,14 +48,14 @@ export default function ArticleCard({ post , i = 3 }: { post: CustomPost, i ?: n
               />
             </Link>
           </div>
-          
+
           <div className="flex-1 flex flex-col justify-center">
             <Link href={`/article/${post.slug?.current}`} className="block hover:underline transition-colors">
               <h2 className="text-xl font-semibold mb-2">
                 {post?.title || "Untitled Article"}
               </h2>
             </Link>
-            
+
             <div className="flex items-center mb-3 text-sm">
               <span className="text-gray-600 dark:text-gray-400">
                 By {post?.author?.name || "Unknown Author"}
@@ -71,7 +71,7 @@ export default function ArticleCard({ post , i = 3 }: { post: CustomPost, i ?: n
             </p>
           </div>
         </div>
-        
+
         <div className="mt-auto p-4 border-t border-dotted flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex flex-wrap gap-2">
             {post.categories?.map((category: Category, index: number) => (

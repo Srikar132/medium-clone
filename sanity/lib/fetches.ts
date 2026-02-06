@@ -3,31 +3,21 @@
 import { Session } from "next-auth";
 import { client } from "./client";
 import { writeClient } from "./write-client";
-import { SanityAssetDocument } from "next-sanity";
-import { 
-  ALL_ARTICLES_BY_AUTHOR_ID, 
-  ALL_ARTICLES_BY_CATEGORY, 
-  ARTICLES_BY_AUTHOR_ID_EXCEPT_CURRENT, 
-  ARTICLE_BY_SLUG, 
-  ARTICLE_INFORMATION, 
-  AUTHOR_BY_ID, 
-  BOOKMARKED_ARTICLES_BY_LOGIN_AUTHOR, 
-  FEATURED_ARTICLES_BY_AUTHOR, 
-  FOLLOWERS_FOR_LOGIN_AUTHOR, 
-  FOLLOWING_FOR_LOGIN_AUTHOR, 
-  GET_ALL_COMMENTS_FOR_POST, 
+import {
+  ALL_ARTICLES_BY_AUTHOR_ID,
+  ALL_ARTICLES_BY_CATEGORY,
+  ARTICLES_BY_AUTHOR_ID_EXCEPT_CURRENT,
+  ARTICLE_BY_SLUG,
+  ARTICLE_INFORMATION,
+  BOOKMARKED_ARTICLES_BY_LOGIN_AUTHOR,
+  FEATURED_ARTICLES_BY_AUTHOR,
+  FOLLOWERS_FOR_LOGIN_AUTHOR,
+  FOLLOWING_FOR_LOGIN_AUTHOR,
+  GET_ALL_COMMENTS_FOR_POST,
   LIKED_ARTICLES_BY_AUTHOR
 } from "./queries";
 import { auth } from "@/auth";
-import { urlFor } from "./image";
 
-/**
- * Interface definitions for better type safety
- */
-interface SanityContent {
-  _type: string;
-  [key: string]: any;
-}
 
 interface CreateCommentData {
   authorId: string;
@@ -92,7 +82,7 @@ export const fetchAuthor = async () => {
     }
     ` , {id : session?.id});
 
-    
+
   } catch (error) {
     console.error('Failed to fetch categories:', error);
     return [];
@@ -120,7 +110,7 @@ export const fetchPostById = async (id: string) => {
           _id ,
           title
         }
-      }`, 
+      }`,
       { postId: id }
     );
   } catch (error) {
@@ -183,7 +173,7 @@ export const getDraftsByAuthor = async (authorId: string) => {
         title,
         updatedAt,
         mainImage,
-        
+
       }`,
       { id: authorId }
     );
@@ -226,8 +216,8 @@ export async function getFeaturedPostsByAuthor(authorId: string, limit: number =
   }
 
   try {
-    return await client.fetch(FEATURED_ARTICLES_BY_AUTHOR, { 
-      authorId, 
+    return await client.fetch(FEATURED_ARTICLES_BY_AUTHOR, {
+      authorId,
       limit: Math.min(limit, 50) // Cap the limit to prevent abuse
     });
   } catch (error) {
@@ -251,11 +241,11 @@ export async function getArticleData(slug: string) {
 
 
 
-    
+
     return await client.fetch(ARTICLE_BY_SLUG, { slug, userId });
   } catch (error) {
     console.error("Error fetching article:", error);
-    
+
     throw error;
   }
 }
@@ -347,7 +337,7 @@ export async function createComment(data: CreateCommentData) {
       `*[_type == "post" && _id == $postId][0]._id`,
       { postId: data.postId }
     );
-    
+
     if (!postExists) {
       throw new Error('Post not found');
     }
@@ -357,7 +347,7 @@ export async function createComment(data: CreateCommentData) {
         `*[_type == "comment" && _id == $commentId][0]._id`,
         { commentId: data.parentCommentId }
       );
-      
+
       if (!parentCommentExists) {
         throw new Error('Parent comment not found');
       }

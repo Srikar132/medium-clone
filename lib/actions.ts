@@ -1,16 +1,15 @@
 "use server";
 
-import { auth, signIn } from "@/auth";
+import { auth } from "@/auth";
 import { parseServerActionResponse } from "@/lib/utils";
 import { client } from "@/sanity/lib/client";
-import { uploadImageToSanity } from "@/sanity/lib/fetches";
+import { createComment, uploadImageToSanity } from "@/sanity/lib/fetches";
 import { writeClient } from "@/sanity/lib/write-client";
-import slugify from "slugify";
-import { createComment } from "@/sanity/lib/fetches";
 import { revalidatePath } from "next/cache";
+import slugify from "slugify";
 
 export const updateProfile = async (
-  state: any,formValues : FormValues
+  formValues : FormValues
 ) => {
   const session = await auth();
 
@@ -47,7 +46,7 @@ export const updateProfile = async (
     };
 
     await writeClient
-      .patch(session.id) 
+      .patch(session.id)
       .set(doc)
       .commit();
 
@@ -64,8 +63,6 @@ export const updateProfile = async (
     });
   }
 };
-
-
 
 
 export async function toggleLike(postId: string, userId: string): Promise<LikeResponse> {
@@ -160,10 +157,7 @@ export async function toggleFollow(userId: string, authorId: string): Promise<Fo
   }
 }
 
-
-
 export const createPost = async (
-  state: any,
   form: FormData,
   content: string,
   imageFile: File | null,
@@ -171,7 +165,7 @@ export const createPost = async (
 ) => {
   try {
     const session = await auth();
-    
+
     if (!session)
       return {
         error: "Not signed in",
@@ -181,10 +175,10 @@ export const createPost = async (
     const formEntries = Object.fromEntries(
       Array.from(form).filter(([key]) => key !== "content")
     );
-    
+
     const { title, excerpt, status, featured } = formEntries;
     const slug = slugify(title as string, { lower: true, strict: true });
-    
+
     // Create new post object
     const post : any= {
       title,
@@ -207,7 +201,7 @@ export const createPost = async (
       publishedAt: status === "published" ? new Date().toISOString() : null,
       updatedAt: new Date().toISOString(),
     };
-    
+
     if (imageFile) {
       const imageAsset = await uploadImageToSanity(imageFile);
       post.mainImage = {
@@ -218,10 +212,10 @@ export const createPost = async (
         }
       };
     }
-    
+
 
     const result = await writeClient.create({ _type: "post", ...post });
-    
+
     return {
       ...result,
       error: "",
@@ -229,7 +223,7 @@ export const createPost = async (
     };
   } catch (error) {
     console.error(error);
-    
+
     return {
       error: JSON.stringify(error),
       status: "ERROR",
@@ -239,17 +233,16 @@ export const createPost = async (
 };
 
 export const updatePost = async (
-  state: any,
   postId: string,
   form: FormData,
   content: string,
   imageFile: File | null,
   selectedCategories: string[],
-  existingImageUrl: string | null
+  existingImageUrl?: string | null
 ) => {
   try {
     const session = await auth();
-    
+
     if (!session)
       return {
         error: "Not signed in",
@@ -260,10 +253,10 @@ export const updatePost = async (
     const formEntries = Object.fromEntries(
       Array.from(form).filter(([key]) => key !== "content")
     );
-    
+
     const { title, excerpt, status, featured } = formEntries;
     const slug = slugify(title as string, { lower: true, strict: true });
-    
+
     const updateData: any = {
       title,
       excerpt,
@@ -280,15 +273,15 @@ export const updatePost = async (
       })),
       updatedAt: new Date().toISOString(),
     };
-    
+
     if (status === "published") {
       const currentPost = await writeClient.fetch(`*[_type == "post" && _id == $postId][0]{publishedAt}`, { postId });
-      
+
       if (!currentPost.publishedAt) {
         updateData.publishedAt = new Date().toISOString();
       }
     }
-    
+
     if (imageFile) {
       const imageAsset = await uploadImageToSanity(imageFile);
       updateData.mainImage = {
@@ -306,7 +299,7 @@ export const updatePost = async (
       .patch(postId)
       .set(updateData)
       .commit();
-    
+
     return {
       ...result,
       error: "",
@@ -314,13 +307,11 @@ export const updatePost = async (
     };
   } catch (error) {
     console.error("Error updating post:", error);
-    
+
     return {
       error: JSON.stringify(error),
       status: "ERROR",
-      _slug : {
-        current : ""
-      }
+      slug : {current : ""}
     };
   }
 };
@@ -333,11 +324,11 @@ export async function addComment(formData: FormData) {
   const authorId = formData.get('authorId') as string;
   const content = formData.get('content') as string;
   const parentCommentId = formData.get('parentCommentId') as string || undefined;
-  
+
   if (!postId || !authorId || !content) {
-    return { 
-      success: false, 
-      message: "Missing required fields" 
+    return {
+      success: false,
+      message: "Missing required fields"
     };
   }
 
@@ -348,19 +339,96 @@ export async function addComment(formData: FormData) {
       content,
       parentCommentId: parentCommentId || undefined
     });
-    
+
     // Revalidate the path to refresh the comments
     revalidatePath(`/posts/${postId}`);
-    
-    return { 
-      success: true, 
-      message: parentCommentId ? "Reply added successfully" : "Comment added successfully" 
+
+    return {
+      success: true,
+      message: parentCommentId ? "Reply added successfully" : "Comment added successfully"
     };
   } catch (error) {
     console.error("Error adding comment:", error);
-    return { 
-      success: false, 
-      message: "Failed to add comment. Please try again." 
+    return {
+      success: false,
+      message: "Failed to add comment. Please try again."
     };
   }
 }
+
+export const deletePost = async (postId: string) => {
+  try {
+    const session = await auth();
+
+    if (!session) {
+      return parseServerActionResponse({
+        error: "Not signed in",
+        status: "ERROR",
+      });
+    }
+
+    // Check if the user owns the post
+    const post = await client.fetch(
+      `*[_type == "post" && _id == $postId && author._ref == $authorId][0]`,
+      { postId, authorId: session.id }
+    );
+
+    if (!post) {
+      return parseServerActionResponse({
+        error: "Post not found or you don't have permission to delete it",
+        status: "ERROR",
+      });
+    }
+
+    // Delete related data first to avoid orphaned references
+    const transaction = writeClient.transaction();
+
+    // Delete likes associated with the post
+    const likes = await client.fetch(
+      `*[_type == "like" && post._ref == $postId]._id`,
+      { postId }
+    );
+    likes.forEach((likeId: string) => {
+      transaction.delete(likeId);
+    });
+
+    // Delete comments associated with the post
+    const comments = await client.fetch(
+      `*[_type == "comment" && post._ref == $postId]._id`,
+      { postId }
+    );
+    comments.forEach((commentId: string) => {
+      transaction.delete(commentId);
+    });
+
+    // Delete bookmarks associated with the post
+    const bookmarks = await client.fetch(
+      `*[_type == "bookmark" && post._ref == $postId]._id`,
+      { postId }
+    );
+    bookmarks.forEach((bookmarkId: string) => {
+      transaction.delete(bookmarkId);
+    });
+
+    // Finally delete the post
+    transaction.delete(postId);
+
+    // Commit the transaction
+    await transaction.commit();
+
+    // Revalidate paths
+    revalidatePath('/');
+    revalidatePath('/profile');
+
+    return parseServerActionResponse({
+      error: "",
+      status: "SUCCESS",
+    });
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    return parseServerActionResponse({
+      error: JSON.stringify(error),
+      status: "ERROR",
+    });
+  }
+};

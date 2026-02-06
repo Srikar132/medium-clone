@@ -1,11 +1,11 @@
 
 interface Writer {
-    image : String;
-    quote : String;
-    name : String;
-    title : String
+    image : string;
+    quote : string;
+    name : string;
+    title : string
   }
-  
+
   export const writers : Writer[] = [
     {
       "image": "/writer1.jpg",
@@ -32,4 +32,3 @@ interface Writer {
       "title": "Author of Atomic Habits"
     }
   ]
-  

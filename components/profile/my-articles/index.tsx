@@ -2,7 +2,6 @@ import {
   getAllArticlesByAuthorId,
   getDraftsByAuthor,
 } from "@/sanity/lib/fetches";
-import { Post } from "@/sanity/types";
 import { Session } from "next-auth";
 import { CustomPost } from "@/components/article/ArticleCard";
 import ErrorCard from "@/components/ErrorCard";
@@ -39,6 +38,7 @@ const MyArticles = async ({ session }: { session: Session | null }) => {
       </div>
     )
   } catch (error) {
+    console.log("Error fetching articles: ", error);
     return (
       <ErrorCard title="Failed to load your articles"/>
     )

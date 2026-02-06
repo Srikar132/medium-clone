@@ -1,16 +1,15 @@
-import EditorPage from '@/components/EditorPage'
-import React from 'react'
+import BlogPostForm from '@/components/EditorPage';
 
 const page = async ({params} : {params : Promise<{id : string}>}) => {
 
     try {
-        
+
         const id = (await params)?.id;
 
         return (
           <div className="w-full min-h-screen">
-            <EditorPage
-              initialPostId={id}
+            <BlogPostForm
+              postId={id}
             />
           </div>
         )

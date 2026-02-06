@@ -1,16 +1,16 @@
 // SettingTabs.tsx
-import { useState } from "react";
 import GoogleSvg from "@/components/design/GoogleSvg";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trash, User, Mail, FileText } from "lucide-react";
-import Image from "next/image";
-import UploadProfile from "./UploadProfile";
-import { Author } from "@/sanity/types";
-import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
+import { Author } from "@/sanity/types";
+import { FileText, Mail, Trash, User } from "lucide-react";
+import { useTheme } from "next-themes";
+import Image from "next/image";
+import { useState } from "react";
 import { BsInstagram, BsLinkedin } from "react-icons/bs";
 import { FaFacebook } from "react-icons/fa6";
+import UploadProfile from "./UploadProfile";
 
 interface SettingTabsProps {
   data: Author;
@@ -36,8 +36,8 @@ const SettingTabs = ({ data, formAction, errors, isPending }: SettingTabsProps) 
           className={cn(
             "w-full py-3 px-4 flex items-center gap-3 font-medium text-base transition-all rounded-lg border-0",
             "hover:bg-muted",
-            activeTab === "general" 
-              ? "bg-primary/10 text-primary" 
+            activeTab === "general"
+              ? "bg-primary/10 text-primary"
               : "text-muted-foreground"
           )}
         >
@@ -49,8 +49,8 @@ const SettingTabs = ({ data, formAction, errors, isPending }: SettingTabsProps) 
           className={cn(
             "w-full py-3 px-4 flex items-center gap-3 font-medium text-base transition-all rounded-lg border-0",
             "hover:bg-muted",
-            activeTab === "edit-profile" 
-              ? "bg-primary/10 text-primary" 
+            activeTab === "edit-profile"
+              ? "bg-primary/10 text-primary"
               : "text-muted-foreground"
           )}
         >
@@ -62,8 +62,8 @@ const SettingTabs = ({ data, formAction, errors, isPending }: SettingTabsProps) 
           className={cn(
             "w-full py-3 px-4 flex items-center gap-3 font-medium text-base transition-all rounded-lg border-0",
             "hover:bg-muted",
-            activeTab === "social-links" 
-              ? "bg-primary/10 text-primary" 
+            activeTab === "social-links"
+              ? "bg-primary/10 text-primary"
               : "text-muted-foreground"
           )}
         >
@@ -76,8 +76,8 @@ const SettingTabs = ({ data, formAction, errors, isPending }: SettingTabsProps) 
           className={cn(
             "w-full py-3 px-4 flex items-center gap-3 font-medium text-base transition-all rounded-lg border-0",
             "hover:bg-destructive/10",
-            activeTab === "delete-account" 
-              ? "bg-destructive/10 text-destructive" 
+            activeTab === "delete-account"
+              ? "bg-destructive/10 text-destructive"
               : "text-muted-foreground"
           )}
         >
@@ -95,7 +95,7 @@ const SettingTabs = ({ data, formAction, errors, isPending }: SettingTabsProps) 
             <h3 className="text-xl font-semibold text-card-foreground border-b border-border pb-2">
               General Information
             </h3>
-            
+
             <div className="space-y-4">
               <div className="space-y-2">
                 <label htmlFor="username" className="block text-sm font-medium text-card-foreground">
@@ -119,11 +119,11 @@ const SettingTabs = ({ data, formAction, errors, isPending }: SettingTabsProps) 
                   <p className="text-destructive text-sm mt-1">{errors.username}</p>
                 )}
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Your URL: https://medium.com/
+                  Your URL: https://infraink.com/
                   <span className="font-medium text-card-foreground">{data?.username || "username"}</span>
                 </p>
               </div>
-            
+
               <div className="space-y-2">
                 <label htmlFor="email" className="block text-sm font-medium text-card-foreground">
                   Email
@@ -187,7 +187,7 @@ const SettingTabs = ({ data, formAction, errors, isPending }: SettingTabsProps) 
             <h3 className="text-xl font-semibold text-card-foreground border-b border-border pb-2">
               Edit Profile
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
               <div className="md:col-span-1">
                 <div className="space-y-4">
@@ -201,7 +201,7 @@ const SettingTabs = ({ data, formAction, errors, isPending }: SettingTabsProps) 
                   </p>
                 </div>
               </div>
-              
+
               <div className="md:col-span-2 space-y-6">
                 <div className="space-y-2">
                   <label htmlFor="name" className="block text-sm font-medium text-card-foreground">
@@ -263,7 +263,7 @@ const SettingTabs = ({ data, formAction, errors, isPending }: SettingTabsProps) 
             <h3 className="text-xl font-semibold text-card-foreground border-b border-border pb-2">
               Social Profiles
             </h3>
-            
+
             <div className="space-y-6">
               <div className="space-y-2">
                 <label htmlFor="linkedin" className="flex items-center gap-2 text-sm font-medium text-card-foreground">
@@ -352,12 +352,12 @@ const SettingTabs = ({ data, formAction, errors, isPending }: SettingTabsProps) 
             </div>
 
             <h1 className="text-2xl font-bold text-card-foreground mb-4 text-center">
-              We're sorry to see you go
+              We are sorry to see you go
             </h1>
 
             <div className="space-y-4 text-center">
               <p className="text-muted-foreground">
-                If you'd like to reduce your email notifications, you can{" "}
+                If you would like to reduce your email notifications, you can{" "}
                 <a href="#" className="text-primary hover:underline">
                   disable them here
                 </a>{" "}

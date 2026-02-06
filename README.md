@@ -1,5 +1,26 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Setup Instructions
+
+1. **Environment Variables Setup**
+   - Copy `.env.example` to `.env.local`
+   - Fill in your Sanity configuration:
+     - `NEXT_PUBLIC_SANITY_PROJECT_ID`: Your Sanity project ID
+     - `SANITY_WRITE_TOKEN`: Your Sanity write token
+     - `NEXTAUTH_SECRET`: A secret key for NextAuth (generate one)
+
+2. **Sanity Configuration**
+   - Go to [Sanity.io](https://www.sanity.io/manage)
+   - Create a new project or use existing one
+   - Get your Project ID from project settings
+   - Create a write token in API settings
+   - Update your `.env.local` file with these values
+
+3. **Install Dependencies**
+   ```bash
+   npm install
+   ```
+
 ## Getting Started
 
 First, run the development server:

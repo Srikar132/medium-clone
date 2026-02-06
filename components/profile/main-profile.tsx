@@ -29,11 +29,11 @@ const MainProfile = async ({
         id,
         userId: session?.id || null,
       });
-  
+
       const memberSinceFormatted: string = author?.memberSince
         ? format(new Date(author.memberSince), "MMMM yyyy")
         : "--/--";
-  
+
       return (
         <div className="bg-gradient-to-b from-white to-gray-50 dark:from-background dark:to-background ">
           <section className="w-full rounded-xl overflow-hidden bg-white dark:bg-card shadow-lg dark:shadow-md dark:shadow-black/10">
@@ -51,7 +51,7 @@ const MainProfile = async ({
                   <p className="text-gray-600 dark:text-gray-400 mt-1">
                     @{author?.username}
                   </p>
-  
+
                   <div className="flex items-center gap-6 mt-3 flex-wrap">
                     <div className="flex items-center text-gray-600 dark:text-gray-400 text-sm">
                       <Mail size={14} className="mr-1" />
@@ -67,7 +67,7 @@ const MainProfile = async ({
                     </div>
                   </div>
                 </div>
-  
+
                 <div className="flex gap-2">
                   <FollowButton
                     initialIsFollowed={author?.isFollowing}
@@ -82,7 +82,7 @@ const MainProfile = async ({
                         <Edit size={15} /> Edit
                       </Link>
                       <Link
-                        href="/post/new"
+                        href="/article/write"
                         className="bg-gradient-to-r from-indigo-500 to-purple-500 dark:from-indigo-600 dark:to-purple-600 hover:from-indigo-600 hover:to-purple-600 dark:hover:from-indigo-500 dark:hover:to-purple-500 text-white px-4 py-1 rounded-full transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
                       >
                         <BookOpen size={15} /> New Post
@@ -91,7 +91,7 @@ const MainProfile = async ({
                   )}
                 </div>
               </div>
-  
+
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-6 border-b dark:border-border">
                 <div className="flex justify-around items-center group">
                   <AnimatedCounter
@@ -130,7 +130,7 @@ const MainProfile = async ({
                   />
                 </div>
               </div>
-  
+
               <div className="py-8 border-b dark:border-border">
                 <h2 className="text-2xl font-semibold text-gray-800 dark:text-foreground mb-4">
                   About
@@ -139,7 +139,7 @@ const MainProfile = async ({
                   {author?.bio || "This user hasn't added a bio yet."}
                 </p>
               </div>
-  
+
               <div className="py-6 border-b dark:border-border">
                 <h2 className="text-2xl font-semibold text-gray-800 dark:text-foreground mb-5">
                   Social Links
@@ -228,7 +228,7 @@ const MainProfile = async ({
                   )}
                 </div>
               </div>
-  
+
               {/* <div className="py-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold text-gray-800 dark:text-foreground">
@@ -241,7 +241,7 @@ const MainProfile = async ({
                     View all posts <ExternalLink size={14} className="ml-1" />
                   </a>
                 </div>
-    
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
                   {featured.length > 0 ? featured.map((post: any, i: number) => (
                     <Link
@@ -272,8 +272,8 @@ const MainProfile = async ({
                       <LucideNotebookPen size={40} className="text-gray-400 dark:text-gray-600 mb-3" />
                       <p className="text-gray-600 dark:text-gray-400 mb-2">No featured posts yet</p>
                       {session?.id === author._id && (
-                        <Link 
-                          href="/post/new" 
+                        <Link
+                          href="/post/new"
                           className="mt-3 inline-flex items-center gap-2 bg-indigo-500 dark:bg-indigo-600 hover:bg-indigo-600 dark:hover:bg-indigo-700 text-white px-4 py-2 rounded-md transition-colors"
                         >
                           <BookOpen size={16} /> Create your first post
@@ -288,12 +288,13 @@ const MainProfile = async ({
         </div>
       );
     } catch (error) {
+      console.log("Error: ", error);
       return (
         <></>
       )
     }
   };
-  
+
 
 
 export default MainProfile

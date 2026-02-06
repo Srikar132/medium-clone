@@ -7,7 +7,6 @@ import { Suspense } from 'react';
 import BookmarkButton from '../BookmarkButton';
 import FollowButton from '../FollowButton';
 import LikeButton from '../LikeButton';
-import Recommendations from '../Recommandations';
 import View from '../Views';
 import { Skeleton } from '../WritePageSkeleton';
 import MoreByAuthor from './MoreByAuthor';
@@ -48,6 +47,7 @@ const ArticleContent = async ({ post }: { post: CustomPost }) => {
                       src={post?.author?.image || '/default-avatar.jpg'}
                       alt={post?.author?.name || 'Author'}
                     />
+
                   </div>
                   <span className="text-sm font-medium">{post?.author?.name}</span>
                 </Link>
@@ -63,7 +63,7 @@ const ArticleContent = async ({ post }: { post: CustomPost }) => {
               </div>
 
               {post?.mainImage && (
-                <div className="w-full aspect-video relative rounded-lg overflow-hidden">
+                <div className="w-full h-84 sm:h-80 md:h-186 relative rounded-lg overflow-hidden">
                   <Image
                     src={urlFor(post.mainImage).url() as string}
                     fill
@@ -77,8 +77,8 @@ const ArticleContent = async ({ post }: { post: CustomPost }) => {
               )}
             </header>
 
-            <main className="w-full mt-10 grid grid-cols-1 lg:grid-cols-3 gap-5 pb-20">
-              <div className="w-full gap-y-5 md:col-span-2 min-h-screen  space-y-10 ">
+            <main className="w-full mt-10 pb-20">
+              <div className="max-w-7xl mx-auto gap-y-5 min-h-screen space-y-10">
                 <div className="bg-white dark:bg-secondary-dark rounded-lg w-full h-auto p-3 sm:p-5 md:p-7">
                   <div className="mt-6">
                     <p className="text-lg md:text-xl font-medium leading-relaxed text-gray-800 dark:text-gray-200">
@@ -88,7 +88,7 @@ const ArticleContent = async ({ post }: { post: CustomPost }) => {
 
                   {parsedData ? (
                     <article
-                      className="prose dark:prose-invert break-all mt-10 pt-10 border-t"
+                      className="prose max-w-7xl mx-auto  dark:prose-invert break-all mt-10 pt-10 "
                       dangerouslySetInnerHTML={{ __html: parsedData }}
                     />
                   ) : (
@@ -170,12 +170,6 @@ const ArticleContent = async ({ post }: { post: CustomPost }) => {
                   <MoreByAuthor authorId={post?.author?._id} currentPostId={post._id} />
                 </Suspense>
               </div>
-
-              <aside className="lg:block relative">
-                <div className="lg:sticky lg:top-10">
-                  <Recommendations />
-                </div>
-              </aside>
             </main>
 
             <footer className="w-full mt-12 pt-8">

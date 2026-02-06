@@ -1,14 +1,16 @@
 "use client";
 
-import Sidebar, { useSidebar } from "./ui/sidebar";
-import MenuButton from "./MenuButton";
-import Link from "next/link";
-import { useSession } from "next-auth/react";
 import {
   categoriesWithIcons,
   trendingArticles,
   webDevArticles,
 } from "@/constants";
+import { disablePageScroll, enablePageScroll } from "@fluejs/noscroll";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect } from "react";
+import { FaPencilAlt } from "react-icons/fa";
 import {
   FaFacebook,
   FaInstagram,
@@ -16,21 +18,26 @@ import {
   FaTwitter,
   FaUser,
 } from "react-icons/fa6";
-import { FaPencilAlt } from "react-icons/fa";
+import JoinUsbtn from "./JoinUsbtn";
+import MenuButton from "./MenuButton";
 import {
   AccordionSection,
-  CategoryItem,
   ArticleRecommendation,
+  CategoryItem,
 } from "./SidebarComponents";
 import NavLink from "./ui/nav-link";
-import { disablePageScroll, enablePageScroll } from "@fluejs/noscroll";
-import { useEffect } from "react";
-import Image from "next/image";
-import JoinUsbtn from "./JoinUsbtn";
+import Sidebar, { useSidebar } from "./ui/sidebar";
 
 const AppSidebar = () => {
   const { isOpen, toggle } = useSidebar();
   const { data: session } = useSession();
+
+  // Function to close sidebar when navigation occurs
+  const handleNavigationClick = () => {
+    if (isOpen) {
+      toggle();
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -57,11 +64,11 @@ const AppSidebar = () => {
                 className="w-10 h-10"
               />
               <span className="dark:text-white sm:text-3xl poppins-extrabold-italic text-black ">
-                Syron
+                InfraInk
               </span>
             </div>
             <span className="text-xs ml-5 font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-pink-500">
-              Show your intrest to write
+              Share your insights and expertise
             </span>
           </div>
         </div>
@@ -71,7 +78,7 @@ const AppSidebar = () => {
             <div className=" text-sm p-4 capitalize font-medium">Social</div>
             <div className="flex space-y-5 p-4 flex-col">
               <a
-                href="https://twitter.com/medium"
+                href="https://twitter.com/infraink"
                 aria-label="Twitter"
                 className="flex gap-x-2 items-center hover:text-blue-500"
               >
@@ -79,7 +86,7 @@ const AppSidebar = () => {
                 <div className=" text-xs  capitalize font-medium">Twitter</div>
               </a>
               <a
-                href="https://facebook.com/medium"
+                href="https://facebook.com/infraink"
                 aria-label="Facebook"
                 className="flex gap-x-2 items-center hover:text-blue-900"
               >
@@ -87,7 +94,7 @@ const AppSidebar = () => {
                 <div className=" text-xs capitalize font-medium">Facebook</div>
               </a>
               <a
-                href="https://instagram.com/medium"
+                href="https://instagram.com/infraink"
                 aria-label="Instagram"
                 className="flex gap-x-2 items-center hover:text-pink-500"
               >
@@ -97,7 +104,7 @@ const AppSidebar = () => {
                 </div>
               </a>
               <a
-                href="https://instagram.com/medium"
+                href="https://instagram.com/infraink"
                 aria-label="Instagram"
                 className="flex gap-x-2 items-center"
               >
@@ -116,6 +123,7 @@ const AppSidebar = () => {
                     href={`/article/write`}
                     key={"Write Article"}
                     className="flex items-center gap-3 px-3 py-2 rounded-md transition lg:hidden mb-1"
+                    onClick={handleNavigationClick}
                   >
                     <FaPencilAlt className="text-sm" />
                     <span className="text-sm font-medium  capitalize">
@@ -128,6 +136,7 @@ const AppSidebar = () => {
                     href={`/profile/${session?.id}`}
                     key={"My Profile"}
                     className="flex items-center gap-3 px-3 py-2 rounded-md  transition"
+                    onClick={handleNavigationClick}
                   >
                     <FaUser className=" text-sm" />
                     <span className="text-sm font-medium  capitalize">
@@ -149,6 +158,7 @@ const AppSidebar = () => {
                     iconSrc={article.mainImage}
                     href={article.href}
                     showImage={false}
+                    onClick={handleNavigationClick}
                   />
                 ))}
               </div>
@@ -158,9 +168,15 @@ const AppSidebar = () => {
                   Recently Viewed Topics
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  <NavLink variant="orange" title="Web Development" />
-                  <NavLink variant="violet" title="Machine Learning" />
-                  <NavLink variant="red" title="Operating System" />
+                  <div onClick={handleNavigationClick}>
+                    <NavLink variant="orange" title="Web Development" />
+                  </div>
+                  <div onClick={handleNavigationClick}>
+                    <NavLink variant="violet" title="Machine Learning" />
+                  </div>
+                  <div onClick={handleNavigationClick}>
+                    <NavLink variant="red" title="Operating System" />
+                  </div>
                 </div>
               </div>
             </AccordionSection>
@@ -174,6 +190,7 @@ const AppSidebar = () => {
                     href={category.href}
                     icon={category.icon}
                     description={`Browse ${category.title.toLowerCase()} content`}
+                    onClick={handleNavigationClick}
                   />
                 ))}
               </div>
@@ -189,6 +206,7 @@ const AppSidebar = () => {
                     iconSrc={article.mainImage}
                     href={article.href}
                     showImage={false}
+                    onClick={handleNavigationClick}
                   />
                 ))}
               </div>
@@ -198,9 +216,15 @@ const AppSidebar = () => {
                   Popular Searches
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  <NavLink variant="green" title="Life Style" />
-                  <NavLink variant="pink" title="Robotics" />
-                  <NavLink variant="blue" title="Deep Learning" />
+                  <div onClick={handleNavigationClick}>
+                    <NavLink variant="green" title="Life Style" />
+                  </div>
+                  <div onClick={handleNavigationClick}>
+                    <NavLink variant="pink" title="Robotics" />
+                  </div>
+                  <div onClick={handleNavigationClick}>
+                    <NavLink variant="blue" title="Deep Learning" />
+                  </div>
                 </div>
               </div>
             </AccordionSection>

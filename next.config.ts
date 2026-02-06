@@ -1,4 +1,4 @@
-import {withSentryConfig} from "@sentry/nextjs";
+import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -32,7 +32,7 @@ export default withSentryConfig(withSentryConfig(nextConfig, {
 // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
 org: "sm-techs",
-project: "medium-clone",
+project: "infraink",
 
 // Only print logs for uploading source maps in CI
 silent: !process.env.CI,
@@ -62,7 +62,7 @@ automaticVercelMonitors: true,
 // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
 org: "sm-techs",
-project: "medium-clone",
+project: "infraink",
 
 // Only print logs for uploading source maps in CI
 silent: !process.env.CI,
