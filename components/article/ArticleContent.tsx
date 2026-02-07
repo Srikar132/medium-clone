@@ -28,57 +28,60 @@ const ArticleContent = async ({ post }: { post: CustomPost }) => {
 
     return (
       <div className="w-full  relative">
-        <div className="container flex flex-col mx-auto  w-full ">
-          <article className="w-full h-auto pb-16  space-y-6 mt-3">
+        <div className="container flex flex-col mx-auto w-full">
+          <article className="w-full h-auto pb-16 space-y-6 mt-3">
             <header className="w-full space-y-4">
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight">
-                {post?.title}
-              </h1>
+              <div className="mx-auto w-full max-w-5xl space-y-4">
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight">
+                  {post?.title}
+                </h1>
 
-              <div className=" py-3 flex items-center justify-between ">
-                <Link
-                  href={`/profile/${post?.author?._id}`}
-                  className="flex items-center gap-3 group hover:opacity-90 transition-opacity"
-                >
-                  <div className="relative h-7 w-7 sm:h-10 sm:w-10 rounded-full overflow-hidden ring-2 ring-gray-100 dark:ring-gray-800">
-                    <Image
-                      className="object-cover"
-                      fill
-                      src={post?.author?.image || '/default-avatar.jpg'}
-                      alt={post?.author?.name || 'Author'}
+                <div className="py-3 flex items-center justify-between">
+                  <Link
+                    href={`/profile/${post?.author?._id}`}
+                    className="flex items-center gap-3 group hover:opacity-90 transition-opacity"
+                  >
+                    <div className="relative h-7 w-7 sm:h-10 sm:w-10 rounded-full overflow-hidden ring-2 ring-gray-100 dark:ring-gray-800">
+                      <Image
+                        className="object-cover"
+                        fill
+                        src={post?.author?.image || '/default-avatar.jpg'}
+                        alt={post?.author?.name || 'Author'}
+                      />
+                    </div>
+                    <span className="text-sm font-medium">{post?.author?.name}</span>
+                  </Link>
+
+                  <div className="flex items-center gap-4">
+                    <LikeButton
+                      postId={post?._id}
+                      initialLikeCount={post.likeCount!}
+                      initialIsLiked={post.isLiked!}
                     />
-
+                    <BookmarkButton postId={post?._id} initialBookmarked={post.isBookmarked!} />
                   </div>
-                  <span className="text-sm font-medium">{post?.author?.name}</span>
-                </Link>
-
-                <div className="flex items-center gap-4">
-                  <LikeButton
-                    postId={post?._id}
-                    initialLikeCount={post.likeCount!}
-                    initialIsLiked={post.isLiked!}
-                  />
-                  <BookmarkButton postId={post?._id} initialBookmarked={post.isBookmarked!} />
                 </div>
               </div>
 
-              {post?.mainImage && (
-                <div className="mx-auto max-w-7xl w-full aspect-[16/9] relative rounded-lg overflow-hidden shadow-lg">
-                  <Image
-                    src={urlFor(post.mainImage).url() as string}
-                    fill
-                    priority
-                    quality={100}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
-                    alt={post.title || 'Article cover'}
-                    className="object-cover"
-                  />
-                </div>
-              )}
+              <div className="mx-auto w-full max-w-5xl">
+                {post?.mainImage && (
+                  <div className="w-full aspect-[16/9] relative rounded-lg overflow-hidden shadow-lg">
+                    <Image
+                      src={urlFor(post.mainImage).url() as string}
+                      fill
+                      priority
+                      quality={100}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+                      alt={post.title || 'Article cover'}
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+              </div>
             </header>
 
             <main className="w-full mt-10 pb-20">
-              <div className="max-w-7xl mx-auto gap-y-5 min-h-screen space-y-10">
+              <div className="max-w-5xl mx-auto gap-y-5 min-h-screen space-y-10">
                 <div className="bg-white dark:bg-secondary-dark rounded-lg w-full h-auto p-3 sm:p-5 md:p-7">
                   <div className="mt-6">
                     <p className="text-lg md:text-xl font-medium leading-relaxed text-gray-800 dark:text-gray-200">
