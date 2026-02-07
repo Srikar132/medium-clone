@@ -15,7 +15,7 @@
   "overrides": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "^15.3.1-canary.2"
+    "next": "^16.2.0-canary.30"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
@@ -46,7 +46,7 @@
     "gsap": "^3.12.7",
     "lucide-react": "^0.487.0",
     "markdown-it": "^14.1.0",
-    "next": "^15.3.1-canary.2",
+    "next": "^16.2.0-canary.30",
     "next-auth": "^5.0.0-beta.25",
     "next-sanity": "^9.8.58-canary.0",
     "next-themes": "^0.4.6",

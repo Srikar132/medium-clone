@@ -4,8 +4,6 @@ import { getArticleData } from '@/sanity/lib/fetches';
 import { SanityError } from '@/types/sanity';
 import { notFound } from 'next/navigation';
 
-export const experimental_ppr = true;
-
 const ArticlePage = async ({ params }: { params: Promise<{ slug: string }> }) => {
   try {
     const slug = (await params)?.slug;

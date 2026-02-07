@@ -14,7 +14,6 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 export const ARTICLES_PER_PAGE = 5;
-export const experimental_ppr = true;
 export default async function HomePage({
   searchParams,
 }: {

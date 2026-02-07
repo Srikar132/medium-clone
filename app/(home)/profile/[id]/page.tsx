@@ -1,15 +1,13 @@
-import Recommendations from "@/components/Recommandations";
-import { Skeleton } from "@/components/ui/skeleton";
-import ProfileHeader from "@/components/profile/profile-header";
 import { auth } from "@/auth";
-import { Suspense } from "react";
+import LogoutButton from "@/components/LogoutBtn";
+import MyFollows from "@/components/profile/follower-following";
+import MyPreferences from "@/components/profile/liked-bookmarked";
 import MainProfile from "@/components/profile/main-profile";
 import MyArticles from "@/components/profile/my-articles";
-import MyPreferences from "@/components/profile/liked-bookmarked";
-import MyFollows from "@/components/profile/follower-following";
-import LogoutButton from "@/components/LogoutBtn";
-
-export const experimental_ppr = true;
+import ProfileHeader from "@/components/profile/profile-header";
+import Recommendations from "@/components/Recommandations";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Suspense } from "react";
 
 const AuthorProfilePage = async ({
   params,

@@ -12,7 +12,6 @@ export const writeClient = createClient({
   apiVersion,
   useCdn: false,
   token,
-  withCredentials: true,
   perspective: 'published',
 });
 
