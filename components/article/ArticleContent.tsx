@@ -55,21 +55,21 @@ const ArticleContent = async ({ post }: { post: CustomPost }) => {
                 <div className="flex items-center gap-4">
                   <LikeButton
                     postId={post?._id}
-                    initialLikeCount={post?.likeCount!}
-                    initialIsLiked={post?.isLiked!}
+                    initialLikeCount={post.likeCount!}
+                    initialIsLiked={post.isLiked!}
                   />
-                  <BookmarkButton postId={post?._id} initialBookmarked={post?.isBookmarked!} />
+                  <BookmarkButton postId={post?._id} initialBookmarked={post.isBookmarked!} />
                 </div>
               </div>
 
               {post?.mainImage && (
-                <div className="w-full h-84 sm:h-80 md:h-186 relative rounded-lg overflow-hidden">
+                <div className="mx-auto max-w-7xl w-full aspect-[16/9] relative rounded-lg overflow-hidden shadow-lg">
                   <Image
                     src={urlFor(post.mainImage).url() as string}
                     fill
                     priority
                     quality={100}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 50vw"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
                     alt={post.title || 'Article cover'}
                     className="object-cover"
                   />
@@ -186,6 +186,7 @@ const ArticleContent = async ({ post }: { post: CustomPost }) => {
       </div>
     );
   } catch (error: any) {
+    console.log("error", error);
     return <ErrorCard />;
   }
 };

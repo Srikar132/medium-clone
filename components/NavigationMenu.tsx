@@ -1,117 +1,97 @@
 "use client";
 
 import * as React from "react";
+import { useEffect, useState } from "react";
 
-import { cn } from "@/lib/utils";
 import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
+    NavigationMenu,
+    NavigationMenuContent,
+    NavigationMenuItem,
+    NavigationMenuLink,
+    NavigationMenuList,
+    NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
-import Ping from "./Ping";
-import NavLink from "./ui/nav-link";
+import { cn } from "@/lib/utils";
+import { client } from "@/sanity/lib/client";
 
-import { categoriesWithIcons, trendingArticles, webDevArticles } from "@/constants";
-import { ArticleRecommendation } from "./SidebarComponents";
-
+// Real categories interface
+interface RealCategory {
+  _id: string;
+  title: string;
+  slug: {
+    current: string;
+  };
+  description?: string;
+  postCount?: number;
+}
 
 export default function NavigationMenu_() {
+  const [categories, setCategories] = useState<RealCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const query = `*[_type == "category"] | order(_createdAt desc) [0...8] {
+          _id,
+          title,
+          slug,
+          description,
+          "postCount": count(*[_type == "post" && references(^._id)])
+        }`;
+
+        const data = await client.fetch(query);
+        setCategories(data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   return (
-    <NavigationMenu className="max-lg:hidden">
+    <NavigationMenu className="max-lg:hidden h-14 ">
       <NavigationMenuList>
         <NavigationMenuItem>
-          <NavigationMenuTrigger className="bg-accent shadow-lg">Trending Articles</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <div className="w-5xl p-5 min-h-64">
-              <div className="w-full h-auto flex flex-col space-y-5">
-                <h1 className="font-meduim text-sm flex items-center gap-2">
-                  {" "}
-                  <Ping /> Trending{" "}
-                </h1>
-                <ul className="grid w-full gap-3 md:grid-cols-1 lg:grid-cols-3 p-4 ">
-                  {trendingArticles.map((post, i) => (
-                    <ArticleRecommendation
-                      key={i}
-                      title={post.title}
-                      date={post.publishedDate}
-                      iconSrc={post.mainImage}
-                      href={post.href}
-                    />
-                  ))}
-                </ul>
-
-                <div className=" flex items-center gap-x-5 flex-wrap mt-10">
-                  <span className="text-sm capitalized text-secondary-dark dark:text-gray-100/50  tracking-wider ">
-                    Recently Viewed Topics
-                  </span>
-                  <NavLink variant="orange" title="Web Development" />
-                  <NavLink variant="violet" title="Machine Learning" />
-                  <NavLink variant="red" title="Operating System" />
-                </div>
-              </div>
-            </div>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>Categories</NavigationMenuTrigger>
+          <NavigationMenuTrigger className='font-semibold'>Categories</NavigationMenuTrigger>
           <NavigationMenuContent>
             <div className="w-5xl p-5">
               <h2 className="text-2xl font-bold mb-6 px-4 text-center md:text-left">
-                Popular Categories
+                Browse Categories
                 <div className="mt-2 h-1 w-20 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full"></div>
               </h2>
-
-              <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-                {categoriesWithIcons.map((category) => (
-                  <ListItem
-                    key={category.title}
-                    title={category.title}
-                    href={category.href}
-                    icon={category.icon}
-                    className="h-full"
-                  >
-                    Browse {category.title.toLowerCase()} content
-                  </ListItem>
-                ))}
-              </ul>
+              {loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg h-16"></div>
+                  ))}
+                </div>
+              ) : (
+                <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                  {categories.map((category) => (
+                    <ListItem
+                      key={category._id}
+                      title={category.title}
+                      href={`/category/${category.slug.current}`}
+                      className="h-full"
+                      postCount={category.postCount}
+                    >
+                      {category.description || `Discover articles about ${category.title.toLowerCase()}`}
+                    </ListItem>
+                  ))}
+                </ul>
+              )}
             </div>
           </NavigationMenuContent>
         </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>Web Development</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <div className="w-5xl p-5 min-h-64">
-              <div className="w-full h-auto flex flex-col space-y-5">
-                <h1 className="font-meduim text-sm flex items-center gap-2">
-                  {" "}
-                  <Ping /> Web Development{" "}
-                </h1>
-                <ul className="grid w-full gap-3 md:grid-cols-1 lg:grid-cols-3 p-4 ">
-                  {webDevArticles.map((post, i) => (
-                    <ArticleRecommendation
-                      key={i}
-                      title={post.title}
-                      date={post.publishedDate}
-                      iconSrc={post.mainImage}
-                      href={post.href}
-                    />
-                  ))}
-                </ul>
 
-                <div className=" flex items-center gap-x-5 flex-wrap mt-10">
-                  <span className="text-sm capitalized text-secondary-dark dark:text-gray-100/50 tracking-wider ">
-                    Popular Searches
-                  </span>
-                  <NavLink variant="green" title="Life Style" />
-                  <NavLink variant="pink" title="Robotics" />
-                  <NavLink variant="blue" title="Deep Learning" />
-                </div>
-              </div>
-            </div>
-          </NavigationMenuContent>
+        <NavigationMenuItem>
+          <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
+            <a href="/home" className='font-semibold'>All Posts</a>
+          </NavigationMenuLink>
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
@@ -120,8 +100,11 @@ export default function NavigationMenu_() {
 
 const ListItem = React.forwardRef<
   React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a"> & { icon?: React.ReactNode }
->(({ className, title, children, icon, ...props }, ref) => {
+  React.ComponentPropsWithoutRef<"a"> & {
+    icon?: React.ReactNode;
+    postCount?: number;
+  }
+>(({ className, title, children, icon, postCount, ...props }, ref) => {
   return (
     <li className="w-full">
       <NavigationMenuLink asChild>
@@ -141,7 +124,7 @@ const ListItem = React.forwardRef<
           <div className="flex items-center gap-3 relative z-10">
             {icon && <div className="text-pink-500 text-lg">{icon}</div>}
             <div className="flex-1">
-              <div className="text-base  font-semibold mb-1 flex items-center gap-2">
+              <div className="text-base font-semibold mb-1 flex items-center gap-2">
                 <div className="group-hover:underline">{title}</div>
                 <span className="transform translate-x-0 opacity-0 group-hover:translate-x-1 group-hover:opacity-100 transition-all underline-offset-0 duration-300 text-pink-500">
                   →
@@ -150,6 +133,11 @@ const ListItem = React.forwardRef<
               <p className="line-clamp-2 text-sm leading-snug text-gray-500 dark:text-gray-400">
                 {children}
               </p>
+              {postCount !== undefined && (
+                <p className="text-xs text-pink-500 mt-1 font-medium">
+                  {postCount} posts
+                </p>
+              )}
             </div>
           </div>
         </a>

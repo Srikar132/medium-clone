@@ -340,8 +340,18 @@ export async function addComment(formData: FormData) {
       parentCommentId: parentCommentId || undefined
     });
 
-    // Revalidate the path to refresh the comments
-    revalidatePath(`/posts/${postId}`);
+    // Get the post slug for proper revalidation
+    const post = await client.fetch(
+      `*[_type == "post" && _id == $postId][0].slug.current`,
+      { postId }
+    );
+
+    // Revalidate multiple paths to ensure comments appear immediately
+    if (post) {
+      revalidatePath(`/article/${post}`);
+    }
+    revalidatePath("/home");
+    revalidatePath("/");
 
     return {
       success: true,

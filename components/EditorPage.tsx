@@ -19,7 +19,9 @@ import { formSchema } from "@/lib/validations";
 import { fetchCategories, fetchPostById } from "@/sanity/lib/fetches";
 import { urlFor } from "@/sanity/lib/image";
 import { Category } from "@/sanity/types";
+import "@uiw/react-markdown-preview/markdown.css";
 import MDEditor from "@uiw/react-md-editor";
+import "@uiw/react-md-editor/markdown-editor.css";
 import {
   FileImage,
   Loader2,
@@ -370,15 +372,22 @@ const BlogPostForm = ({ postId }: { postId?: string }) => {
         {/* Content field */}
         <div>
           <label className="block text-sm font-medium mb-2">Content</label>
-          <div data-color-mode="auto" className="max-w-full">
+          <div data-color-mode="auto" className="w-full">
             <MDEditor
               value={content}
               onChange={(value) => setContent(value || "")}
-              preview="edit"
-              height={350}
-              className="rounded-md overflow-hidden w-full"
+              preview="live"
+              visibleDragBar={false}
+              height={400}
+              data-color-mode="auto"
               textareaProps={{
-                placeholder: "Write your post content here...",
+                placeholder: "Write your post content here using Markdown...\n\nTip: You can paste formatted text and it will be converted to markdown!",
+                style: {
+                  fontSize: '14px',
+                  lineHeight: '1.6',
+                  fontFamily: 'inherit',
+                },
+                spellCheck: false,
               }}
             />
             {errors.content && (

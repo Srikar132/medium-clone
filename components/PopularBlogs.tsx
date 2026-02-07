@@ -1,15 +1,14 @@
-import NavLink, { ColorVariant, colors } from "./ui/nav-link";
-import React from "react";
-import Ping from "./Ping";
-import Image from "next/image";
-import Link from "next/link";
-import { ALL_FEATURED_ARTICLES } from "@/sanity/lib/queries";
 import { client } from "@/sanity/lib/client";
-import { CustomPost } from "./article/ArticleCard";
 import { urlFor } from "@/sanity/lib/image";
-import { Skeleton } from "./ui/skeleton";
+import { ALL_FEATURED_ARTICLES } from "@/sanity/lib/queries";
 import { Category } from "@/sanity/types";
 import { format } from "date-fns";
+import Image from "next/image";
+import Link from "next/link";
+import { CustomPost } from "./article/ArticleCard";
+import Ping from "./Ping";
+import NavLink, { ColorVariant, colors } from "./ui/nav-link";
+import { Skeleton } from "./ui/skeleton";
 
 const PopularBlogs = async () => {
   try {
@@ -55,10 +54,10 @@ const PopularBlogCard = ({
 }) => {
   return (
     <li
-      className={`rounded-lg overflow-hidden transition-all duration-300  md:h-96 h-80 border ${index == 1 ? "flex-2/3 basis-[500px]" : "flex-1/3 basis-[300px]"} `}
+      className={`rounded-lg overflow-hidden transition-all duration-300 md:h-96 h-80 border ${index == 1 ? "flex-2/3 basis-[500px]" : "flex-1/3 basis-[300px]"} `}
     >
-      <div className="w-full h-full">
-        <div className="w-full h-full border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 relative group rounded-lg  transition-all duration-300 flex">
+      <Link href={`/article/${post?.slug?.current}`} className="block w-full h-full">
+        <div className="w-full h-full border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 relative group rounded-lg transition-all duration-300 flex cursor-pointer">
           <DateCard date={post.publishedAt!} />
 
           <div className="absolute inset-0 overflow-hidden rounded-lg">
@@ -68,35 +67,30 @@ const PopularBlogCard = ({
               alt={`${post.title}`}
               height={500}
               width={500}
-              className="w-full h-full object-cover object-center transition-transform duration-1000"
+              className="w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-105"
             />
           </div>
 
-          <div className="justify-end flex flex-col  py-1.5 px-3 rounded-t-md z-10 space-y-3 translate-y-10 group-hover:-translate-y-10 transition-all duration-300 ease-linear">
+          <div className="justify-end flex flex-col py-1.5 px-3 rounded-t-md z-20 space-y-3 translate-y-10 group-hover:-translate-y-10 transition-all duration-300 ease-linear">
             {post.categories
               ?.slice(0, 1)
               .map((category: Category, i: number) => (
-                <NavLink
-                  key={i}
-                  className="w-fit text-white/70!"
-                  variant={colors[index] as ColorVariant}
-                  title={category.title!}
-                  showUnderline={false}
-                />
+                <div key={i} className="w-fit">
+                  <NavLink
+                    className="text-white/70 pointer-events-none"
+                    variant={colors[index] as ColorVariant}
+                    title={category.title!}
+                    showUnderline={false}
+                  />
+                </div>
               ))}
 
-            <Link
-              href={`/article/${post?.slug?.current}`}
-              className="relative  text-white font-bold  "
-            >
+            <div className="relative text-white font-bold">
               <span className="line-clamp-2">{post?.title}</span>
-            </Link>
+            </div>
 
-            <Link
-              href={`/profile/${post?.author?._id}`}
-              className="flex items-center gap-3 group hover:opacity-90 transition-opacity mt-5"
-            >
-              <div className="relative h-5 w-5 rounded-full overflow-hidden  ">
+            <div className="flex items-center gap-3 mt-5">
+              <div className="relative h-5 w-5 rounded-full overflow-hidden">
                 <Image
                   className="object-cover"
                   fill
@@ -107,10 +101,10 @@ const PopularBlogCard = ({
               <span className="text-sm text-white/50 font-medium">
                 {post?.author?.name}
               </span>
-            </Link>
+            </div>
           </div>
         </div>
-      </div>
+      </Link>
     </li>
   );
 };

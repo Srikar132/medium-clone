@@ -1,12 +1,11 @@
-import Image from "next/image";
-import React from "react";
-import NavLink from "../ui/nav-link";
-import { GrLike } from "react-icons/gr";
-import { BsEye } from "react-icons/bs";
-import { Author, Category, Post } from "@/sanity/types";
 import { urlFor } from "@/sanity/lib/image";
+import { Author, Category, Post } from "@/sanity/types";
 import { SanityImageSource } from "@sanity/image-url/lib/types/types";
+import Image from "next/image";
 import Link from "next/link";
+import { BsEye } from "react-icons/bs";
+import { GrLike } from "react-icons/gr";
+import NavLink from "../ui/nav-link";
 
 export type CustomPost = Omit<Post, "author" | "mainImage" | "categories"> & {
   author: Author;
@@ -30,31 +29,32 @@ export const borderColors = [
 ];
 
 export default function ArticleCard({ post , i = 3 }: { post: CustomPost, i ?: number }) {
+  // Ensure we have a valid post object and required properties
+  if (!post || !post.slug?.current) {
+    return null; // or return a skeleton/placeholder
+  }
+
   return (
-    <div className={`flex flex-col rounded-lg overflow-hidden shadow-lg bg-white dark:bg-[#272C31] text-gray-800 dark:text-white border-l-4 ${borderColors[i]}`}>
+    <Link
+      href={`/article/${post.slug.current}`}
+      className={`block flex flex-col rounded-lg overflow-hidden shadow-lg bg-white dark:bg-[#272C31] text-gray-800 dark:text-white border-l-4 ${borderColors[i % borderColors.length]}`}
+    >
       <div className="flex flex-col h-full">
         <div className="w-full py-2 px-4 md:px-6 md:py-3 flex flex-col lg:flex-row gap-4">
           <div className="w-full lg:w-36 lg:h-36 lg:flex-shrink-0">
-            <Link
-              href={`/article/${post.slug?.current}`}
-              className="block w-full h-full"
-            >
-              <Image
-                width={200}
-                height={200}
-                src={urlFor(post.mainImage).url() || "/default-avatar.jpg"}
-                alt={post.title || "Article thumbnail"}
-                className="w-full h-32 lg:h-full object-cover rounded-xl"
-              />
-            </Link>
+            <Image
+              width={200}
+              height={200}
+              src={urlFor(post.mainImage).url() || "/default-avatar.jpg"}
+              alt={post.title || "Article thumbnail"}
+              className="w-full h-32 lg:h-full object-cover rounded-xl"
+            />
           </div>
 
           <div className="flex-1 flex flex-col justify-center">
-            <Link href={`/article/${post.slug?.current}`} className="block hover:underline transition-colors">
-              <h2 className="text-xl font-semibold mb-2">
-                {post?.title || "Untitled Article"}
-              </h2>
-            </Link>
+            <h2 className="text-xl font-semibold mb-2 hover:underline transition-colors">
+              {post?.title || "Untitled Article"}
+            </h2>
 
             <div className="flex items-center mb-3 text-sm">
               <span className="text-gray-600 dark:text-gray-400">
@@ -76,9 +76,9 @@ export default function ArticleCard({ post , i = 3 }: { post: CustomPost, i ?: n
           <div className="flex flex-wrap gap-2">
             {post.categories?.map((category: Category, index: number) => (
               <NavLink
-                key={index}
+                key={category._id || index}
                 variant={"yellow"}
-                title={category.title!}
+                title={category.title || "Category"}
                 showUnderline={false}
               />
             ))}
@@ -87,15 +87,15 @@ export default function ArticleCard({ post , i = 3 }: { post: CustomPost, i ?: n
           <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 gap-4">
             <span className="flex items-center gap-2">
               <BsEye className="text-lg" />
-              <span>{post?.views} Views</span>
+              <span>{post?.views ?? 0} Views</span>
             </span>
             <span className="flex items-center gap-2">
               <GrLike className="text-lg" />
-              <span>{post?.likeCount } Likes</span>
+              <span>{post?.likeCount ?? 0} Likes</span>
             </span>
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
